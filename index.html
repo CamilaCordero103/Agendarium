@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon con Emoji de Nube ☁️ -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+    <title>Agendarium</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <button id="btn-modo" class="btn-modo">🌙 Modo Gris</button>
+
+    <!-- CONTENEDOR PRINCIPAL DASHBOARD -->
+    <div class="app-layout">
+        
+        <!-- PANEL LATERAL IZQUIERDO -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">☁️</span>
+                <h3>¡Hola tú!</h3>
+            </div>
+
+            <nav class="pestanas">
+                <button class="btn-pestana activa" data-destino="inicio">☀️ Hoy</button>
+                <button class="btn-pestana" data-destino="semanal">📅 Semana</button>
+                <button class="btn-pestana" data-destino="calendario">🗓️ Mes</button>
+                <button class="btn-pestana" data-destino="anual">🎯 Año</button>
+                <button class="btn-pestana" data-destino="tareas">☑️ Tareas</button>
+                <button class="btn-pestana" data-destino="habitos">🐸 Hábitos</button>
+                <button class="btn-pestana" data-destino="notas">📌 Notas</button>
+            </nav>
+        </aside>
+
+        <!-- ÁREA DE CONTENIDO -->
+        <main class="paginas">
+            
+            <!-- Vista 1: Hoy -->
+            <section id="inicio" class="pagina activa">
+                <div class="encabezado-hoy">
+                    <div class="cabecera-hoy-flex">
+                        <h2>☀️ Vista Hoy</h2>
+                        <span id="hoy-fase-lunar" class="badge-fase-lunar">🌕 Cargar Luna...</span>
+                    </div>
+                    <div class="caja-frase">
+                        <p id="frase-motivacional" class="frase-motivacional"></p>
+                    </div>
+                </div>
+
+                <div class="flex-hoy-contenedor">
+                    <!-- Fila Superior -->
+                    <div class="fila-cuadros-superiores">
+                        <!-- Card Ánimo -->
+                        <div class="tarjeta-hoy">
+                            <h3>💭 Ánimo de Hoy</h3>
+                            <div class="selector-animo hoy-animo">
+                                <button type="button" class="btn-animo-hoy" data-animo="😄">😄</button>
+                                <button type="button" class="btn-animo-hoy" data-animo="🙂">🙂</button>
+                                <button type="button" class="btn-animo-hoy" data-animo="😐">😐</button>
+                                <button type="button" class="btn-animo-hoy" data-animo="😔">😔</button>
+                                <button type="button" class="btn-animo-hoy" data-animo="😡">😡</button>
+                            </div>
+                            
+                            <div class="caja-medidor-animo">
+                                <label>📊 Medidor del Mes:</label>
+                                <div class="pista-medidor">
+                                    <div id="marcador-animo-mes" class="marcador-animo" style="left: 50%;">📍</div>
+                                </div>
+                                <div class="leyenda-medidor">
+                                    <span>😔 Bajas</span>
+                                    <span id="texto-porcentaje-animo">50% Positivo</span>
+                                    <span>😄 Altas</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Eventos Hoy -->
+                        <div class="tarjeta-hoy">
+                            <h3>🎉 Eventos de Hoy</h3>
+                            <div class="input-evento-wrapper">
+                                <select id="select-tipo-evento-hoy" class="select-estetico"></select>
+                                <input type="text" id="input-evento-hoy" class="input-estetico" placeholder="Nuevo evento...">
+                                <button type="button" id="btn-add-evento-hoy" class="btn-accion-icono">+</button>
+                            </div>
+                            <ul id="mini-eventos-hoy" class="mini-lista-hoy interactiva"></ul>
+                        </div>
+
+                        <!-- Card Tareas Hoy -->
+                        <div class="tarjeta-hoy">
+                            <h3>☑️ Tareas de Hoy</h3>
+                            <div class="mini-form-inline">
+                                <input type="text" id="input-tarea-hoy" placeholder="Nueva tarea para hoy...">
+                                <button type="button" id="btn-add-tarea-hoy" class="btn-accion-icono">+</button>
+                            </div>
+                            <ul id="mini-tareas-hoy" class="mini-lista-hoy interactiva"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Fila Hábitos Hoy -->
+                    <div class="tarjeta-hoy tarjeta-rectangulo-medio">
+                        <div class="cabecera-habitos-hoy">
+                            <h3>🐸 Rastreador de Hábitos del Día</h3>
+                            <span id="progreso-habitos-texto" class="badge-progreso">0/0 completados</span>
+                        </div>
+                        
+                        <div class="layout-habitos-hoy-split">
+                            <div class="col-habitos-hoy-lista">
+                                <div class="mini-form-inline">
+                                    <input type="text" id="input-nuevo-habito" placeholder="Crear nuevo hábito (ej: Beber 2L de agua a diario)...">
+                                    <button type="button" id="btn-crear-habito" class="btn-estetico-principal">+ Crear</button>
+                                </div>
+                                <div class="selector-dias-habito" id="dias-habito-hoy-checkboxes">
+                                    <span class="label-dias-habito">Días:</span>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="1" checked> L</label>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="2" checked> M</label>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="3" checked> X</label>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="4" checked> J</label>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="5" checked> V</label>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="6" checked> S</label>
+                                    <label class="check-dia"><input type="checkbox" class="chk-dia-hoy" value="0" checked> D</label>
+                                </div>
+                                <div id="contenedor-habitos-hoy" class="grid-habitos-hoy" style="margin-top: 10px;"></div>
+                            </div>
+
+                            <div class="col-habitos-hoy-pixel">
+                                <span class="titulo-mini-pixel">🎨 Recompensa</span>
+                                <div id="contenedor-pixel-canvas-hoy" class="grid-pixel-art mini"></div>
+                                <span id="texto-progreso-pixel-hoy" class="texto-progreso-habito-mini">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila Diario y Comidas -->
+                    <div class="tarjeta-hoy tarjeta-rectangulo-grande">
+                        <h3>📖 Resumen y Diario Personal</h3>
+                        <textarea id="hoy-resumen" class="auto-expand textarea-grande-hoy" placeholder="Escribe aquí tu diario o resumen del día..."></textarea>
+
+                        <h3 style="margin-top: 14px;">🍽️ Registro de Comidas</h3>
+                        <div class="grid-comidas-cuatro">
+                            <input type="text" id="hoy-desayuno" class="input-estetico" placeholder="☕ Desayuno...">
+                            <input type="text" id="hoy-almuerzo" class="input-estetico" placeholder="🥗 Almuerzo...">
+                            <input type="text" id="hoy-cena" class="input-estetico" placeholder="🍲 Cena...">
+                            <input type="text" id="hoy-snacks" class="input-estetico" placeholder="🍎 Snacks...">
+                        </div>
+                        
+                        <div class="sub-campos-resumen" style="margin-top: 12px;">
+                            <div class="campo-mitad">
+                                <label>🧹 Tareas de la Casa:</label>
+                                <input type="text" id="hoy-casa" class="input-estetico" placeholder="Sacar basura, regar plantas...">
+                            </div>
+                            <div class="campo-mitad">
+                                <label>🎨 Hobbies / Pasatiempos:</label>
+                                <input type="text" id="hoy-hobbies" class="input-estetico" placeholder="Hacer ejercicio, pintar...">
+                            </div>
+                        </div>
+
+                        <div class="campo-fotos-hoy" style="margin-top: 12px;">
+                            <label>📸 Capturas / Recuerdos de Hoy:</label>
+                            <input type="file" id="hoy-input-imagen" accept="image/*" multiple style="display: none;">
+                            <button type="button" id="hoy-btn-subir-imagen" class="btn-estetico-secundario">📁 Adjuntar fotos</button>
+                            <div id="hoy-contenedor-galeria" class="contenedor-galeria"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista 2: Semana -->
+            <section id="semanal" class="pagina">
+                <div class="encabezado-semana">
+                    <h2>📅 Vista Semana</h2>
+                    <div class="navegacion-semana">
+                        <button id="btn-semana-ant" class="btn-estetico-secundario">&lt;</button>
+                        <span id="label-rango-semana" class="badge-semana">Cargando semana...</span>
+                        <button id="btn-semana-sig" class="btn-estetico-secundario">&gt;</button>
+                    </div>
+                </div>
+
+                <div class="fila-superiores-semana">
+                    <!-- Enfoque -->
+                    <div class="tarjeta-hoy tarjeta-enfoque-semana">
+                        <div class="cabecera-tarjeta-semana">
+                            <h3>🎯 Enfoque semanal</h3>
+                            <button type="button" id="btn-editar-enfoque-semana" class="btn-editar-semana">✏️ Editar</button>
+                        </div>
+                        <div class="contenedor-reemplazo-organico">
+                            <div id="vista-lectura-enfoque" class="contenido-lectura-semana">
+                                <p id="texto-display-enfoque" class="texto-placeholder-semana">Ninguno</p>
+                            </div>
+                            <div id="vista-edicion-enfoque" class="contenido-edicion-semana oculto">
+                                <textarea id="texto-enfoque-semana" class="auto-expand" placeholder="¿Cuál es tu enfoque principal para esta semana?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prioridades -->
+                    <div class="tarjeta-hoy tarjeta-prioridades-semana">
+                        <div class="cabecera-tarjeta-semana">
+                            <h3>⭐ Prioridades principales</h3>
+                            <button type="button" id="btn-editar-prioridades-semana" class="btn-editar-semana">✏️ Editar</button>
+                        </div>
+                        <div class="contenedor-reemplazo-organico">
+                            <div id="vista-lectura-prioridades" class="contenido-lectura-semana">
+                                <ol id="lista-display-prioridades" class="lista-prioridades-display">
+                                    <li>1. <span class="vacio">...</span></li>
+                                    <li>2. <span class="vacio">...</span></li>
+                                    <li>3. <span class="vacio">...</span></li>
+                                    <li>4. <span class="vacio">...</span></li>
+                                </ol>
+                            </div>
+                            <div id="vista-edicion-prioridades" class="contenido-edicion-semana oculto">
+                                <div class="grid-inputs-prioridades">
+                                    <input type="text" id="prio-semana-1" class="input-estetico" placeholder="1. Prioridad...">
+                                    <input type="text" id="prio-semana-2" class="input-estetico" placeholder="2. Prioridad...">
+                                    <input type="text" id="prio-semana-3" class="input-estetico" placeholder="3. Prioridad...">
+                                    <input type="text" id="prio-semana-4" class="input-estetico" placeholder="4. Prioridad...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="barra-filtros-semana">
+                    <span class="titulo-filtros-semana">Vista semanal</span>
+                    <div class="pills-filtros-semana">
+                        <button type="button" class="btn-filtro-semana activo" data-filtro="todos">🎛️ Todos</button>
+                        <button type="button" class="btn-filtro-semana" data-filtro="tareas">☑️ Tareas</button>
+                        <button type="button" class="btn-filtro-semana" data-filtro="eventos">🎉 Eventos</button>
+                    </div>
+                </div>
+
+                <!-- Parrilla de 7 Días -->
+                <div id="parrilla-semana-dias" class="parrilla-semana-dias"></div>
+            </section>
+
+            <!-- Vista 3: Mes -->
+            <section id="calendario" class="pagina">
+                <div class="encabezado-mes-modulo">
+                    <div class="cabecera-calendario">
+                        <button id="mes-anterior" class="btn-nav-mes">&lt;</button>
+                        <h2 id="titulo-mes">Cargando...</h2>
+                        <button id="mes-siguiente" class="btn-nav-mes">&gt;</button>
+                    </div>
+                </div>
+
+                <div class="dias-semana">
+                    <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div>
+                    <div>Vie</div><div>Sáb</div><div>Dom</div>
+                </div>
+
+                <div id="grilla-calendario" class="grilla-calendario"></div>
+            </section>
+
+            <!-- Vista 4: Año -->
+            <section id="anual" class="pagina">
+                <div class="encabezado-semana">
+                    <h2>🎯 Vista Año</h2>
+                    <div class="navegacion-semana">
+                        <button id="btn-ano-ant" class="btn-estetico-secundario">&lt;</button>
+                        <span id="label-ano-actual" class="badge-semana">2026</span>
+                        <button id="btn-ano-sig" class="btn-estetico-secundario">&gt;</button>
+                    </div>
+                </div>
+
+                <div class="fila-superiores-semana">
+                    <!-- Enfoque -->
+                    <div class="tarjeta-hoy">
+                        <div class="cabecera-tarjeta-semana">
+                            <h3>🎯 Enfoque del Año</h3>
+                            <button type="button" id="btn-editar-enfoque-ano" class="btn-editar-semana">✏️ Editar</button>
+                        </div>
+                        <div class="contenedor-reemplazo-organico">
+                            <div id="vista-lectura-enfoque-ano" class="contenido-lectura-semana">
+                                <p id="texto-display-enfoque-ano" class="texto-placeholder-semana">Ninguno</p>
+                            </div>
+                            <div id="vista-edicion-enfoque-ano" class="contenido-edicion-semana oculto">
+                                <textarea id="texto-enfoque-ano" class="auto-expand" placeholder="¿Cuál es tu gran propósito o frase guía para este año?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metas -->
+                    <div class="tarjeta-hoy">
+                        <div class="cabecera-tarjeta-semana">
+                            <h3>⭐ Top 5 Metas del Año</h3>
+                            <button type="button" id="btn-editar-metas-ano" class="btn-editar-semana">✏️ Editar</button>
+                        </div>
+                        <div class="contenedor-reemplazo-organico">
+                            <div id="vista-lectura-metas-ano" class="contenido-lectura-semana">
+                                <ol id="lista-display-metas-ano" class="lista-prioridades-display">
+                                    <li>1. <span class="vacio">...</span></li>
+                                    <li>2. <span class="vacio">...</span></li>
+                                    <li>3. <span class="vacio">...</span></li>
+                                    <li>4. <span class="vacio">...</span></li>
+                                    <li>5. <span class="vacio">...</span></li>
+                                </ol>
+                            </div>
+                            <div id="vista-edicion-metas-ano" class="contenido-edicion-semana oculto">
+                                <div class="grid-inputs-prioridades">
+                                    <input type="text" id="meta-ano-1" class="input-estetico" placeholder="1. Meta principal...">
+                                    <input type="text" id="meta-ano-2" class="input-estetico" placeholder="2. Meta...">
+                                    <input type="text" id="meta-ano-3" class="input-estetico" placeholder="3. Meta...">
+                                    <input type="text" id="meta-ano-4" class="input-estetico" placeholder="4. Meta...">
+                                    <input type="text" id="meta-ano-5" class="input-estetico" placeholder="5. Meta...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 12 Meses -->
+                <h3 style="margin: 25px 0 12px 0; color: var(--iced-denim); font-size: 14px; font-weight: 800;">🗓️ Vista Previa de los 12 Meses</h3>
+                <div id="grid-12-meses" class="grid-12-meses"></div>
+            </section>
+
+            <!-- Vista 5: Tareas -->
+            <section id="tareas" class="pagina">
+                <h2>Lista de Tareas</h2>
+                
+                <div class="caja-nueva-tarea">
+                    <input type="text" id="input-nueva-tarea" class="input-estetico" placeholder="¿Qué tienes que hacer?">
+                    
+                    <div class="opciones-nueva-tarea">
+                        <select id="select-importancia" class="select-estetico">
+                            <option value="alta">🔴 Alta prioridad</option>
+                            <option value="media" selected>🟡 Media prioridad</option>
+                            <option value="baja">🟢 Baja prioridad</option>
+                        </select>
+
+                        <select id="select-fecha-categoria" class="select-estetico">
+                            <option value="hoy">☀️ Hoy</option>
+                            <option value="manana">🌅 Mañana</option>
+                            <option value="esta_semana">📅 Esta semana</option>
+                            <option value="fin_semana">🍿 Fin de semana</option>
+                            <option value="prox_semana">🗓️ Próxima semana</option>
+                            <option value="proximos">🔮 Próximos</option>
+                            <option value="sin_fecha">📌 Sin fecha</option>
+                        </select>
+
+                        <button id="btn-agregar-tarea" class="btn-estetico-principal">+ Agregar Tarea</button>
+                    </div>
+                </div>
+
+                <div id="contenedor-lista-tareas" class="contenedor-lista-tareas"></div>
+
+                <div class="seccion-completadas">
+                    <button id="btn-toggle-completadas" class="btn-toggle-completadas">
+                        ✔️ Tareas Completadas (<span id="cant-completadas">0</span>) ▾
+                    </button>
+                    <div id="lista-completadas" class="lista-completadas oculto"></div>
+                </div>
+            </section>
+
+            <!-- Vista 6: Hábitos -->
+            <section id="habitos" class="pagina">
+                <div class="cabecera-habitos-modulo">
+                    <h2>🐸 Rastreador de Hábitos Mensual</h2>
+                </div>
+
+                <div class="layout-habitos-vertical">
+                    <!-- Recompensa Pixel Art -->
+                    <div class="tarjeta-pixel-art-top">
+                        <div class="pixel-art-header">
+                            <h3>🎨 Recompensa en Píxeles del Mes</h3>
+                            <button type="button" id="btn-cambiar-pixel-art" class="btn-estetico-secundario">🎲 Cambiar Ilustración</button>
+                        </div>
+                        
+                        <div id="contenedor-pixel-canvas-modulo" class="grid-pixel-art grande"></div>
+                        
+                        <div class="barra-progreso-pixel-wrapper">
+                            <div id="barra-progreso-pixel-modulo" class="barra-progreso-pixel-fill" style="width:0%;"></div>
+                        </div>
+                        <span id="texto-progreso-pixel-modulo" class="texto-progreso-habito">Progreso Mensual: 0%</span>
+                    </div>
+
+                    <!-- FORMULARIO DE AGREGAR HÁBITO CON FRECUENCIA -->
+                    <div class="caja-crear-habito-modulo">
+                        <div class="mini-form-inline">
+                            <input type="text" id="input-habito-modulo" class="input-estetico" placeholder="Nuevo hábito (ej: Meditar, Beber Agua)...">
+                            <button type="button" id="btn-add-habito-modulo" class="btn-estetico-principal">+ Crear Hábito</button>
+                        </div>
+                        <div class="selector-dias-habito" id="dias-habito-modulo-checkboxes">
+                            <span class="label-dias-habito">Frecuencia:</span>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="1" checked> L</label>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="2" checked> M</label>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="3" checked> X</label>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="4" checked> J</label>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="5" checked> V</label>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="6" checked> S</label>
+                            <label class="check-dia"><input type="checkbox" class="chk-dia-modulo" value="0" checked> D</label>
+                        </div>
+                    </div>
+
+                    <!-- Tabla del Mes -->
+                    <div class="col-tabla-habitos">
+                        <div id="tabla-habitos-contenedor" class="tabla-habitos-wrapper"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vista 7: Notas -->
+            <section id="notas" class="pagina">
+                <div class="cabecera-notas">
+                    <h2>Muro de Notas</h2>
+                    <button id="btn-nueva-nota" class="btn-estetico-principal">+ Nueva Nota</button>
+                </div>
+                
+                <div id="contenedor-notas" class="contenedor-notas"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal Emergente del Día -->
+    <div id="modal-dia" class="modal oculto">
+        <div class="contenido-modal papel-organico">
+            <span id="cerrar-modal" class="cerrar">&times;</span>
+            <h3 id="fecha-modal">Detalle del Día</h3>
+            <span id="modal-fase-lunar" class="badge-fase-lunar" style="margin-bottom: 12px; display: inline-flex;"></span>
+            
+            <div class="campo">
+                <label>💭 Ánimo del día:</label>
+                <div class="selector-animo">
+                    <button type="button" class="btn-animo" data-animo="😄">😄</button>
+                    <button type="button" class="btn-animo" data-animo="🙂">🙂</button>
+                    <button type="button" class="btn-animo" data-animo="😐">😐</button>
+                    <button type="button" class="btn-animo" data-animo="😔">😔</button>
+                    <button type="button" class="btn-animo" data-animo="😡">😡</button>
+                </div>
+            </div>
+
+            <div class="campo">
+                <div class="cabecera-campo-flex">
+                    <label>🎉 Eventos / Recordatorios:</label>
+                    <button type="button" id="btn-toggle-crear-cat" class="btn-pill-mini">+ Gestionar Categorías</button>
+                </div>
+
+                <div id="form-crear-categoria" class="form-crear-cat-mini oculto">
+                    <span class="subtitulo-cat">Categorías actuales (haz clic en × para borrar):</span>
+                    <div id="lista-pills-categorias" class="pills-categorias-gestion"></div>
+
+                    <span class="subtitulo-cat" style="margin-top: 6px;">Crear nueva:</span>
+                    <div class="fila-input-cat">
+                        <input type="text" id="input-nombre-cat" class="input-estetico" placeholder="Ej: 🎓 Estudio, 🧘‍♀️ Yoga...">
+                        <input type="color" id="input-color-cat" value="#bae6fd" title="Elige un color pastel">
+                        <button type="button" id="btn-guardar-cat" class="btn-estetico-principal" style="padding: 4px 10px; font-size: 11px;">+ Agregar</button>
+                    </div>
+                </div>
+
+                <div class="input-evento-wrapper">
+                    <select id="tipo-evento" class="select-estetico"></select>
+                    <input type="text" id="texto-evento" class="input-estetico" placeholder="Ej: Prueba de Química, Salida...">
+                    <button type="button" id="btn-agregar-evento" class="btn-accion-icono">+</button>
+                </div>
+                <ul id="lista-eventos-dia" class="lista-eventos"></ul>
+            </div>
+
+            <div class="campo">
+                <label>📖 Resumen del día:</label>
+                <textarea id="texto-resumen" class="auto-expand" placeholder="¿Cómo estuvo tu día?"></textarea>
+            </div>
+            
+            <div class="campo">
+                <label>🍽️ Menú del día:</label>
+                <textarea id="texto-menu" class="auto-expand" rows="1" placeholder="¿Qué comiste hoy?"></textarea>
+            </div>
+
+            <div class="campo">
+                <label>🧹 Tareas de la casa:</label>
+                <textarea id="texto-casa" class="auto-expand" rows="1" placeholder="Ej: Sacar basura, regar plantas..."></textarea>
+            </div>
+
+            <div class="campo">
+                <label>🎨 Hobbies / Pasatiempos:</label>
+                <textarea id="texto-hobbies" class="auto-expand" rows="1" placeholder="Ej: Leer 30 min, pintar..."></textarea>
+            </div>
+
+            <div class="campo">
+                <label>📸 Capturas / Fotos del día:</label>
+                <input type="file" id="input-imagen" accept="image/*" multiple style="display: none;">
+                <button type="button" id="btn-subir-imagen" class="btn-estetico-secundario">📁 Adjuntar fotos</button>
+                <div id="contenedor-galeria" class="contenedor-galeria"></div>
+            </div>
+
+            <button id="btn-guardar-dia" class="btn-estetico-principal" style="margin-top: 18px; width: 100%;">Guardar Hoja</button>
+        </div>
+    </div>
+
+    <!-- MODAL REASIGNAR TAREA -->
+    <div id="modal-aplazar-tarea" class="modal oculto">
+        <div class="contenido-modal papel-organico" style="width: 340px;">
+            <span id="cerrar-modal-aplazar" class="cerrar">&times;</span>
+            <h3>Mover Tarea</h3>
+            <p id="texto-tarea-a-mover" style="font-size: 12px; color: #64748b; margin: 8px 0 14px 0;"></p>
+            
+            <div class="campo">
+                <label>Elige la nueva fecha / grupo:</label>
+                <select id="select-nueva-categoria-tarea" class="select-estetico" style="width: 100%; margin-top: 6px;">
+                    <option value="hoy">☀️ Hoy</option>
+                    <option value="manana">🌅 Mañana</option>
+                    <option value="esta_semana">📅 Esta semana</option>
+                    <option value="fin_semana">🍿 Fin de semana</option>
+                    <option value="prox_semana">🗓️ Próxima semana</option>
+                    <option value="proximos">🔮 Próximos</option>
+                    <option value="sin_fecha">📌 Sin fecha</option>
+                </select>
+            </div>
+
+            <button type="button" id="btn-confirmar-aplazar" class="btn-estetico-principal" style="width: 100%; margin-top: 16px;">Guardar Cambio</button>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div id="modal-lightbox" class="modal oculto">
+        <span id="cerrar-lightbox" class="cerrar-lightbox">&times;</span>
+        <img id="imagen-ampliada" src="" alt="Imagen ampliada">
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

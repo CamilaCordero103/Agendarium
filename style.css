@@ -1,0 +1,1896 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&display=swap');
+
+/* =========================================================
+   --- PALETA DE COLORES & VARIABLES GLOBALES ---
+   ========================================================= */
+:root {
+    --frost: #E6F1FA;
+    --iced-denim: #5798D7;
+    --iced-denim-dark: #4383c3;
+    --pistachio: #B9C255;
+    --papel-blanco: #ffffff;
+    --texto-oscuro: #3a4756;
+    --borde-suave: #dbe7f3;
+    
+    --postit-amarillo: #fff59d;
+    --postit-rosa: #f8bbd0;
+    --postit-menta: #c8e6c9;
+    --postit-celeste: #b3e5fc;
+    --postit-durazno: #ffe0b2;
+    --postit-lavanda: #e1bee7;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+}
+
+.oculto {
+    display: none !important;
+}
+
+body {
+    background-color: var(--frost);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px 0;
+    overflow-y: auto;
+    transition: background-color 0.3s ease;
+    color: var(--texto-oscuro);
+    font-size: 14px;
+}
+
+/* =========================================================
+   --- ESTILOS GENERALES DE INPUTS & BOTONES ---
+   ========================================================= */
+.input-estetico, 
+input[type="text"], 
+textarea, 
+select, 
+.select-estetico {
+    padding: 8px 12px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 12px;
+    font-size: 13px;
+    outline: none;
+    background: #ffffff;
+    color: var(--texto-oscuro);
+    transition: all 0.2s ease;
+}
+
+.input-estetico:focus, 
+input[type="text"]:focus, 
+textarea:focus, 
+select:focus {
+    border-color: var(--iced-denim);
+    box-shadow: 0 0 0 3px rgba(87, 152, 215, 0.15);
+}
+
+.btn-estetico-principal {
+    background-color: var(--iced-denim);
+    color: #ffffff !important;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-estetico-principal:hover {
+    background-color: var(--iced-denim-dark);
+    transform: scale(1.03);
+}
+
+.btn-estetico-secundario {
+    background-color: var(--frost);
+    color: var(--iced-denim) !important;
+    border: 1px solid var(--iced-denim);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-estetico-secundario:hover {
+    background-color: var(--iced-denim);
+    color: #ffffff !important;
+}
+
+.btn-accion-icono {
+    background-color: var(--iced-denim);
+    color: #ffffff !important;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-accion-icono:hover {
+    background-color: var(--iced-denim-dark);
+    transform: scale(1.08);
+}
+
+.btn-modo {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background-color: var(--papel-blanco);
+    color: var(--iced-denim);
+    border: 2px solid var(--iced-denim);
+    padding: 6px 18px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 12px;
+    z-index: 100;
+    box-shadow: 0 4px 14px rgba(87, 152, 215, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-modo:hover { transform: scale(1.05); }
+
+/* =========================================================
+   --- ESTRUCTURA DASHBOARD EN PC ---
+   ========================================================= */
+.app-layout {
+    display: flex;
+    width: 90vw;
+    max-width: 1180px;
+    margin: 20px auto;
+    min-height: calc(100vh - 40px);
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 15px 35px rgba(87, 152, 215, 0.12);
+    border: 1px solid var(--borde-suave);
+    position: relative;
+}
+
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    border-radius: 24px 0 0 24px;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 6px;
+}
+
+.sidebar-brand h3 {
+    font-size: 19px;
+    font-weight: 900;
+    color: var(--iced-denim);
+    letter-spacing: -0.3px;
+}
+
+.brand-icon { font-size: 20px; }
+
+.pestanas {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.btn-pestana {
+    border: none;
+    padding: 10px 14px;
+    cursor: pointer;
+    border-radius: 12px;
+    font-weight: 600;
+    color: var(--texto-oscuro);
+    background-color: transparent;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.btn-pestana:hover {
+    background-color: rgba(255, 255, 255, 0.6);
+    transform: translateX(3px);
+}
+
+.btn-pestana.activa {
+    background-color: #ffffff !important;
+    color: var(--iced-denim) !important;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(87, 152, 215, 0.15);
+}
+
+.paginas {
+    flex: 1;
+    background-color: #ffffff;
+    padding: 28px 32px;
+    border-radius: 0 24px 24px 0;
+    min-width: 0;
+}
+
+.pagina { display: none; }
+.pagina.activa { display: block; }
+
+.caja-frase {
+    margin-top: 8px;
+    padding: 10px 14px;
+    background-color: #f4f8fc;
+    border-left: 4px solid var(--iced-denim);
+    border-radius: 8px;
+}
+
+.frase-motivacional {
+    font-family: 'Nunito', sans-serif;
+    font-style: italic;
+    font-weight: 600;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+h2, h3 { letter-spacing: -0.2px; }
+
+/* =========================================================
+   --- VISTA HOY ---
+   ========================================================= */
+.cabecera-hoy-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.flex-hoy-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 15px;
+}
+
+.fila-cuadros-superiores {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.tarjeta-hoy {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 16px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.05);
+}
+
+.tarjeta-hoy h3 {
+    font-size: 14px;
+    color: var(--iced-denim);
+    font-weight: 700;
+}
+
+.selector-animo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 4px 0;
+}
+
+.btn-animo-hoy, .btn-animo {
+    font-size: 22px;
+    background: transparent;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-animo-hoy:hover, .btn-animo:hover { transform: scale(1.15); }
+
+.btn-animo-hoy.seleccionado, .btn-animo.seleccionado {
+    border-color: var(--iced-denim) !important;
+    background-color: var(--frost) !important;
+    transform: scale(1.25) !important;
+    box-shadow: 0 4px 10px rgba(87, 152, 215, 0.35);
+}
+
+.caja-medidor-animo {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.caja-medidor-animo label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+}
+
+.pista-medidor {
+    position: relative;
+    height: 10px;
+    background: linear-gradient(to right, #fca5a5, #fef08a, #86efac);
+    border-radius: 10px;
+    margin: 6px 0;
+}
+
+.marcador-animo {
+    position: absolute;
+    top: -8px;
+    transform: translateX(-50%);
+    font-size: 13px;
+    transition: left 0.4s ease;
+}
+
+.leyenda-medidor {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #888;
+    font-weight: 600;
+}
+
+.input-evento-wrapper {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+}
+
+.input-evento-wrapper select {
+    max-width: 110px;
+    font-size: 11px;
+    padding: 6px;
+}
+
+.input-evento-wrapper input {
+    flex: 1;
+    min-width: 0;
+}
+
+.mini-form-inline {
+    display: flex;
+    gap: 6px;
+}
+
+.mini-form-inline input { flex: 1; }
+
+.mini-lista-hoy.interactiva {
+    max-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    list-style: none;
+}
+
+.mini-item-hoy {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--frost);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+}
+
+.mini-item-hoy.completada {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.mini-item-hoy.atrasada-mini {
+    background-color: #fff1f2 !important;
+    border: 1px solid #fecdd3 !important;
+    color: #9f1239 !important;
+    font-weight: 700;
+}
+
+.btn-del-mini {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+}
+.btn-del-mini:hover { color: #ef4444; }
+
+/* Hábitos en Hoy y Recompensa */
+.layout-habitos-hoy-split {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.col-habitos-hoy-lista {
+    flex: 1;
+    min-width: 0;
+}
+
+.grid-habitos-hoy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.item-habito-hoy {
+    background: #f8fafc;
+    border: 1px solid var(--borde-suave);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.item-habito-hoy.hecho {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.item-habito-hoy.descanso {
+    opacity: 0.55;
+    background: #f1f5f9;
+}
+
+.col-habitos-hoy-pixel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--frost);
+    border: 1px solid var(--borde-suave);
+    border-radius: 14px;
+    padding: 12px;
+    min-width: 140px;
+}
+
+.titulo-mini-pixel {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--iced-denim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grid-pixel-art.mini {
+    width: 110px;
+    height: 110px;
+    gap: 1px;
+    padding: 4px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid var(--borde-suave);
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+.texto-progreso-habito-mini {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--texto-oscuro);
+}
+
+.textarea-grande-hoy {
+    min-height: 100px !important;
+    line-height: 1.4;
+}
+
+.grid-comidas-cuatro {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.sub-campos-resumen {
+    display: flex;
+    gap: 12px;
+}
+
+.campo-mitad {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.cabecera-habitos-hoy {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge-progreso, .badge-fase-lunar, .badge-semana {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--iced-denim);
+    background: var(--frost);
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--borde-suave);
+}
+
+/* Selector de Días Programados para Hábitos */
+.selector-dias-habito {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.label-dias-habito {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--iced-denim);
+}
+
+.check-dia {
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--frost);
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--borde-suave);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    user-select: none;
+}
+
+.check-dia input[type="checkbox"] {
+    accent-color: var(--iced-denim);
+    cursor: pointer;
+}
+
+.badge-racha {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.badge-dias-resumen {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 600;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+/* =========================================================
+   --- VISTA SEMANA ---
+   ========================================================= */
+.encabezado-semana {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.navegacion-semana {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fila-superiores-semana {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.cabecera-tarjeta-semana {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.btn-editar-semana {
+    background: var(--frost);
+    color: var(--iced-denim) !important;
+    border: 1px solid var(--iced-denim);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-editar-semana:hover {
+    background: var(--iced-denim);
+    color: #ffffff !important;
+    transform: scale(1.04);
+}
+
+.contenedor-reemplazo-organico {
+    width: 100%;
+    min-height: 80px;
+}
+
+.texto-placeholder-semana {
+    font-style: italic;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.contenido-edicion-semana textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: none;
+}
+
+.lista-prioridades-display {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+}
+
+.grid-inputs-prioridades {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.barra-filtros-semana {
+    background: #f8fafc;
+    border: 1px solid var(--borde-suave);
+    border-radius: 14px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.titulo-filtros-semana {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.pills-filtros-semana {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-filtro-semana {
+    background: transparent;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filtro-semana.activo {
+    background: #ffffff;
+    color: var(--iced-denim);
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.parrilla-semana-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.columna-dia-semana {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 200px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.columna-dia-semana:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(87, 152, 215, 0.15);
+}
+
+.columna-dia-semana.es-hoy {
+    background: #edf5fd !important;
+    border: 2px solid var(--iced-denim) !important;
+}
+
+.cabecera-col-dia {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    padding-bottom: 4px;
+}
+
+.nombre-dia-semana {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: lowercase;
+}
+
+.num-dia-semana {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.lista-items-semana {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 11px;
+}
+
+.item-semana-tag {
+    background: #f1f5f9;
+    padding: 5px 7px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.05);
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--texto-oscuro);
+    word-break: break-word;
+}
+
+.item-semana-tag.atrasada {
+    background: #fee2e2 !important;
+    border: 1px solid #fca5a5 !important;
+    color: #991b1b !important;
+    font-weight: 700;
+}
+
+/* =========================================================
+   --- CALENDARIO MES (REPARADO) ---
+   ========================================================= */
+.encabezado-mes-modulo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+}
+
+.cabecera-calendario {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 320px;
+}
+
+#titulo-mes {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--iced-denim);
+    text-align: center;
+    flex: 1;
+}
+
+.btn-nav-mes {
+    background: var(--iced-denim);
+    color: #ffffff !important;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-nav-mes:hover { transform: scale(1.1); }
+
+.dias-semana,
+.grilla-calendario {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dias-semana {
+    text-align: center;
+    font-weight: bold;
+    color: var(--iced-denim);
+    margin-bottom: 6px;
+}
+
+.cuadro-dia {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 12px;
+    min-height: 80px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    transition: all 0.2s;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.cuadro-dia:hover { background: var(--frost); }
+.cuadro-dia.hoy { border: 2px solid var(--iced-denim); background-color: #f0f7ff; }
+
+.encabezado-dia-mes {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.icono-luna-mes {
+    font-size: 11px;
+    opacity: 0.85;
+    cursor: help;
+}
+
+.etiqueta-evento {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 5px;
+    border-radius: 6px;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* =========================================================
+   --- VISTA AÑO (GRILLA 3x4) ---
+   ========================================================= */
+.grid-12-meses {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px;
+    margin-top: 15px;
+    width: 100%;
+}
+
+.mini-mes-card {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 14px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mini-mes-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(87, 152, 215, 0.15);
+    border-color: var(--iced-denim);
+}
+
+.mini-mes-titulo {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--iced-denim);
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.mini-grilla-dias {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 2px;
+    text-align: center;
+}
+
+.mini-dia-header {
+    font-size: 9px;
+    font-weight: 800;
+    color: #94a3b8;
+    padding-bottom: 2px;
+}
+
+.mini-dia-celda {
+    padding: 2px 0;
+    border-radius: 4px;
+    color: var(--texto-oscuro);
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 18px;
+}
+
+.mini-dia-celda.es-hoy-mini {
+    border: 2px solid var(--iced-denim) !important;
+    font-weight: 800;
+}
+
+/* =========================================================
+   --- MÓDULO HÁBITOS & RECOMPENSA ---
+   ========================================================= */
+.cabecera-habitos-modulo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.layout-habitos-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.tarjeta-pixel-art-top {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.pixel-art-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.grid-pixel-art.grande {
+    width: 160px;
+    height: 160px;
+    gap: 2px;
+    padding: 5px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid var(--borde-suave);
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+.pixel-cuadro {
+    width: 100%;
+    height: 100%;
+    border-radius: 1px;
+    background-color: #e2e8f0;
+}
+
+.barra-progreso-pixel-wrapper {
+    width: 100%;
+    max-width: 280px;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.barra-progreso-pixel-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--iced-denim), var(--pistachio));
+}
+
+.caja-crear-habito-modulo {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.tabla-habitos-wrapper {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 14px;
+    padding: 12px;
+    width: 100%;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.tabla-habitos-grid { display: grid; gap: 5px; }
+
+.fila-habito-header, .fila-habito-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nombre-habito-celda {
+    width: 210px;
+    min-width: 210px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.nombre-habito-texto {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.dias-habito-scroll {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+}
+
+.celda-dia-habito {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--borde-suave);
+    cursor: pointer;
+    background: #f8fafc;
+}
+
+.celda-dia-habito.header {
+    font-weight: 800;
+    background: var(--frost);
+    color: var(--iced-denim);
+}
+
+.celda-dia-habito.marcado {
+    background: var(--pistachio) !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.celda-dia-habito.no-aplica {
+    background: #f1f5f9 !important;
+    opacity: 0.35;
+    cursor: not-allowed;
+    border-style: dashed !important;
+}
+
+/* =========================================================
+   --- TAREAS & ATRASADAS ---
+   ========================================================= */
+.caja-nueva-tarea {
+    background-color: var(--frost);
+    border: 1px solid var(--borde-suave);
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.opciones-nueva-tarea {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.grupo-tarea-categoria { margin-bottom: 18px; }
+
+.titulo-grupo-tarea {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--iced-denim);
+    border-bottom: 2px solid var(--borde-suave);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.titulo-grupo-tarea.titulo-atrasadas {
+    color: #e11d48 !important;
+    border-bottom-color: #fca5a5 !important;
+}
+
+.tarjeta-tarea {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-left: 4px solid #ccc;
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.tarjeta-tarea.tarjeta-atrasada {
+    background: #fff1f2 !important;
+    border: 1px solid #fecdd3 !important;
+    border-left: 4px solid #f43f5e !important;
+}
+
+.tarjeta-tarea.tarjeta-atrasada .texto-tarea {
+    color: #9f1239 !important;
+    font-weight: 700;
+}
+
+.tarjeta-tarea.prioridad-alta { border-left-color: #ef4444; }
+.tarjeta-tarea.prioridad-media { border-left-color: #f59e0b; }
+.tarjeta-tarea.prioridad-baja { border-left-color: var(--pistachio); }
+
+.info-tarea { display: flex; align-items: center; gap: 8px; flex: 1; }
+.texto-tarea { font-size: 13px; word-break: break-word; }
+
+.acciones-tarea { display: flex; gap: 5px; align-items: center; }
+
+.btn-hoy-no {
+    background: #ffedf0;
+    border: 1px solid #fca5a5;
+    color: #dc2626 !important;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-aplazar {
+    background: var(--frost);
+    border: 1px solid var(--iced-denim);
+    color: var(--iced-denim) !important;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-aplazar:hover {
+    background: var(--iced-denim);
+    color: #ffffff !important;
+}
+
+.btn-borrar-tarea {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.seccion-completadas { margin-top: 25px; border-top: 1px dashed #ccc; padding-top: 12px; }
+.btn-toggle-completadas { background: none; border: none; font-weight: bold; color: #777; cursor: pointer; font-size: 12px; }
+
+/* =========================================================
+   --- PARTÍCULAS DE CONFETI ---
+   ========================================================= */
+.particula-confeti {
+    position: fixed;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 99999;
+    animation: animacionConfeti 5.6s ease-out forwards;
+}
+
+@keyframes animacionConfeti {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    80% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--dx), calc(var(--dy) + 350px)) rotate(720deg) scale(0.5);
+    }
+}
+
+/* =========================================================
+   --- MURO DE NOTAS ---
+   ========================================================= */
+.cabecera-notas { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 18px; 
+}
+
+.contenedor-notas { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); 
+    gap: 16px; 
+    align-items: start; 
+}
+
+.postit {
+    position: relative;
+    padding: 14px;
+    border-radius: 4px 4px 16px 4px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 5px 14px rgba(0,0,0,0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.postit:hover { 
+    transform: translateY(-3px) !important; 
+    box-shadow: 0 8px 18px rgba(0,0,0,0.1) !important;
+    z-index: 5; 
+}
+
+.postit.color-amarillo { background-color: var(--postit-amarillo); color: #333; }
+.postit.color-rosa     { background-color: var(--postit-rosa); color: #333; }
+.postit.color-menta    { background-color: var(--postit-menta); color: #333; }
+.postit.color-celeste  { background-color: var(--postit-celeste); color: #333; }
+.postit.color-durazno  { background-color: var(--postit-durazno); color: #333; }
+.postit.color-lavanda  { background-color: var(--postit-lavanda); color: #333; }
+
+.postit-titulo {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.2) !important;
+    font-weight: 800 !important;
+    font-size: 15px !important;
+    color: inherit !important;
+    width: 100%;
+    padding: 2px 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.postit-toolbar {
+    display: flex;
+    gap: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.btn-format-postit {
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: inherit;
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-format-postit:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.postit-contenido {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: inherit;
+    line-height: 1.4;
+    min-height: 100px;
+    word-break: break-word;
+}
+
+.postit-contenido ul {
+    padding-left: 16px;
+    margin: 4px 0;
+}
+
+.postit-contenido li {
+    margin-bottom: 2px;
+}
+
+.postit-pie { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-top: 10px; 
+    padding-top: 4px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.postit-colores { display: flex; gap: 4px; }
+
+.dot-color { 
+    width: 12px; 
+    height: 12px; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    border: 1px solid rgba(0,0,0,0.15); 
+    transition: transform 0.2s;
+}
+
+.dot-color:hover { transform: scale(1.2); }
+
+/* =========================================================
+   --- MODALES ---
+   ========================================================= */
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.papel-organico {
+    background-color: #fff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 20px;
+    padding: 22px;
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.18);
+}
+
+.cerrar { float: right; font-size: 20px; cursor: pointer; color: #888; }
+.campo { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+.campo label { font-size: 12px; font-weight: 700; }
+
+.cabecera-campo-flex { display: flex; justify-content: space-between; align-items: center; }
+
+.btn-pill-mini {
+    background: var(--frost);
+    color: var(--iced-denim);
+    border: 1px solid var(--iced-denim);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.form-crear-cat-mini {
+    background: #f8fafc;
+    border: 1px solid var(--borde-suave);
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.pills-categorias-gestion { display: flex; flex-wrap: wrap; gap: 4px; }
+.pill-cat-gestion {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-del-cat-pill { background: none; border: none; font-weight: bold; cursor: pointer; opacity: 0.7; }
+
+.contenedor-galeria { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.item-galeria { position: relative; width: 65px; height: 65px; }
+.item-galeria img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; cursor: pointer; }
+.btn-eliminar-foto { position: absolute; top: -5px; right: -5px; background: #e53935; color: white; border: none; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+#modal-lightbox { z-index: 200; }
+#imagen-ampliada { max-width: 85vw; max-height: 85vh; border-radius: 12px; object-fit: contain; }
+.cerrar-lightbox { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 32px; cursor: pointer; }
+
+/* =========================================================
+   --- MODO GRIS / OSCURO COMPLETO ---
+   ========================================================= */
+body.modo-oscuro {
+    --charcoal-noir: #2B2B2B;
+    --ironclad-grey: #565656;
+    --urban-fog:     #848484;
+    --moonlit-silver:#E0E0E0;
+    --cloud-veil:    #FFFFFF;
+
+    background-color: var(--charcoal-noir);
+    color: #ffffff !important;
+}
+
+body.modo-oscuro h1,
+body.modo-oscuro h2,
+body.modo-oscuro h3,
+body.modo-oscuro h4,
+body.modo-oscuro p,
+body.modo-oscuro span,
+body.modo-oscuro label,
+body.modo-oscuro li,
+body.modo-oscuro div {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .caja-frase {
+    background-color: #2b2b2b !important;
+    border-left-color: var(--iced-denim) !important;
+}
+
+body.modo-oscuro .frase-motivacional {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .btn-modo {
+    background-color: #444444 !important;
+    color: #ffffff !important;
+    border-color: var(--urban-fog) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.modo-oscuro .app-layout {
+    background: #383838;
+    border-color: var(--ironclad-grey);
+}
+
+body.modo-oscuro .sidebar-brand h3 {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .btn-pestana {
+    color: #e0e0e0 !important;
+}
+
+body.modo-oscuro .btn-pestana.activa {
+    background-color: var(--ironclad-grey) !important;
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .paginas,
+body.modo-oscuro .papel-organico {
+    background-color: #383838;
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .badge-semana,
+body.modo-oscuro .badge-fase-lunar,
+body.modo-oscuro .badge-progreso {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border: 1px solid var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .input-estetico,
+body.modo-oscuro input[type="text"], 
+body.modo-oscuro textarea, 
+body.modo-oscuro select {
+    background-color: var(--charcoal-noir) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--ironclad-grey);
+}
+
+body.modo-oscuro .btn-editar-semana {
+    background: #444444 !important;
+    color: #ffffff !important;
+    border: 1px solid var(--urban-fog) !important;
+}
+
+body.modo-oscuro .btn-editar-semana:hover {
+    background: var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .columna-dia-semana,
+body.modo-oscuro .tarjeta-hoy,
+body.modo-oscuro .caja-nueva-tarea,
+body.modo-oscuro .tarjeta-tarea,
+body.modo-oscuro .cuadro-dia,
+body.modo-oscuro .tarjeta-pixel-art-top,
+body.modo-oscuro .caja-crear-habito-modulo,
+body.modo-oscuro .tabla-habitos-wrapper,
+body.modo-oscuro .form-crear-cat-mini,
+body.modo-oscuro .col-habitos-hoy-pixel {
+    background-color: #444444 !important;
+    border-color: var(--ironclad-grey) !important;
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .check-dia {
+    background: #333333 !important;
+    border-color: var(--ironclad-grey) !important;
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .celda-dia-habito.no-aplica {
+    background: #222222 !important;
+    opacity: 0.25;
+}
+
+body.modo-oscuro .badge-racha {
+    background: #431407 !important;
+    color: #ffedd5 !important;
+    border-color: #9a3412 !important;
+}
+
+body.modo-oscuro .badge-dias-resumen {
+    background: #2b2b2b !important;
+    color: #cbd5e1 !important;
+}
+
+body.modo-oscuro .barra-filtros-semana {
+    background: #2b2b2b !important;
+    border: 1px solid var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .btn-filtro-semana {
+    color: #b3b3b3 !important;
+    background: transparent !important;
+}
+
+body.modo-oscuro .btn-filtro-semana.activo {
+    background: var(--ironclad-grey) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.modo-oscuro .columna-dia-semana.es-hoy,
+body.modo-oscuro .cuadro-dia.hoy {
+    background: #2c3a47 !important;
+    border: 2px solid var(--iced-denim) !important;
+}
+
+body.modo-oscuro .btn-estetico-principal,
+body.modo-oscuro .btn-accion-icono,
+body.modo-oscuro .btn-nav-mes {
+    background-color: var(--ironclad-grey) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--urban-fog);
+}
+
+body.modo-oscuro .btn-estetico-secundario,
+body.modo-oscuro .btn-aplazar,
+body.modo-oscuro .btn-pill-mini {
+    background-color: #2b2b2b !important;
+    color: #ffffff !important;
+    border: 1px solid var(--ironclad-grey);
+}
+
+body.modo-oscuro .item-semana-tag,
+body.modo-oscuro .mini-item-hoy,
+body.modo-oscuro .item-habito-hoy,
+body.modo-oscuro .celda-dia-habito {
+    background: #333333 !important;
+    color: #ffffff !important;
+    border-color: var(--ironclad-grey);
+}
+
+body.modo-oscuro .titulo-grupo-tarea.titulo-atrasadas {
+    color: #f43f5e !important;
+    border-bottom-color: #881337 !important;
+}
+
+body.modo-oscuro .tarjeta-tarea.tarjeta-atrasada {
+    background: #4c0519 !important;
+    border-color: #881337 !important;
+    border-left-color: #f43f5e !important;
+}
+
+body.modo-oscuro .tarjeta-tarea.tarjeta-atrasada .texto-tarea {
+    color: #ffe4e6 !important;
+}
+
+body.modo-oscuro .mini-item-hoy.atrasada-mini {
+    background-color: #4c0519 !important;
+    border-color: #881337 !important;
+    color: #ffe4e6 !important;
+}
+
+body.modo-oscuro .grid-pixel-art.grande,
+body.modo-oscuro .grid-pixel-art.mini {
+    background: #2b2b2b;
+}
+
+body.modo-oscuro .postit .postit-titulo,
+body.modo-oscuro .postit .postit-contenido,
+body.modo-oscuro .postit .btn-format-postit {
+    color: #222222 !important;
+}
+
+body.modo-oscuro .postit .postit-titulo {
+    background: transparent !important;
+}
+
+body.modo-oscuro .btn-animo.seleccionado,
+body.modo-oscuro .btn-animo-hoy.seleccionado {
+    background-color: #565656 !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.25) !important;
+}
+
+body.modo-oscuro .mini-mes-card {
+    background: #383838 !important;
+    border-color: var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .mini-mes-titulo {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .mini-dia-header {
+    color: #b3b3b3 !important;
+}
+
+body.modo-oscuro .mini-dia-celda {
+    color: #ffffff !important;
+}
+
+/* =========================================================
+   --- ADAPTABILIDAD RESPONSIVE (MÓVIL TOTALMENTE CORREGIDO) ---
+   ========================================================= */
+@media (max-width: 768px) {
+    body {
+        padding-top: 55px !important;
+    }
+
+    .app-layout {
+        flex-direction: column;
+        width: 100vw;
+        max-width: 100vw;
+        margin: 10px 0 0 0 !important;
+        border-radius: 20px 20px 0 0 !important;
+        box-shadow: none;
+        border: none;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 100%;
+        padding: 12px 14px 6px 14px;
+        position: relative;
+        top: 0;
+        border-radius: 0;
+        gap: 10px;
+        box-sizing: border-box;
+    }
+
+    .sidebar-brand {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding-left: 0;
+    }
+
+    .btn-modo {
+        position: absolute !important;
+        top: 12px !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        z-index: 1000 !important;
+        margin: 0 !important;
+        width: auto !important;
+        white-space: nowrap !important;
+        font-size: 12px !important;
+        padding: 6px 16px !important;
+        border-radius: 20px !important;
+        align-self: center !important;
+    }
+    .btn-modo:hover {
+        transform: translateX(-50%) scale(1.04) !important;
+    }
+
+    .pestanas {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        width: 100% !important;
+        padding: 4px 0 8px 0 !important;
+        gap: 8px !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .pestanas::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .pestanas::-webkit-scrollbar-thumb {
+        background: var(--iced-denim);
+        border-radius: 10px;
+    }
+
+    .btn-pestana {
+        width: auto !important;
+        white-space: nowrap !important;
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+        border-radius: 12px !important;
+        flex-shrink: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+    }
+
+    .paginas {
+        padding: 14px 12px;
+        border-radius: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Vista Hoy Móvil */
+    .cabecera-hoy-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .fila-cuadros-superiores {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .tarjeta-hoy {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input-evento-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .input-evento-wrapper select {
+        max-width: 100%;
+        flex: 1 1 100px;
+    }
+
+    .input-evento-wrapper input {
+        flex: 1 1 120px;
+        min-width: 0;
+    }
+
+    .layout-habitos-hoy-split {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .col-habitos-hoy-pixel {
+        width: 100%;
+        min-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .grid-comidas-cuatro {
+        grid-template-columns: 1fr;
+    }
+
+    .sub-campos-resumen {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Vista Semana Móvil */
+    .fila-superiores-semana {
+        grid-template-columns: 1fr;
+    }
+
+    .barra-filtros-semana {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .parrilla-semana-dias {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .columna-dia-semana {
+        min-height: auto;
+    }
+
+    /* Vista Mes y Año Móvil */
+    .cabecera-calendario {
+        width: 100%;
+    }
+
+    .grid-12-meses {
+        grid-template-columns: 1fr !important;
+    }
+
+    .contenedor-notas {
+        grid-template-columns: 1fr;
+    }
+
+    .papel-organico {
+        width: 92%;
+        max-height: 85vh;
+        padding: 16px;
+        border-radius: 16px;
+    }
+}
+
+/* --- CELEBRACIÓN DÍA PERFECTO WOW --- */
+@keyframes pulsoPerfecto {
+    0%   { transform: scale(1); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
+    50%  { transform: scale(1.08); box-shadow: 0 0 22px rgba(234, 179, 8, 0.8); }
+    100% { transform: scale(1); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
+}
+
+.badge-progreso.perfecto {
+    background: linear-gradient(135deg, #fef08a 0%, #fde047 100%) !important;
+    color: #713f12 !important;
+    border: 2px solid #eab308 !important;
+    font-weight: 900 !important;
+    animation: pulsoPerfecto 2s infinite ease-in-out;
+    letter-spacing: 0.3px;
+}
+
+body.modo-oscuro .badge-progreso.perfecto {
+    background: linear-gradient(135deg, #854d0e 0%, #ca8a04 100%) !important;
+    color: #fef9c3 !important;
+    border-color: #fde047 !important;
+}
