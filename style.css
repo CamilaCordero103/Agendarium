@@ -1894,3 +1894,15 @@ body.modo-oscuro .badge-progreso.perfecto {
     color: #fef9c3 !important;
     border-color: #fde047 !important;
 }
+/* Adaptación de comidas en Modal */
+.papel-organico .grid-comidas-cuatro {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 480px) {
+    .papel-organico .grid-comidas-cuatro {
+        grid-template-columns: 1fr;
+    }
+}

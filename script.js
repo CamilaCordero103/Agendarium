@@ -407,15 +407,21 @@ function abrirModalDia(clave, dia, mesNombre) {
         actualizarSelectCategorias();
         renderizarListaEventosModal();
 
-        const elResumen = document.getElementById('texto-resumen');
-        const elMenu = document.getElementById('texto-menu');
-        const elCasa = document.getElementById('texto-casa');
-        const elHobbies = document.getElementById('texto-hobbies');
+        // 1. Cargar Comidas Unificadas en Modal
+        const comidas = datos.comidasDetalle || {};
+        if (document.getElementById('modal-desayuno')) document.getElementById('modal-desayuno').value = comidas.desayuno || datos.menu || "";
+        if (document.getElementById('modal-almuerzo')) document.getElementById('modal-almuerzo').value = comidas.almuerzo || "";
+        if (document.getElementById('modal-cena')) document.getElementById('modal-cena').value = comidas.cena || "";
+        if (document.getElementById('modal-snacks')) document.getElementById('modal-snacks').value = comidas.snacks || "";
 
+        // 2. Cargar Diario & Hobbies
+        const elResumen = document.getElementById('texto-resumen');
+        const elHobbies = document.getElementById('texto-hobbies');
         if (elResumen) elResumen.value = datos.resumen || "";
-        if (elMenu) elMenu.value = datos.menu || "";
-        if (elCasa) elCasa.value = datos.casa || "";
         if (elHobbies) elHobbies.value = datos.hobbies || "";
+
+        // 3. Renderizar Tareas de la Casa
+        renderizarTareasCasaModal();
 
         imagenesBase64Actuales = Array.isArray(datos.imagenesBase64) ? datos.imagenesBase64 : [];
         renderizarGaleriaModal();
@@ -433,13 +439,18 @@ if (btnGuardarDia) {
     btnGuardarDia.addEventListener('click', () => {
         const modal = document.getElementById('modal-dia');
         const datosPrevios = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
+        
         const datosDia = {
             ...datosPrevios,
             animo: animoSeleccionado,
             eventos: eventosTemporales,
+            comidasDetalle: {
+                desayuno: document.getElementById('modal-desayuno') ? document.getElementById('modal-desayuno').value : "",
+                almuerzo: document.getElementById('modal-almuerzo') ? document.getElementById('modal-almuerzo').value : "",
+                cena: document.getElementById('modal-cena') ? document.getElementById('modal-cena').value : "",
+                snacks: document.getElementById('modal-snacks') ? document.getElementById('modal-snacks').value : ""
+            },
             resumen: document.getElementById('texto-resumen') ? document.getElementById('texto-resumen').value : "",
-            menu: document.getElementById('texto-menu') ? document.getElementById('texto-menu').value : "",
-            casa: document.getElementById('texto-casa') ? document.getElementById('texto-casa').value : "",
             hobbies: document.getElementById('texto-hobbies') ? document.getElementById('texto-hobbies').value : "",
             imagenesBase64: imagenesBase64Actuales
         };
@@ -2311,6 +2322,187 @@ function renderizarVistaAno() {
 
         gridMeses.appendChild(card);
     }
+}
+
+// ==========================================
+// LÓGICA DE TAREAS DE LA CASA (CHECKLIST DÍA)
+// ==========================================
+
+// --- TAREAS DE CASA EN VISTA HOY ---
+function renderizarTareasCasaHoy() {
+    const ul = document.getElementById('lista-tareas-casa-hoy');
+    if (!ul) return;
+    ul.innerHTML = "";
+
+    const claveHoy = obtenerClaveHoy();
+    const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
+    const tareasCasa = datos.tareasCasa || [];
+
+    if (tareasCasa.length === 0) {
+        ul.innerHTML = "<li><i style='font-size:11px; color:#aaa;'>Sin tareas de casa</i></li>";
+        return;
+    }
+
+    tareasCasa.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.classList.add('mini-item-hoy');
+        if (item.completada) li.classList.add('completada');
+
+        const divIzq = document.createElement('div');
+        divIzq.style.display = 'flex';
+        divIzq.style.gap = '6px';
+        divIzq.style.alignItems = 'center';
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = !!item.completada;
+        check.addEventListener('change', () => {
+            item.completada = check.checked;
+            datos.tareasCasa = tareasCasa;
+            localStorage.setItem(claveHoy, JSON.stringify(datos));
+            renderizarTareasCasaHoy();
+        });
+
+        const span = document.createElement('span');
+        span.textContent = item.texto;
+
+        divIzq.appendChild(check);
+        divIzq.appendChild(span);
+
+        const btnDel = document.createElement('button');
+        btnDel.classList.add('btn-del-mini');
+        btnDel.innerHTML = '&times;';
+        btnDel.addEventListener('click', () => {
+            tareasCasa.splice(index, 1);
+            datos.tareasCasa = tareasCasa;
+            localStorage.setItem(claveHoy, JSON.stringify(datos));
+            renderizarTareasCasaHoy();
+        });
+
+        li.appendChild(divIzq);
+        li.appendChild(btnDel);
+        ul.appendChild(li);
+    });
+}
+
+function agregarTareaCasaHoy() {
+    const input = document.getElementById('input-tarea-casa-hoy');
+    if (!input) return;
+    const txt = input.value.trim();
+    if (txt === "") return;
+
+    const claveHoy = obtenerClaveHoy();
+    const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
+    const tareasCasa = datos.tareasCasa || [];
+
+    tareasCasa.push({ texto: txt, completada: false });
+    datos.tareasCasa = tareasCasa;
+    localStorage.setItem(claveHoy, JSON.stringify(datos));
+
+    input.value = "";
+    renderizarTareasCasaHoy();
+}
+
+const btnAddCasaHoy = document.getElementById('btn-add-tarea-casa-hoy');
+const inputCasaHoy = document.getElementById('input-tarea-casa-hoy');
+
+if (btnAddCasaHoy) btnAddCasaHoy.addEventListener('click', agregarTareaCasaHoy);
+if (inputCasaHoy) {
+    inputCasaHoy.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            agregarTareaCasaHoy();
+        }
+    });
+}
+
+// --- TAREAS DE CASA EN MODAL DEL DÍA ---
+function renderizarTareasCasaModal() {
+    const ul = document.getElementById('lista-tareas-casa-modal');
+    if (!ul || !diaSeleccionadoClave) return;
+    ul.innerHTML = "";
+
+    const datos = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
+    const tareasCasa = datos.tareasCasa || [];
+
+    if (tareasCasa.length === 0) {
+        ul.innerHTML = "<li><i style='font-size:11px; color:#aaa;'>Sin tareas de casa</i></li>";
+        return;
+    }
+
+    tareasCasa.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.classList.add('mini-item-hoy');
+        if (item.completada) li.classList.add('completada');
+
+        const divIzq = document.createElement('div');
+        divIzq.style.display = 'flex';
+        divIzq.style.gap = '6px';
+        divIzq.style.alignItems = 'center';
+
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = !!item.completada;
+        check.addEventListener('change', () => {
+            item.completada = check.checked;
+            datos.tareasCasa = tareasCasa;
+            localStorage.setItem(diaSeleccionadoClave, JSON.stringify(datos));
+            renderizarTareasCasaModal();
+            if (diaSeleccionadoClave === obtenerClaveHoy()) renderizarTareasCasaHoy();
+        });
+
+        const span = document.createElement('span');
+        span.textContent = item.texto;
+
+        divIzq.appendChild(check);
+        divIzq.appendChild(span);
+
+        const btnDel = document.createElement('button');
+        btnDel.classList.add('btn-del-mini');
+        btnDel.innerHTML = '&times;';
+        btnDel.addEventListener('click', () => {
+            tareasCasa.splice(index, 1);
+            datos.tareasCasa = tareasCasa;
+            localStorage.setItem(diaSeleccionadoClave, JSON.stringify(datos));
+            renderizarTareasCasaModal();
+            if (diaSeleccionadoClave === obtenerClaveHoy()) renderizarTareasCasaHoy();
+        });
+
+        li.appendChild(divIzq);
+        li.appendChild(btnDel);
+        ul.appendChild(li);
+    });
+}
+
+function agregarTareaCasaModal() {
+    const input = document.getElementById('input-tarea-casa-modal');
+    if (!input || !diaSeleccionadoClave) return;
+    const txt = input.value.trim();
+    if (txt === "") return;
+
+    const datos = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
+    const tareasCasa = datos.tareasCasa || [];
+
+    tareasCasa.push({ texto: txt, completada: false });
+    datos.tareasCasa = tareasCasa;
+    localStorage.setItem(diaSeleccionadoClave, JSON.stringify(datos));
+
+    input.value = "";
+    renderizarTareasCasaModal();
+    if (diaSeleccionadoClave === obtenerClaveHoy()) renderizarTareasCasaHoy();
+}
+
+const btnAddCasaModal = document.getElementById('btn-add-tarea-casa-modal');
+const inputCasaModal = document.getElementById('input-tarea-casa-modal');
+
+if (btnAddCasaModal) btnAddCasaModal.addEventListener('click', agregarTareaCasaModal);
+if (inputCasaModal) {
+    inputCasaModal.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            agregarTareaCasaModal();
+        }
+    });
 }
 
 // ==========================================

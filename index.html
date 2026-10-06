@@ -146,8 +146,12 @@
                         
                         <div class="sub-campos-resumen" style="margin-top: 12px;">
                             <div class="campo-mitad">
-                                <label>🧹 Tareas de la Casa:</label>
-                                <input type="text" id="hoy-casa" class="input-estetico" placeholder="Sacar basura, regar plantas...">
+                                <label>🧹 Tareas de la Casa de Hoy:</label>
+                                <div class="mini-form-inline">
+                                    <input type="text" id="input-tarea-casa-hoy" class="input-estetico" placeholder="Agregar tarea de casa (Enter)...">
+                                    <button type="button" id="btn-add-tarea-casa-hoy" class="btn-accion-icono">+</button>
+                                </div>
+                                <ul id="lista-tareas-casa-hoy" class="mini-lista-hoy interactiva" style="margin-top: 6px;"></ul>
                             </div>
                             <div class="campo-mitad">
                                 <label>🎨 Hobbies / Pasatiempos:</label>
@@ -462,13 +466,22 @@
             </div>
             
             <div class="campo">
-                <label>🍽️ Menú del día:</label>
-                <textarea id="texto-menu" class="auto-expand" rows="1" placeholder="¿Qué comiste hoy?"></textarea>
+                <label>🍽️ Registro de Comidas:</label>
+                <div class="grid-comidas-cuatro">
+                    <input type="text" id="modal-desayuno" class="input-estetico" placeholder="☕ Desayuno...">
+                    <input type="text" id="modal-almuerzo" class="input-estetico" placeholder="🥗 Almuerzo...">
+                    <input type="text" id="modal-cena" class="input-estetico" placeholder="🍲 Cena...">
+                    <input type="text" id="modal-snacks" class="input-estetico" placeholder="🍎 Snacks...">
+                </div>
             </div>
 
             <div class="campo">
-                <label>🧹 Tareas de la casa:</label>
-                <textarea id="texto-casa" class="auto-expand" rows="1" placeholder="Ej: Sacar basura, regar plantas..."></textarea>
+                <label>🧹 Tareas de la Casa del Día:</label>
+                <div class="input-evento-wrapper">
+                    <input type="text" id="input-tarea-casa-modal" class="input-estetico" placeholder="Agregar tarea de casa (Enter)...">
+                    <button type="button" id="btn-add-tarea-casa-modal" class="btn-accion-icono">+</button>
+                </div>
+                <ul id="lista-tareas-casa-modal" class="mini-lista-hoy interactiva" style="margin-top: 6px;"></ul>
             </div>
 
             <div class="campo">
