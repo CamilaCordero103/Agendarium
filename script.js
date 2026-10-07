@@ -430,6 +430,14 @@ function renderizarCalendario() {
         cuadro.addEventListener('click', () => abrirModalDia(claveFecha, dia, nombresMeses[mes]));
         grillaCalendario.appendChild(cuadro);
     }
+    const añoM = fechaActual.getFullYear();
+    const mesM = fechaActual.getMonth();
+    const totalDiasM = new Date(añoM, mesM + 1, 0).getDate();
+    const fechasMes = [];
+    for (let d = 1; d <= totalDiasM; d++) {
+        fechasMes.push(`${añoM}-${String(mesM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+    }
+    renderizarHeatmapContenedor('heatmap-mes', fechasMes);
 }
 
 function abrirModalDia(clave, dia, mesNombre) {
@@ -2168,9 +2176,9 @@ if (btnEditarPrioridades) {
     });
 }
 
-document.querySelectorAll('.btn-filtro-semana').forEach(btn => {
+document.querySelectorAll('#semanal .btn-filtro-semana').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-filtro-semana').forEach(b => b.classList.remove('activo'));
+        document.querySelectorAll('#semanal .btn-filtro-semana').forEach(b => b.classList.remove('activo'));
         btn.classList.add('activo');
         filtroSemanaActual = btn.getAttribute('data-filtro');
         renderizarVistaSemana();
@@ -2307,6 +2315,13 @@ function renderizarVistaSemana() {
 
         contenedorParrilla.appendChild(col);
     }
+    const fechasSemana = [];
+    for (let i = 0; i < 7; i++) {
+        const dCol = new Date(fechaLunes);
+        dCol.setDate(fechaLunes.getDate() + i);
+        fechasSemana.push(`${dCol.getFullYear()}-${String(dCol.getMonth() + 1).padStart(2, '0')}-${String(dCol.getDate()).padStart(2, '0')}`);
+    }
+    renderizarHeatmapContenedor('heatmap-semana', fechasSemana);
 }
 
 function guardarDatosSemana() {
@@ -2506,6 +2521,14 @@ function renderizarVistaAno() {
 
         gridMeses.appendChild(card);
     }
+    const fechasAno = [];
+    for (let m = 0; m < 12; m++) {
+        const totalD = new Date(anoSeleccionado, m + 1, 0).getDate();
+        for (let d = 1; d <= totalD; d++) {
+            fechasAno.push(`${anoSeleccionado}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+        }
+    }
+    renderizarHeatmapContenedor('heatmap-ano', fechasAno);
 }
 
 // ==========================================
@@ -3219,7 +3242,101 @@ if (btnAplicarCustomPomo) {
 }
 
 // ==========================================
-// 18. INICIALIZACIÓN GENERAL
+// 18. LÓGICA WELLNESS HEATMAP (MAPA DE CALOR)
+// ==========================================
+function calcularBienestarDia(claveFecha) {
+    const datos = JSON.parse(localStorage.getItem(claveFecha)) || {};
+
+    const tieneAnimo = datos.animo && datos.animo !== "";
+    const vasos = typeof datos.vasosAgua === 'number' ? datos.vasosAgua : 0;
+
+    // Hábitos del día
+    const fechaObj = new Date(claveFecha + 'T00:00:00');
+    const diaSem = fechaObj.getDay();
+    let habsProgramados = 0;
+    let habsHechos = 0;
+
+    if (Array.isArray(listaHabitos)) {
+        listaHabitos.forEach(h => {
+            const dias = Array.isArray(h.diasProgramados) ? h.diasProgramados : [0, 1, 2, 3, 4, 5, 6];
+            if (dias.includes(diaSem)) {
+                habsProgramados++;
+                if (h.historial && h.historial[claveFecha]) habsHechos++;
+            }
+        });
+    }
+
+    // Si el día no tiene absolutamente ningún registro, queda en nivel 0 (gris)
+    const tieneRegistros = tieneAnimo || vasos > 0 || habsHechos > 0;
+    if (!tieneRegistros) {
+        const habsTxt = habsProgramados > 0 ? `🌱 Hábitos: 0/${habsProgramados}` : '🌱 Hábitos: Sin hábitos hoy';
+        return {
+            porcentaje: 0,
+            nivel: 0,
+            tooltip: `${claveFecha}\nÁnimo: Sin registro\n🥛 Agua: 0/8 vasos (0%)\n${habsTxt}\n✨ Bienestar: 0%`
+        };
+    }
+
+    // 1. Ánimo (0% a 100%) - Si hay actividad en el día pero no registraste ánimo, se toma como 0%
+    const valoresAnimo = { "😄": 100, "🙂": 75, "😐": 50, "😔": 25, "😡": 0 };
+    const ptsAnimo = tieneAnimo ? valoresAnimo[datos.animo] : 0;
+
+    // 2. Agua (0% a 100%) - SIEMPRE entra al promedio como pilar fundamental
+    const ptsAgua = Math.min(100, Math.round((vasos / 8) * 100));
+
+    // 3. Hábitos (0% a 100%)
+    const ptsHabs = habsProgramados > 0 ? Math.round((habsHechos / habsProgramados) * 100) : null;
+
+    // Promedio Real de Pilares
+    const factores = [ptsAnimo, ptsAgua];
+    if (ptsHabs !== null) {
+        factores.push(ptsHabs); // Solo entra al promedio si hay hábitos programados para ese día
+    }
+
+    const porcentajeFinal = Math.round(factores.reduce((a, b) => a + b, 0) / factores.length);
+
+    let nivel = 0;
+    if (porcentajeFinal > 0 && porcentajeFinal <= 25) nivel = 1;
+    else if (porcentajeFinal > 25 && porcentajeFinal <= 50) nivel = 2;
+    else if (porcentajeFinal > 50 && porcentajeFinal <= 80) nivel = 3;
+    else if (porcentajeFinal > 80) nivel = 4;
+
+    // Texto descriptivo detallado para el Tooltip
+    const animoTxt = tieneAnimo ? `Ánimo: ${datos.animo} (${ptsAnimo}%)` : 'Ánimo: Sin registro (0%)';
+    const aguaTxt = `🥛 Agua: ${vasos}/8 vasos (${ptsAgua}%)`;
+    const habsTxt = habsProgramados > 0 ? `🌱 Hábitos: ${habsHechos}/${habsProgramados} (${ptsHabs}%)` : '🌱 Hábitos: Descanso';
+    const tooltipText = `${claveFecha}\n${animoTxt}\n${aguaTxt}\n${habsTxt}\n✨ Bienestar: ${porcentajeFinal}%`;
+
+    return { porcentaje: porcentajeFinal, nivel: nivel, tooltip: tooltipText };
+}
+
+function renderizarHeatmapContenedor(contenedorId, listaFechas) {
+    const contenedor = document.getElementById(contenedorId);
+    if (!contenedor) return;
+    contenedor.innerHTML = "";
+
+    listaFechas.forEach(claveFecha => {
+        const info = calcularBienestarDia(claveFecha);
+        const celda = document.createElement('div');
+        celda.classList.add('celda-heatmap', `nivel-${info.nivel}`);
+        celda.setAttribute('data-tooltip', info.tooltip);
+
+        // Al hacer clic abre el modal del día
+        celda.addEventListener('click', () => {
+            const partes = claveFecha.split('-');
+            if (partes.length === 3) {
+                const fObj = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+                const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+                abrirModalDia(claveFecha, parseInt(partes[2]), nombresMeses[fObj.getMonth()]);
+            }
+        });
+
+        contenedor.appendChild(celda);
+    });
+}
+
+// ==========================================
+// 19. INICIALIZACIÓN GENERAL
 // ==========================================
 cargarFraseAleatoria();
 actualizarSelectCategorias();

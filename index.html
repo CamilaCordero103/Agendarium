@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Favicon con Emoji de Nube ☁️ -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
     <title>Agendarium</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -28,7 +28,7 @@
                 <button class="btn-pestana" data-destino="calendario">🗓️ Mes</button>
                 <button class="btn-pestana" data-destino="anual">🎯 Año</button>
                 <button class="btn-pestana" data-destino="tareas">☑️ Tareas</button>
-                <button class="btn-pestana" data-destino="habitos">🐸 Hábitos</button>
+                <button class="btn-pestana" data-destino="habitos">🌱 Hábitos</button>
                 <button class="btn-pestana" data-destino="notas">📌 Notas</button>
                 <button type="button" id="btn-modal-backup" class="btn-pestana" style="margin-top: 15px; color: var(--iced-denim); font-weight: 800;">💾 Copia de Seguridad</button>
             </nav>
@@ -41,7 +41,7 @@
             <section id="inicio" class="pagina activa">
                 <div class="encabezado-hoy">
                     <div class="cabecera-hoy-flex">
-                        <h2>☀️ Vista Hoy</h2>
+                        <h2>☀️ Hoy</h2>
                         <span id="hoy-fase-lunar" class="badge-fase-lunar">🌕 Cargar Luna...</span>
                     </div>
                     <div class="caja-frase">
@@ -128,7 +128,7 @@
                     <!-- CARD TEMPORIZADOR COZY (POMODORO + CUENTA ATRÁS) -->
                     <div class="tarjeta-hoy tarjeta-pomodoro">
                         <div class="cabecera-card-flex" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <h3>🍅 Temporizador Cozy</h3>
+                            <h3>⏱️ Temporizador</h3>
                             <div class="pills-filtros-semana">
                                 <button type="button" id="btn-pomo-pomodoro" class="btn-filtro-semana activo">🍅 Pomodoro</button>
                                 <button type="button" id="btn-pomo-custom" class="btn-filtro-semana">⏱️ Cuenta Atrás</button>
@@ -170,7 +170,7 @@
                     <!-- Fila Hábitos Hoy -->
                     <div class="tarjeta-hoy tarjeta-rectangulo-medio">
                         <div class="cabecera-habitos-hoy">
-                            <h3>🐸 Rastreador de Hábitos del Día</h3>
+                            <h3>🌱 Rastreador de Hábitos del Día</h3>
                             <span id="progreso-habitos-texto" class="badge-progreso">0/0 completados</span>
                         </div>
                         
@@ -242,7 +242,7 @@
             <!-- Vista 2: Semana -->
             <section id="semanal" class="pagina">
                 <div class="encabezado-semana">
-                    <h2>📅 Vista Semana</h2>
+                    <h2>📅 Semana</h2>
                     <div class="navegacion-semana">
                         <button id="btn-semana-ant" class="btn-estetico-secundario">&lt;</button>
                         <span id="label-rango-semana" class="badge-semana">Cargando semana...</span>
@@ -304,6 +304,17 @@
                     </div>
                 </div>
 
+                <!-- HEATMAP SEMANAL -->
+                <div class="caja-heatmap-wrapper">
+                    <div class="cabecera-heatmap-flex">
+                        <span class="titulo-heatmap">📊 Balance de Bienestar de la Semana</span>
+                        <div class="leyenda-heatmap-mini">
+                            <span class="leyenda-dot nivel-0"></span> <span class="leyenda-dot nivel-1"></span> <span class="leyenda-dot nivel-2"></span> <span class="leyenda-dot nivel-3"></span> <span class="leyenda-dot nivel-4"></span>
+                        </div>
+                    </div>
+                    <div id="heatmap-semana" class="grid-heatmap-semana"></div>
+                </div>
+
                 <!-- Parrilla de 7 Días -->
                 <div id="parrilla-semana-dias" class="parrilla-semana-dias"></div>
             </section>
@@ -318,6 +329,20 @@
                     </div>
                 </div>
 
+                <!-- HEATMAP MENSUAL (UBICADO ARRIBA DE LOS DÍAS) -->
+                <div class="caja-heatmap-wrapper" style="margin-bottom: 16px;">
+                    <div class="cabecera-heatmap-flex">
+                        <span class="titulo-heatmap">📊 Mapa del Mes</span>
+                        <div class="leyenda-heatmap-mini">
+                            <span>Bajo</span>
+                            <span class="leyenda-dot nivel-0"></span><span class="leyenda-dot nivel-1"></span><span class="leyenda-dot nivel-2"></span><span class="leyenda-dot nivel-3"></span><span class="leyenda-dot nivel-4"></span>
+                            <span>Alto</span>
+                        </div>
+                    </div>
+                    <div id="heatmap-mes" class="grid-heatmap-mes"></div>
+                </div>
+
+                <!-- Nombres de los Días -->
                 <div class="dias-semana">
                     <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div>
                     <div>Vie</div><div>Sáb</div><div>Dom</div>
@@ -329,7 +354,7 @@
             <!-- Vista 4: Año -->
             <section id="anual" class="pagina">
                 <div class="encabezado-semana">
-                    <h2>🎯 Vista Año</h2>
+                    <h2>🎯 Año</h2>
                     <div class="navegacion-semana">
                         <button id="btn-ano-ant" class="btn-estetico-secundario">&lt;</button>
                         <span id="label-ano-actual" class="badge-semana">2026</span>
@@ -383,6 +408,19 @@
                     </div>
                 </div>
 
+                <!-- HEATMAP ANUAL COMPLETO -->
+                <div class="caja-heatmap-wrapper" style="margin-top: 20px;">
+                    <div class="cabecera-heatmap-flex">
+                        <span class="titulo-heatmap">📊 Mapa de Bienestar Anual</span>
+                        <div class="leyenda-heatmap-mini">
+                            <span>0%</span>
+                            <span class="leyenda-dot nivel-0"></span><span class="leyenda-dot nivel-1"></span><span class="leyenda-dot nivel-2"></span><span class="leyenda-dot nivel-3"></span><span class="leyenda-dot nivel-4"></span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                    <div id="heatmap-ano" class="grid-heatmap-ano"></div>
+                </div>
+
                 <!-- 12 Meses -->
                 <h3 style="margin: 25px 0 12px 0; color: var(--iced-denim); font-size: 14px; font-weight: 800;">🗓️ Vista Previa de los 12 Meses</h3>
                 <div id="grid-12-meses" class="grid-12-meses"></div>
@@ -390,7 +428,7 @@
 
             <!-- Vista 5: Tareas -->
             <section id="tareas" class="pagina">
-                <h2>Lista de Tareas</h2>
+                <h2>☑️ Lista de Tareas</h2>
                 
                 <div class="caja-nueva-tarea">
                     <input type="text" id="input-nueva-tarea" class="input-estetico" placeholder="¿Qué tienes que hacer?">
@@ -429,14 +467,14 @@
             <!-- Vista 6: Hábitos -->
             <section id="habitos" class="pagina">
                 <div class="cabecera-habitos-modulo">
-                    <h2>🐸 Rastreador de Hábitos Mensual</h2>
+                    <h2>🌱 Rastreador de Hábitos Mensual</h2>
                 </div>
 
                 <div class="layout-habitos-vertical">
                     <!-- Recompensa Pixel Art -->
                     <div class="tarjeta-pixel-art-top">
                         <div class="pixel-art-header">
-                            <h3>🎨 Recompensa en Píxeles del Mes</h3>
+                            <h3>🎨 Recompensa</h3>
                             <button type="button" id="btn-cambiar-pixel-art" class="btn-estetico-secundario">🎲 Cambiar Ilustración</button>
                         </div>
                         
@@ -476,7 +514,7 @@
             <!-- Vista 7: Notas -->
             <section id="notas" class="pagina">
                 <div class="cabecera-notas">
-                    <h2>Muro de Notas</h2>
+                    <h2>📌 Muro de Notas</h2>
                     <button id="btn-nueva-nota" class="btn-estetico-principal">+ Nueva Nota</button>
                 </div>
                 
