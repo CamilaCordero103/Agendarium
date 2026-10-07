@@ -30,6 +30,7 @@
                 <button class="btn-pestana" data-destino="tareas">☑️ Tareas</button>
                 <button class="btn-pestana" data-destino="habitos">🐸 Hábitos</button>
                 <button class="btn-pestana" data-destino="notas">📌 Notas</button>
+                <button type="button" id="btn-modal-backup" class="btn-pestana" style="margin-top: 15px; color: var(--iced-denim); font-weight: 800;">💾 Copia de Seguridad</button>
             </nav>
         </aside>
 
@@ -94,6 +95,75 @@
                                 <button type="button" id="btn-add-tarea-hoy" class="btn-accion-icono">+</button>
                             </div>
                             <ul id="mini-tareas-hoy" class="mini-lista-hoy interactiva"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Card Control de Hidratación -->
+                    <div class="tarjeta-hoy tarjeta-hidratacion">
+                        <div class="cabecera-card-flex" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>💧 Control de Hidratación</h3>
+                            <span id="badge-agua-hoy" class="badge-progreso">0/8 vasos (0ml)</span>
+                        </div>
+
+                        <div class="layout-hidratacion-flex">
+                            <!-- Vaso con animación de llenado líquido -->
+                            <div class="vaso-agua-wrapper">
+                                <div id="liquido-agua" class="liquido-agua" style="height: 0%;"></div>
+                                <span id="texto-vaso-centro" class="texto-vaso-centro">0 ml</span>
+                            </div>
+
+                            <!-- Fila de vasitos + botones -->
+                            <div class="col-controles-agua">
+                                <div id="fila-iconos-vasos" class="fila-iconos-vasos">
+                                    <!-- Se generan automáticamente 8 vasitos 🥛 -->
+                                </div>
+                                <div class="botones-agua-flex">
+                                    <button type="button" id="btn-restar-agua" class="btn-estetico-secundario" style="padding: 4px 10px; font-size: 11px;">-1 Vaso</button>
+                                    <button type="button" id="btn-sumar-agua" class="btn-estetico-principal" style="padding: 4px 12px; font-size: 11px;">+1 Vaso (250ml)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD TEMPORIZADOR COZY (POMODORO + CUENTA ATRÁS) -->
+                    <div class="tarjeta-hoy tarjeta-pomodoro">
+                        <div class="cabecera-card-flex" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <h3>🍅 Temporizador Cozy</h3>
+                            <div class="pills-filtros-semana">
+                                <button type="button" id="btn-pomo-pomodoro" class="btn-filtro-semana activo">🍅 Pomodoro</button>
+                                <button type="button" id="btn-pomo-custom" class="btn-filtro-semana">⏱️ Cuenta Atrás</button>
+                            </div>
+                        </div>
+
+                        <div class="layout-pomodoro-flex">
+                            <!-- Reloj Display -->
+                            <div class="reloj-cozy-display">
+                                <span id="pomo-display-tiempo" class="pomo-tiempo">25:00</span>
+                                <span id="pomo-label-estado" class="pomo-estado">Enfoque (25m)</span>
+                            </div>
+
+                            <!-- Controles -->
+                            <div class="col-controles-pomo">
+                                <!-- Inputs para Cuenta Atrás Personalizada (Oculto en modo Pomodoro) -->
+                                <div id="caja-inputs-custom-pomo" class="caja-inputs-custom-pomo oculto">
+                                    <div class="grupo-input-tiempo">
+                                        <input type="number" id="input-pomo-horas" min="0" max="23" value="0" placeholder="0">
+                                        <label>hs</label>
+                                    </div>
+                                    <span style="font-weight: 800; color: var(--iced-denim);">:</span>
+                                    <div class="grupo-input-tiempo">
+                                        <input type="number" id="input-pomo-minutos" min="0" max="59" value="45" placeholder="45">
+                                        <label>min</label>
+                                    </div>
+                                    <button type="button" id="btn-aplicar-custom-pomo" class="btn-pill-mini">Fijar</button>
+                                </div>
+
+                                <!-- Botones Iniciar / Pausar / Reiniciar -->
+                                <div class="botones-pomo-flex">
+                                    <button type="button" id="btn-pomo-start" class="btn-estetico-principal">▶️ Iniciar</button>
+                                    <button type="button" id="btn-pomo-reset" class="btn-estetico-secundario">🔄 Reiniciar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -410,6 +480,14 @@
                     <button id="btn-nueva-nota" class="btn-estetico-principal">+ Nueva Nota</button>
                 </div>
                 
+                <!-- BARRA DE FILTRO POR ETIQUETAS DE NOTAS -->
+                <div class="barra-filtros-semana" style="margin-bottom: 16px;">
+                    <span class="titulo-filtros-semana">Filtrar por etiqueta:</span>
+                    <div id="pills-filtros-notas" class="pills-filtros-semana" style="flex-wrap: wrap;">
+                        <button type="button" class="btn-filtro-semana activo" data-tag="todas">🎛️ Todas</button>
+                    </div>
+                </div>
+
                 <div id="contenedor-notas" class="contenedor-notas"></div>
             </section>
 
@@ -529,6 +607,45 @@
         <span id="cerrar-lightbox" class="cerrar-lightbox">&times;</span>
         <img id="imagen-ampliada" src="" alt="Imagen ampliada">
     </div>
+
+    <!-- MODAL COPIA DE SEGURIDAD (EXPORTAR / IMPORTAR) -->
+<div id="modal-backup" class="modal oculto">
+    <div class="contenido-modal papel-organico" style="width: 400px;">
+        <span id="cerrar-modal-backup" class="cerrar">&times;</span>
+        <h3>💾 Copia de Seguridad</h3>
+        <p style="font-size: 12px; color: #64748b; margin: 6px 0 16px 0;">Sincroniza y respalda todos los datos de tu Agendarium entre tu celular y tu notebook.</p>
+
+        <!-- Sección Exportar -->
+        <div class="caja-seccion-backup">
+            <h4>📥 Exportar Respaldo</h4>
+            <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Descarga una copia con todas tus tareas, hábitos, notas y fotos.</p>
+            <button type="button" id="btn-exportar-json" class="btn-estetico-principal" style="width: 100%;">⬇️ Descargar Copia (.json)</button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed var(--borde-suave); margin: 16px 0;">
+
+        <!-- Sección Importar -->
+        <div class="caja-seccion-backup">
+            <h4>📤 Importar o Mezclar Respaldo</h4>
+            <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Selecciona el archivo `.json` que descargaste en tu otro dispositivo.</p>
+            
+            <input type="file" id="input-archivo-backup" accept=".json" style="font-size: 11px; margin-bottom: 10px; width: 100%;">
+
+            <div class="opciones-modo-importar" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+                <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
+                    <input type="radio" name="modo-importacion" value="mezclar" checked>
+                    🔀 <b>Mezcla Inteligente</b> (Conserva lo nuevo de ambos)
+                </label>
+                <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
+                    <input type="radio" name="modo-importacion" value="reemplazar">
+                    ⚠️ <b>Reemplazar Todo</b> (Limpia y deja solo el respaldo)
+                </label>
+            </div>
+
+            <button type="button" id="btn-importar-json" class="btn-estetico-secundario" style="width: 100%;">🔄 Cargar en Agendarium</button>
+        </div>
+    </div>
+</div>
 
     <script src="script.js"></script>
 </body>

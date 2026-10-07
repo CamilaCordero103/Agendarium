@@ -49,18 +49,20 @@ function cargarFraseAleatoria() {
 }
 
 // ==========================================
-// 2. CAMBIO DE PESTAÑAS
+// 2. CAMBIO DE PESTAÑAS (PROTEGIDO)
 // ==========================================
 const botonesPestana = document.querySelectorAll('.btn-pestana');
 const paginas = document.querySelectorAll('.pagina');
 
 botonesPestana.forEach(boton => {
     boton.addEventListener('click', () => {
+        const destino = boton.getAttribute('data-destino');
+        if (!destino) return; // Evita dejar la pantalla en blanco
+
         botonesPestana.forEach(btn => btn.classList.remove('activa'));
         paginas.forEach(pag => pag.classList.remove('activa'));
 
         boton.classList.add('activa');
-        const destino = boton.getAttribute('data-destino');
         const pagDestino = document.getElementById(destino);
         if (pagDestino) pagDestino.classList.add('activa');
     });
@@ -105,29 +107,48 @@ document.addEventListener('input', function(e) {
 });
 
 // ==========================================
-// 5. CONFETI
+// 5. CONFETI (ABANICO COMPACTO)
 // ==========================================
 function lanzarConfeti(x, y) {
     const colores = ['#ff4081', '#7c4dff', '#00e676', '#ffeb3b', '#ff9100', '#5798D7', '#B9C255'];
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 50; i++) {
         const confeti = document.createElement('div');
         confeti.classList.add('particula-confeti');
+        
+        const ancho = 6 + Math.random() * 4;
+        const alto = 8 + Math.random() * 5;
+        confeti.style.width = `${ancho}px`;
+        confeti.style.height = `${alto}px`;
+        
         confeti.style.left = `${x}px`;
         confeti.style.top = `${y}px`;
         confeti.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
         
-        const angulo = Math.random() * Math.PI * 2;
-        const distancia = 80 + Math.random() * 180;
-        confeti.style.setProperty('--dx', `${Math.cos(angulo) * distancia}px`);
-        confeti.style.setProperty('--dy', `${Math.sin(angulo) * distancia - 60}px`);
+        const dx = (Math.random() - 0.5) * 480;
+        const dy = -Math.random() * 160 - 30;
+        
+        confeti.style.setProperty('--dx', `${dx}px`);
+        confeti.style.setProperty('--dy', `${dy}px`);
 
         document.body.appendChild(confeti);
-        setTimeout(() => confeti.remove(), 5600);
+        setTimeout(() => confeti.remove(), 4500);
     }
 }
 
+function lanzarConfetiEnElemento(elemento) {
+    if (!elemento || typeof lanzarConfeti !== 'function') return;
+    const rect = elemento.getBoundingClientRect();
+    const centroX = rect.left + (rect.width / 2);
+    const centroY = rect.top + (rect.height / 2);
+    
+    lanzarConfeti(centroX, centroY);
+    setTimeout(() => lanzarConfeti(centroX - 40, centroY), 150);
+    setTimeout(() => lanzarConfeti(centroX + 40, centroY), 300);
+}
+
+
 // ==========================================
-// 6. CALENDARIO MES, LUNAS Y CATEGORÍAS DINÁMICAS
+// 6. CALENDARIO MES, LUNAS, CATEGORÍAS Y AUTO-GUARDADO MODAL
 // ==========================================
 let fechaActual = new Date();
 let diaSeleccionadoClave = "";
@@ -263,12 +284,45 @@ function obtenerInfoLuna(fecha = new Date()) {
     }
 }
 
+// LÓGICA AUTO-GUARDADO Y EVENTOS MODAL
+function guardarDatosModalDia() {
+    if (!diaSeleccionadoClave) return;
+    const datosPrevios = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
+    
+    const datosDia = {
+        ...datosPrevios,
+        animo: animoSeleccionado,
+        eventos: eventosTemporales,
+        comidasDetalle: {
+            desayuno: document.getElementById('modal-desayuno') ? document.getElementById('modal-desayuno').value : "",
+            almuerzo: document.getElementById('modal-almuerzo') ? document.getElementById('modal-almuerzo').value : "",
+            cena: document.getElementById('modal-cena') ? document.getElementById('modal-cena').value : "",
+            snacks: document.getElementById('modal-snacks') ? document.getElementById('modal-snacks').value : ""
+        },
+        resumen: document.getElementById('texto-resumen') ? document.getElementById('texto-resumen').value : "",
+        hobbies: document.getElementById('texto-hobbies') ? document.getElementById('texto-hobbies').value : "",
+        imagenesBase64: imagenesBase64Actuales
+    };
+
+    localStorage.setItem(diaSeleccionadoClave, JSON.stringify(datosDia));
+    renderizarCalendario();
+    if (typeof renderizarVistaSemana === 'function') renderizarVistaSemana();
+    if (typeof renderizarVistaAno === 'function') renderizarVistaAno();
+    if (diaSeleccionadoClave === obtenerClaveHoy()) cargarVistaHoy();
+}
+
 document.querySelectorAll('.btn-animo').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.btn-animo').forEach(b => b.classList.remove('seleccionado'));
         btn.classList.add('seleccionado');
         animoSeleccionado = btn.getAttribute('data-animo');
+        guardarDatosModalDia();
     });
+});
+
+['modal-desayuno', 'modal-almuerzo', 'modal-cena', 'modal-snacks', 'texto-resumen', 'texto-hobbies'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', guardarDatosModalDia);
 });
 
 const btnAgregarEvento = document.getElementById('btn-agregar-evento');
@@ -283,6 +337,7 @@ if (btnAgregarEvento) {
             eventosTemporales.push({ tipo: tipoInput.value, texto });
             textoInput.value = "";
             renderizarListaEventosModal();
+            guardarDatosModalDia();
         }
     });
 }
@@ -313,6 +368,7 @@ function renderizarListaEventosModal() {
 window.eliminarEvento = function(index) {
     eventosTemporales.splice(index, 1);
     renderizarListaEventosModal();
+    guardarDatosModalDia();
 };
 
 function renderizarCalendario() {
@@ -407,20 +463,17 @@ function abrirModalDia(clave, dia, mesNombre) {
         actualizarSelectCategorias();
         renderizarListaEventosModal();
 
-        // 1. Cargar Comidas Unificadas en Modal
         const comidas = datos.comidasDetalle || {};
         if (document.getElementById('modal-desayuno')) document.getElementById('modal-desayuno').value = comidas.desayuno || datos.menu || "";
         if (document.getElementById('modal-almuerzo')) document.getElementById('modal-almuerzo').value = comidas.almuerzo || "";
         if (document.getElementById('modal-cena')) document.getElementById('modal-cena').value = comidas.cena || "";
         if (document.getElementById('modal-snacks')) document.getElementById('modal-snacks').value = comidas.snacks || "";
 
-        // 2. Cargar Diario & Hobbies
         const elResumen = document.getElementById('texto-resumen');
         const elHobbies = document.getElementById('texto-hobbies');
         if (elResumen) elResumen.value = datos.resumen || "";
         if (elHobbies) elHobbies.value = datos.hobbies || "";
 
-        // 3. Renderizar Tareas de la Casa
         renderizarTareasCasaModal();
 
         imagenesBase64Actuales = Array.isArray(datos.imagenesBase64) ? datos.imagenesBase64 : [];
@@ -436,50 +489,43 @@ function abrirModalDia(clave, dia, mesNombre) {
 
 const btnGuardarDia = document.getElementById('btn-guardar-dia');
 if (btnGuardarDia) {
+    btnGuardarDia.textContent = "✔ Listo";
     btnGuardarDia.addEventListener('click', () => {
+        guardarDatosModalDia();
         const modal = document.getElementById('modal-dia');
-        const datosPrevios = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
-        
-        const datosDia = {
-            ...datosPrevios,
-            animo: animoSeleccionado,
-            eventos: eventosTemporales,
-            comidasDetalle: {
-                desayuno: document.getElementById('modal-desayuno') ? document.getElementById('modal-desayuno').value : "",
-                almuerzo: document.getElementById('modal-almuerzo') ? document.getElementById('modal-almuerzo').value : "",
-                cena: document.getElementById('modal-cena') ? document.getElementById('modal-cena').value : "",
-                snacks: document.getElementById('modal-snacks') ? document.getElementById('modal-snacks').value : ""
-            },
-            resumen: document.getElementById('texto-resumen') ? document.getElementById('texto-resumen').value : "",
-            hobbies: document.getElementById('texto-hobbies') ? document.getElementById('texto-hobbies').value : "",
-            imagenesBase64: imagenesBase64Actuales
-        };
-
-        localStorage.setItem(diaSeleccionadoClave, JSON.stringify(datosDia));
         if (modal) modal.classList.add('oculto');
-
-        renderizarCalendario();
-        if (typeof renderizarVistaSemana === 'function') renderizarVistaSemana();
-        if (typeof renderizarVistaAno === 'function') renderizarVistaAno();
-        cargarVistaHoy();
     });
 }
 
 const cerrarModal = document.getElementById('cerrar-modal');
 if (cerrarModal) {
     cerrarModal.addEventListener('click', () => {
+        guardarDatosModalDia();
         const modal = document.getElementById('modal-dia');
         if (modal) modal.classList.add('oculto');
     });
 }
+
+// CIERRE AUTOMÁTICO DE MODALES AL CLICAR FUERA DE LA CAJA
+document.querySelectorAll('.modal').forEach(modalElement => {
+    modalElement.addEventListener('click', (e) => {
+        if (e.target === modalElement) {
+            if (modalElement.id === 'modal-dia') {
+                guardarDatosModalDia();
+            }
+            modalElement.classList.add('oculto');
+        }
+    });
+});
 
 const btnMesAnt = document.getElementById('mes-anterior');
 const btnMesSig = document.getElementById('mes-siguiente');
 if (btnMesAnt) btnMesAnt.addEventListener('click', () => { fechaActual.setMonth(fechaActual.getMonth() - 1); renderizarCalendario(); });
 if (btnMesSig) btnMesSig.addEventListener('click', () => { fechaActual.setMonth(fechaActual.getMonth() + 1); renderizarCalendario(); });
 
+
 // ==========================================
-// 7. LÓGICA MÓDULO DE TAREAS, ATRASADAS Y REAGENDAMIENTO
+// 7. MÓDULO DE TAREAS (CON EDICIÓN DIRECTA)
 // ==========================================
 let listaTareas = JSON.parse(localStorage.getItem('mis_tareas_agenda')) || [];
 let tareaEnEdicionId = null;
@@ -513,17 +559,13 @@ function esTareaAtrasada(tarea) {
     domingoBase.setDate(lunesBase.getDate() + 6);
     domingoBase.setHours(23, 59, 59, 999);
 
-    if (tarea.categoria === 'hoy') {
-        return hoyReal.getTime() > fechaBase.getTime();
-    }
+    if (tarea.categoria === 'hoy') return hoyReal.getTime() > fechaBase.getTime();
     if (tarea.categoria === 'manana') {
         const diaMananaBase = new Date(fechaBase);
         diaMananaBase.setDate(fechaBase.getDate() + 1);
         return hoyReal.getTime() > diaMananaBase.getTime();
     }
-    if (tarea.categoria === 'esta_semana' || tarea.categoria === 'fin_semana') {
-        return hoyReal.getTime() > domingoBase.getTime();
-    }
+    if (tarea.categoria === 'esta_semana' || tarea.categoria === 'fin_semana') return hoyReal.getTime() > domingoBase.getTime();
     if (tarea.categoria === 'prox_semana') {
         const domingoProxBase = new Date(domingoBase);
         domingoProxBase.setDate(domingoBase.getDate() + 7);
@@ -611,13 +653,7 @@ function renderizarTareas() {
     const tareasEnTiempo = pendientes.filter(t => !esTareaAtrasada(t));
 
     ordenCategorias.forEach(catClave => {
-        let tareasDeGrupo = [];
-
-        if (catClave === 'atrasadas') {
-            tareasDeGrupo = tareasAtrasadas;
-        } else {
-            tareasDeGrupo = tareasEnTiempo.filter(t => t.categoria === catClave);
-        }
+        let tareasDeGrupo = (catClave === 'atrasadas') ? tareasAtrasadas : tareasEnTiempo.filter(t => t.categoria === catClave);
 
         if (tareasDeGrupo.length > 0) {
             const grupoDiv = document.createElement('div');
@@ -676,9 +712,30 @@ function crearElementoTarjetaTarea(tarea, esAtrasada) {
         }
     });
 
+    // TEXTO CON EDICIÓN DIRECTA
     const textoSpan = document.createElement('span');
     textoSpan.classList.add('texto-tarea');
+    textoSpan.contentEditable = "true";
     textoSpan.textContent = esAtrasada ? `⚠️ ${tarea.texto}` : tarea.texto;
+
+    textoSpan.addEventListener('blur', () => {
+        let nuevoTexto = textoSpan.textContent.replace(/^⚠️\s*/, '').trim();
+        if (nuevoTexto !== "" && nuevoTexto !== tarea.texto) {
+            tarea.texto = nuevoTexto;
+            guardarYRenderizarTareas();
+            if (typeof cargarVistaHoy === 'function') cargarVistaHoy();
+            if (typeof renderizarVistaSemana === 'function') renderizarVistaSemana();
+        } else if (nuevoTexto === "") {
+            textoSpan.textContent = esAtrasada ? `⚠️ ${tarea.texto}` : tarea.texto;
+        }
+    });
+
+    textoSpan.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            textoSpan.blur();
+        }
+    });
 
     info.appendChild(checkbox);
     info.appendChild(textoSpan);
@@ -774,14 +831,15 @@ if (btnToggleCompletadas) {
 }
 
 // ==========================================
-// 8. LÓGICA DE NOTAS (FORMATO RICO)
+// 8. MURO DE NOTAS (HASHTAGS Y FILTROS)
 // ==========================================
 let listaNotas = JSON.parse(localStorage.getItem('mis_notas_agenda')) || [];
+let filtroNotaActual = 'todas';
 
 const btnNuevaNota = document.getElementById('btn-nueva-nota');
 if (btnNuevaNota) {
     btnNuevaNota.addEventListener('click', () => {
-        const nuevaNota = { id: Date.now(), titulo: "", contenido: "", color: "amarillo" };
+        const nuevaNota = { id: Date.now(), titulo: "", contenido: "", color: "amarillo", tags: [] };
         listaNotas.unshift(nuevaNota);
         guardarYRenderizarNotas();
     });
@@ -794,10 +852,59 @@ function guardarYRenderizarNotas() {
 
 function renderizarNotas() {
     const contenedor = document.getElementById('contenedor-notas');
+    const contenedorFiltros = document.getElementById('pills-filtros-notas');
     if (!contenedor) return;
+
+    const setTodasEtiquetas = new Set();
+    listaNotas.forEach(n => {
+        if (Array.isArray(n.tags)) {
+            n.tags.forEach(t => setTodasEtiquetas.add(t));
+        }
+    });
+
+    if (contenedorFiltros) {
+        contenedorFiltros.innerHTML = "";
+        
+        const btnTodas = document.createElement('button');
+        btnTodas.type = 'button';
+        btnTodas.classList.add('btn-filtro-semana');
+        if (filtroNotaActual === 'todas') btnTodas.classList.add('activo');
+        btnTodas.textContent = '🎛️ Todas';
+        btnTodas.addEventListener('click', () => {
+            filtroNotaActual = 'todas';
+            renderizarNotas();
+        });
+        contenedorFiltros.appendChild(btnTodas);
+
+        setTodasEtiquetas.forEach(tag => {
+            const btnTag = document.createElement('button');
+            btnTag.type = 'button';
+            btnTag.classList.add('btn-filtro-semana');
+            if (filtroNotaActual === tag) btnTag.classList.add('activo');
+            btnTag.textContent = tag;
+            btnTag.addEventListener('click', () => {
+                filtroNotaActual = tag;
+                renderizarNotas();
+            });
+            contenedorFiltros.appendChild(btnTag);
+        });
+    }
+
     contenedor.innerHTML = "";
 
-    listaNotas.forEach(nota => {
+    const notasFiltradas = listaNotas.filter(nota => {
+        if (filtroNotaActual === 'todas') return true;
+        return Array.isArray(nota.tags) && nota.tags.includes(filtroNotaActual);
+    });
+
+    if (notasFiltradas.length === 0) {
+        contenedor.innerHTML = `<p style="color:#aaa; font-style:italic; font-size:12px; grid-column: 1/-1; text-align:center; padding: 20px;">Sin notas con la etiqueta "${filtroNotaActual}"</p>`;
+        return;
+    }
+
+    notasFiltradas.forEach(nota => {
+        if (!Array.isArray(nota.tags)) nota.tags = [];
+
         const postit = document.createElement('div');
         postit.classList.add('postit', `color-${nota.color}`);
 
@@ -858,6 +965,44 @@ function renderizarNotas() {
             localStorage.setItem('mis_notas_agenda', JSON.stringify(listaNotas));
         });
 
+        const tagsWrapper = document.createElement('div');
+        tagsWrapper.classList.add('postit-tags-wrapper');
+
+        nota.tags.forEach((tag, indexTag) => {
+            const pill = document.createElement('span');
+            pill.classList.add('pill-tag-nota');
+            pill.innerHTML = `${tag} <button type="button" class="btn-del-tag-nota">&times;</button>`;
+            
+            pill.querySelector('.btn-del-tag-nota').addEventListener('click', (e) => {
+                e.stopPropagation();
+                nota.tags.splice(indexTag, 1);
+                guardarYRenderizarNotas();
+            });
+
+            tagsWrapper.appendChild(pill);
+        });
+
+        const inputAddTag = document.createElement('input');
+        inputAddTag.type = 'text';
+        inputAddTag.classList.add('input-add-tag-nota');
+        inputAddTag.placeholder = '#tag';
+        
+        inputAddTag.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                let valor = inputAddTag.value.trim();
+                if (valor !== "") {
+                    if (!valor.startsWith('#')) valor = `#${valor}`;
+                    if (!nota.tags.includes(valor)) {
+                        nota.tags.push(valor);
+                        guardarYRenderizarNotas();
+                    }
+                }
+            }
+        });
+
+        tagsWrapper.appendChild(inputAddTag);
+
         const pie = document.createElement('div');
         pie.classList.add('postit-pie');
 
@@ -892,6 +1037,7 @@ function renderizarNotas() {
         postit.appendChild(inputTitulo);
         postit.appendChild(toolbar);
         postit.appendChild(divContenido);
+        postit.appendChild(tagsWrapper);
         postit.appendChild(pie);
 
         contenedor.appendChild(postit);
@@ -899,7 +1045,7 @@ function renderizarNotas() {
 }
 
 // ==========================================
-// 9. LÓGICA HÁBITOS & PIXEL ART POTENCIADOS
+// 9. HÁBITOS & PIXEL ART (CON EDICIÓN DIRECTA)
 // ==========================================
 let listaHabitos = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
 let indiceDibujoActual = parseInt(localStorage.getItem('indice_pixel_art_agenda')) || 0;
@@ -1178,7 +1324,7 @@ function calcularRachaHabito(habito) {
                 racha++;
             } else {
                 if (curr.getTime() === hoyTemp.getTime()) {
-                    // Si es hoy y aún no lo marca, continúa evaluando días anteriores
+                    // Evaluación de día de hoy
                 } else {
                     break;
                 }
@@ -1293,9 +1439,29 @@ function renderizarModuloHabitos() {
         divInfo.style.flexDirection = 'column';
         divInfo.style.gap = '2px';
 
+        // EDICIÓN DIRECTA EN MÓDULO HÁBITOS
         const spanTexto = document.createElement('span');
         spanTexto.classList.add('nombre-habito-texto');
         spanTexto.textContent = habito.nombre;
+        spanTexto.contentEditable = "true";
+
+        spanTexto.addEventListener('blur', () => {
+            let nuevoNombre = spanTexto.textContent.trim();
+            if (nuevoNombre !== "" && nuevoNombre !== habito.nombre) {
+                habito.nombre = nuevoNombre;
+                localStorage.setItem('mis_habitos_agenda', JSON.stringify(listaHabitos));
+                renderizarHabitosHoy();
+            } else if (nuevoNombre === "") {
+                spanTexto.textContent = habito.nombre;
+            }
+        });
+
+        spanTexto.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                spanTexto.blur();
+            }
+        });
 
         const divSubBadges = document.createElement('div');
         divSubBadges.style.display = 'flex';
@@ -1384,7 +1550,7 @@ function renderizarModuloHabitos() {
 }
 
 // ==========================================
-// 10. LÓGICA VISTA HOY
+// 10. VISTA HOY
 // ==========================================
 function obtenerClaveHoy() {
     const hoy = new Date();
@@ -1479,8 +1645,28 @@ function renderizarHabitosHoy() {
             renderizarModuloHabitos();
         });
 
+        // EDICIÓN DIRECTA EN VISTA HOY
         const spanNombre = document.createElement('span');
         spanNombre.textContent = habito.nombre;
+        spanNombre.contentEditable = "true";
+
+        spanNombre.addEventListener('blur', () => {
+            let nuevoNombre = spanNombre.textContent.trim();
+            if (nuevoNombre !== "" && nuevoNombre !== habito.nombre) {
+                habito.nombre = nuevoNombre;
+                localStorage.setItem('mis_habitos_agenda', JSON.stringify(listaHabitos));
+                renderizarModuloHabitos();
+            } else if (nuevoNombre === "") {
+                spanNombre.textContent = habito.nombre;
+            }
+        });
+
+        spanNombre.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                spanNombre.blur();
+            }
+        });
 
         divIzq.appendChild(checkbox);
         divIzq.appendChild(spanNombre);
@@ -1515,12 +1701,8 @@ function renderizarHabitosHoy() {
 
     if (badgeTexto) {
         if (habitosProgramadosHoy > 0 && completadosHoy >= habitosProgramadosHoy) {
-            // Si recién se activa el Día Perfecto, ¡lanzamos ráfagas de confeti festivo! 🎉
             if (!badgeTexto.classList.contains('perfecto')) {
-                const centroX = window.innerWidth / 2;
-                lanzarConfeti(centroX, 180);
-                setTimeout(() => lanzarConfeti(centroX - 120, 220), 180);
-                setTimeout(() => lanzarConfeti(centroX + 120, 220), 360);
+                lanzarConfetiEnElemento(badgeTexto);
             }
             badgeTexto.textContent = `🌟 ¡Día Perfecto! (${completadosHoy}/${habitosProgramadosHoy})`;
             badgeTexto.classList.add('perfecto');
@@ -1720,6 +1902,8 @@ function cargarVistaHoy() {
     }
 
     renderizarHabitosHoy();
+    renderizarTareasCasaHoy();
+    renderizarHidratacionHoy();
     actualizarMedidorAnimoMes();
 }
 
@@ -1930,7 +2114,7 @@ if (cerrarLB && modalLB) {
 }
 
 // ==========================================
-// 12. LÓGICA MÓDULO SEMANA
+// 12. MÓDULO SEMANA
 // ==========================================
 let offsetSemanas = 0;
 let filtroSemanaActual = "todos";
@@ -2150,7 +2334,7 @@ if (btnSemAnt) btnSemAnt.addEventListener('click', () => { offsetSemanas--; rend
 if (btnSemSig) btnSemSig.addEventListener('click', () => { offsetSemanas++; renderizarVistaSemana(); });
 
 // ==========================================
-// 13. LÓGICA MÓDULO AÑO
+// 13. MÓDULO AÑO
 // ==========================================
 let anoSeleccionado = new Date().getFullYear();
 
@@ -2325,10 +2509,8 @@ function renderizarVistaAno() {
 }
 
 // ==========================================
-// LÓGICA DE TAREAS DE LA CASA (CHECKLIST DÍA)
+// 14. CHECKLIST TAREAS DE LA CASA (HOY + MODAL)
 // ==========================================
-
-// --- TAREAS DE CASA EN VISTA HOY ---
 function renderizarTareasCasaHoy() {
     const ul = document.getElementById('lista-tareas-casa-hoy');
     if (!ul) return;
@@ -2416,7 +2598,6 @@ if (inputCasaHoy) {
     });
 }
 
-// --- TAREAS DE CASA EN MODAL DEL DÍA ---
 function renderizarTareasCasaModal() {
     const ul = document.getElementById('lista-tareas-casa-modal');
     if (!ul || !diaSeleccionadoClave) return;
@@ -2506,7 +2687,539 @@ if (inputCasaModal) {
 }
 
 // ==========================================
-// 14. INICIALIZACIÓN GENERAL
+// 15. COPIA DE SEGURIDAD (BLOB EXPORT + MERGE)
+// ==========================================
+const btnModalBackup = document.getElementById('btn-modal-backup');
+const modalBackup = document.getElementById('modal-backup');
+const cerrarModalBackup = document.getElementById('cerrar-modal-backup');
+
+if (btnModalBackup && modalBackup) {
+    btnModalBackup.addEventListener('click', () => modalBackup.classList.remove('oculto'));
+}
+if (cerrarModalBackup && modalBackup) {
+    cerrarModalBackup.addEventListener('click', () => modalBackup.classList.add('oculto'));
+}
+
+const btnExportarJson = document.getElementById('btn-exportar-json');
+if (btnExportarJson) {
+    btnExportarJson.addEventListener('click', () => {
+        const datosExportar = {};
+        for (let i = 0; i < localStorage.length; i++) {
+            const clave = localStorage.key(i);
+            datosExportar[clave] = localStorage.getItem(clave);
+        }
+
+        const hoy = new Date();
+        const fechaStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+        
+        const blob = new Blob([JSON.stringify(datosExportar, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const descargaAnchor = document.createElement('a');
+        descargaAnchor.href = url;
+        descargaAnchor.download = `Agendarium_Respaldo_${fechaStr}.json`;
+        document.body.appendChild(descargaAnchor);
+        descargaAnchor.click();
+        descargaAnchor.remove();
+        URL.revokeObjectURL(url);
+    });
+}
+
+function smartMergeAgendarium(dataIncoming) {
+    if (dataIncoming.mis_tareas_agenda) {
+        try {
+            let actual = JSON.parse(localStorage.getItem('mis_tareas_agenda')) || [];
+            let incoming = JSON.parse(dataIncoming.mis_tareas_agenda) || [];
+            let mapTareas = new Map();
+
+            actual.forEach(t => mapTareas.set(t.id, t));
+            incoming.forEach(t => {
+                if (mapTareas.has(t.id)) {
+                    let prev = mapTareas.get(t.id);
+                    mapTareas.set(t.id, {
+                        ...prev,
+                        ...t,
+                        completada: prev.completada || t.completada
+                    });
+                } else {
+                    mapTareas.set(t.id, t);
+                }
+            });
+            localStorage.setItem('mis_tareas_agenda', JSON.stringify(Array.from(mapTareas.values())));
+        } catch (e) { console.error("Error mezclando tareas:", e); }
+    }
+
+    if (dataIncoming.mis_notas_agenda) {
+        try {
+            let actual = JSON.parse(localStorage.getItem('mis_notas_agenda')) || [];
+            let incoming = JSON.parse(dataIncoming.mis_notas_agenda) || [];
+            let mapNotas = new Map();
+
+            actual.forEach(n => mapNotas.set(n.id, n));
+            incoming.forEach(n => {
+                if (mapNotas.has(n.id)) {
+                    let prev = mapNotas.get(n.id);
+                    mapNotas.set(n.id, { ...prev, ...n });
+                } else {
+                    mapNotas.set(n.id, n);
+                }
+            });
+            localStorage.setItem('mis_notas_agenda', JSON.stringify(Array.from(mapNotas.values())));
+        } catch (e) { console.error("Error mezclando notas:", e); }
+    }
+
+    if (dataIncoming.mis_habitos_agenda) {
+        try {
+            let actual = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
+            let incoming = JSON.parse(dataIncoming.mis_habitos_agenda) || [];
+            let mapHabitos = new Map();
+
+            actual.forEach(h => mapHabitos.set(h.id, h));
+            incoming.forEach(h => {
+                if (mapHabitos.has(h.id)) {
+                    let prev = mapHabitos.get(h.id);
+                    let mergedHistorial = { ...(prev.historial || {}), ...(h.historial || {}) };
+                    
+                    Object.keys(mergedHistorial).forEach(dateKey => {
+                        mergedHistorial[dateKey] = (prev.historial && prev.historial[dateKey]) || (h.historial && h.historial[dateKey]);
+                    });
+
+                    mapHabitos.set(h.id, {
+                        ...prev,
+                        ...h,
+                        historial: mergedHistorial
+                    });
+                } else {
+                    mapHabitos.set(h.id, h);
+                }
+            });
+            localStorage.setItem('mis_habitos_agenda', JSON.stringify(Array.from(mapHabitos.values())));
+        } catch (e) { console.error("Error mezclando hábitos:", e); }
+    }
+
+    if (dataIncoming.mis_categorias_eventos) {
+        try {
+            let actual = JSON.parse(localStorage.getItem('mis_categorias_eventos')) || [];
+            let incoming = JSON.parse(dataIncoming.mis_categorias_eventos) || [];
+            let mapCats = new Map();
+
+            actual.forEach(c => mapCats.set(c.nombre, c));
+            incoming.forEach(c => {
+                if (!mapCats.has(c.nombre)) mapCats.set(c.nombre, c);
+            });
+            localStorage.setItem('mis_categorias_eventos', JSON.stringify(Array.from(mapCats.values())));
+        } catch (e) { console.error("Error mezclando categorías:", e); }
+    }
+
+    Object.keys(dataIncoming).forEach(key => {
+        if (['mis_tareas_agenda', 'mis_notas_agenda', 'mis_habitos_agenda', 'mis_categorias_eventos', 'tema', 'indice_pixel_art_agenda'].includes(key)) return;
+
+        let prevValStr = localStorage.getItem(key);
+        let incValStr = dataIncoming[key];
+
+        if (!prevValStr) {
+            localStorage.setItem(key, incValStr);
+            return;
+        }
+
+        try {
+            let prevObj = JSON.parse(prevValStr);
+            let incObj = JSON.parse(incValStr);
+
+            if (typeof prevObj === 'object' && prevObj !== null && typeof incObj === 'object' && incObj !== null) {
+                let mergedObj = { ...prevObj };
+
+                if (!mergedObj.animo && incObj.animo) mergedObj.animo = incObj.animo;
+
+                if (Array.isArray(incObj.eventos)) {
+                    let prevEv = Array.isArray(prevObj.eventos) ? prevObj.eventos : [];
+                    let setEvs = new Set(prevEv.map(e => JSON.stringify(e)));
+                    incObj.eventos.forEach(e => setEvs.add(JSON.stringify(e)));
+                    mergedObj.eventos = Array.from(setEvs).map(e => JSON.parse(e));
+                }
+
+                if (Array.isArray(incObj.tareasCasa)) {
+                    let prevTC = Array.isArray(prevObj.tareasCasa) ? prevObj.tareasCasa : [];
+                    let mapTC = new Map();
+                    prevTC.forEach(t => mapTC.set(t.texto, t));
+                    incObj.tareasCasa.forEach(t => {
+                        if (mapTC.has(t.texto)) {
+                            let ex = mapTC.get(t.texto);
+                            mapTC.set(t.texto, { texto: t.texto, completada: ex.completada || t.completada });
+                        } else {
+                            mapTC.set(t.texto, t);
+                        }
+                    });
+                    mergedObj.tareasCasa = Array.from(mapTC.values());
+                }
+
+                if (incObj.comidasDetalle) {
+                    mergedObj.comidasDetalle = mergedObj.comidasDetalle || {};
+                    ['desayuno', 'almuerzo', 'cena', 'snacks'].forEach(c => {
+                        if (!mergedObj.comidasDetalle[c] && incObj.comidasDetalle[c]) {
+                            mergedObj.comidasDetalle[c] = incObj.comidasDetalle[c];
+                        }
+                    });
+                }
+
+                ['resumen', 'casa', 'hobbies', 'enfoque'].forEach(field => {
+                    if (!mergedObj[field] && incObj[field]) mergedObj[field] = incObj[field];
+                    else if (mergedObj[field] && incObj[field] && mergedObj[field] !== incObj[field]) {
+                        if (!mergedObj[field].includes(incObj[field])) {
+                            mergedObj[field] = `${mergedObj[field]}\n---\n${incObj[field]}`;
+                        }
+                    }
+                });
+
+                if (Array.isArray(incObj.imagenesBase64)) {
+                    let prevImg = Array.isArray(prevObj.imagenesBase64) ? prevObj.imagenesBase64 : [];
+                    let setImg = new Set([...prevImg, ...incObj.imagenesBase64]);
+                    mergedObj.imagenesBase64 = Array.from(setImg);
+                }
+
+                localStorage.setItem(key, JSON.stringify(mergedObj));
+            }
+        } catch (e) {
+            if (!prevValStr && incValStr) localStorage.setItem(key, incValStr);
+        }
+    });
+}
+
+const btnImportarJson = document.getElementById('btn-importar-json');
+const inputArchivoBackup = document.getElementById('input-archivo-backup');
+
+if (btnImportarJson && inputArchivoBackup) {
+    btnImportarJson.addEventListener('click', () => {
+        const archivo = inputArchivoBackup.files[0];
+        if (!archivo) {
+            alert("Por favor selecciona un archivo .json de respaldo.");
+            return;
+        }
+
+        const modoOpt = document.querySelector('input[name="modo-importacion"]:checked');
+        const modo = modoOpt ? modoOpt.value : 'mezclar';
+
+        const lector = new FileReader();
+        lector.onload = function(e) {
+            try {
+                const dataIncoming = JSON.parse(e.target.result);
+
+                if (modo === 'reemplazar') {
+                    if (!confirm("⚠️ ¿Estás seguro de REEMPLAZAR todo? Perderás los datos actuales no incluidos en este respaldo.")) return;
+                    localStorage.clear();
+                    Object.keys(dataIncoming).forEach(k => localStorage.setItem(k, dataIncoming[k]));
+                } else {
+                    smartMergeAgendarium(dataIncoming);
+                }
+
+                listaTareas = JSON.parse(localStorage.getItem('mis_tareas_agenda')) || [];
+                listaNotas = JSON.parse(localStorage.getItem('mis_notas_agenda')) || [];
+                listaHabitos = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
+                listaCategoriasEventos = JSON.parse(localStorage.getItem('mis_categorias_eventos')) || listaCategoriasEventos;
+
+                cargarVistaHoy();
+                renderizarCalendario();
+                renderizarVistaSemana();
+                renderizarVistaAno();
+                renderizarTareas();
+                renderizarNotas();
+                renderizarModuloHabitos();
+
+                if (modalBackup) modalBackup.classList.add('oculto');
+                inputArchivoBackup.value = "";
+
+                const centroX = window.innerWidth / 2;
+                if (typeof lanzarConfeti === 'function') {
+                    lanzarConfeti(centroX, 200);
+                    setTimeout(() => lanzarConfeti(centroX, 200), 250);
+                }
+
+                alert("✨ ¡Datos sincronizados con éxito en tu Agendarium!");
+            } catch (err) {
+                alert("Ocurrió un error al leer el archivo de respaldo.");
+                console.error(err);
+            }
+        };
+        lector.readAsText(archivo);
+    });
+}
+
+// ==========================================
+// 16. CONTADOR DE HIDRATACIÓN
+// ==========================================
+const META_VASOS_AGUA = 8;
+const ML_POR_VASO = 250;
+
+function renderizarHidratacionHoy() {
+    const claveHoy = obtenerClaveHoy();
+    const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
+    const vasosAgua = typeof datos.vasosAgua === 'number' ? datos.vasosAgua : 0;
+
+    const badgeAgua = document.getElementById('badge-agua-hoy');
+    const liquidoAgua = document.getElementById('liquido-agua');
+    const textoVaso = document.getElementById('texto-vaso-centro');
+    const filaVasos = document.getElementById('fila-iconos-vasos');
+
+    const totalMl = vasosAgua * ML_POR_VASO;
+    const porcentaje = Math.min(100, Math.round((vasosAgua / META_VASOS_AGUA) * 100));
+
+    if (badgeAgua) {
+        if (vasosAgua >= META_VASOS_AGUA) {
+            if (!badgeAgua.classList.contains('perfecto')) {
+                setTimeout(() => lanzarConfetiEnElemento(badgeAgua), 100);
+            }
+            badgeAgua.textContent = `💧 ¡Meta Cumplida! (${vasosAgua}/${META_VASOS_AGUA} vasos - ${totalMl}ml)`;
+            badgeAgua.classList.add('perfecto');
+        } else {
+            badgeAgua.textContent = `${vasosAgua}/${META_VASOS_AGUA} vasos (${totalMl}ml)`;
+            badgeAgua.classList.remove('perfecto');
+        }
+    }
+
+    if (liquidoAgua) liquidoAgua.style.height = `${porcentaje}%`;
+    if (textoVaso) textoVaso.textContent = `${totalMl} ml`;
+
+    if (filaVasos) {
+        filaVasos.innerHTML = "";
+        for (let i = 1; i <= META_VASOS_AGUA; i++) {
+            const spanVaso = document.createElement('span');
+            spanVaso.classList.add('icono-vasito');
+            if (i <= vasosAgua) spanVaso.classList.add('lleno');
+            spanVaso.textContent = '🥛';
+            spanVaso.title = `${i * ML_POR_VASO} ml`;
+
+            spanVaso.addEventListener('click', () => {
+                const nuevosVasos = (i === vasosAgua) ? i - 1 : i;
+                guardarVasosAgua(nuevosVasos);
+            });
+
+            filaVasos.appendChild(spanVaso);
+        }
+    }
+}
+
+function guardarVasosAgua(cantidad) {
+    const claveHoy = obtenerClaveHoy();
+    const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
+    datos.vasosAgua = Math.max(0, cantidad);
+    localStorage.setItem(claveHoy, JSON.stringify(datos));
+    renderizarHidratacionHoy();
+}
+
+const btnSumarAgua = document.getElementById('btn-sumar-agua');
+const btnRestarAgua = document.getElementById('btn-restar-agua');
+
+if (btnSumarAgua) {
+    btnSumarAgua.addEventListener('click', () => {
+        const claveHoy = obtenerClaveHoy();
+        const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
+        const actual = typeof datos.vasosAgua === 'number' ? datos.vasosAgua : 0;
+        guardarVasosAgua(actual + 1);
+    });
+}
+
+if (btnRestarAgua) {
+    btnRestarAgua.addEventListener('click', () => {
+        const claveHoy = obtenerClaveHoy();
+        const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
+        const actual = typeof datos.vasosAgua === 'number' ? datos.vasosAgua : 0;
+        guardarVasosAgua(actual - 1);
+    });
+}
+
+// ==========================================
+// 17. TEMPORIZADOR COZY
+// ==========================================
+let modoPomoActual = 'pomodoro';
+let fasePomodoro = 'enfoque';
+
+let segundosTotalesPomo = 1500;
+let segundosRestantesPomo = 1500;
+let intervaloPomo = null;
+let corriendoPomo = false;
+
+function sonarCampanaCozy() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const notas = [523.25, 659.25, 783.99];
+        notas.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            
+            const tiempoInicio = ctx.currentTime + (idx * 0.15);
+            gain.gain.setValueAtTime(0.12, tiempoInicio);
+            gain.gain.exponentialRampToValueAtTime(0.0001, tiempoInicio + 0.8);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(tiempoInicio);
+            osc.stop(tiempoInicio + 0.8);
+        });
+    } catch (e) {
+        console.error("Audio Context no disponible:", e);
+    }
+}
+
+function formatearTiempoDisplay(segundos) {
+    const hrs = Math.floor(segundos / 3600);
+    const mins = Math.floor((segundos % 3600) / 60);
+    const secs = segundos % 60;
+
+    const mm = String(mins).padStart(2, '0');
+    const ss = String(secs).padStart(2, '0');
+
+    if (hrs > 0) {
+        const hh = String(hrs).padStart(2, '0');
+        return `${hh}:${mm}:${ss}`;
+    }
+    return `${mm}:${ss}`;
+}
+
+function actualizarDisplayPomo() {
+    const elTiempo = document.getElementById('pomo-display-tiempo');
+    const elEstado = document.getElementById('pomo-label-estado');
+
+    if (elTiempo) elTiempo.textContent = formatearTiempoDisplay(segundosRestantesPomo);
+
+    if (elEstado) {
+        if (modoPomoActual === 'pomodoro') {
+            elEstado.textContent = fasePomodoro === 'enfoque' ? 'Enfoque (25m)' : '☕ Descanso (5m)';
+        } else {
+            elEstado.textContent = '⏱️ Cuenta Atrás';
+        }
+    }
+}
+
+function tickPomo() {
+    if (segundosRestantesPomo > 0) {
+        segundosRestantesPomo--;
+        actualizarDisplayPomo();
+    } else {
+        pausarPomo();
+        sonarCampanaCozy();
+
+        const displayEl = document.getElementById('pomo-display-tiempo');
+        if (typeof lanzarConfeti === 'function' && displayEl) {
+            const rect = displayEl.getBoundingClientRect();
+            lanzarConfeti(rect.left + 50, rect.top);
+        }
+
+        if (modoPomoActual === 'pomodoro') {
+            if (fasePomodoro === 'enfoque') {
+                fasePomodoro = 'descanso';
+                segundosTotalesPomo = 300;
+                segundosRestantesPomo = 300;
+                alert("☕ ¡Tiempo de Enfoque terminado! Tómate 5 minutos de descanso.");
+            } else {
+                fasePomodoro = 'enfoque';
+                segundosTotalesPomo = 1500;
+                segundosRestantesPomo = 1500;
+                alert("💪 ¡Descanso terminado! Listos para volver a enfocar 25 minutos.");
+            }
+        } else {
+            alert("⏱️ ¡Tiempo de la cuenta atrás completado!");
+        }
+
+        actualizarDisplayPomo();
+    }
+}
+
+function iniciarPomo() {
+    if (corriendoPomo) return;
+    corriendoPomo = true;
+    const btnStart = document.getElementById('btn-pomo-start');
+    if (btnStart) btnStart.textContent = "⏸️ Pausar";
+    intervaloPomo = setInterval(tickPomo, 1000);
+}
+
+function pausarPomo() {
+    corriendoPomo = false;
+    if (intervaloPomo) {
+        clearInterval(intervaloPomo);
+        intervaloPomo = null;
+    }
+    const btnStart = document.getElementById('btn-pomo-start');
+    if (btnStart) btnStart.textContent = "▶️ Iniciar";
+}
+
+function resetearPomo() {
+    pausarPomo();
+    if (modoPomoActual === 'pomodoro') {
+        segundosTotalesPomo = fasePomodoro === 'enfoque' ? 1500 : 300;
+    } else {
+        fijarCustomTiempoPomo();
+        return;
+    }
+    segundosRestantesPomo = segundosTotalesPomo;
+    actualizarDisplayPomo();
+}
+
+function fijarCustomTiempoPomo() {
+    const inputHs = document.getElementById('input-pomo-horas');
+    const inputMin = document.getElementById('input-pomo-minutos');
+
+    const hs = inputHs ? Math.max(0, parseInt(inputHs.value) || 0) : 0;
+    const mins = inputMin ? Math.max(0, parseInt(inputMin.value) || 0) : 0;
+
+    let total = (hs * 3600) + (mins * 60);
+    if (total <= 0) total = 60;
+
+    segundosTotalesPomo = total;
+    segundosRestantesPomo = total;
+    actualizarDisplayPomo();
+}
+
+const btnStartPomo = document.getElementById('btn-pomo-start');
+const btnResetPomo = document.getElementById('btn-pomo-reset');
+const btnPomoModoPomodoro = document.getElementById('btn-pomo-pomodoro');
+const btnPomoModoCustom = document.getElementById('btn-pomo-custom');
+const btnAplicarCustomPomo = document.getElementById('btn-aplicar-custom-pomo');
+const cajaInputsCustom = document.getElementById('caja-inputs-custom-pomo');
+
+if (btnStartPomo) {
+    btnStartPomo.addEventListener('click', () => {
+        if (corriendoPomo) pausarPomo();
+        else iniciarPomo();
+    });
+}
+
+if (btnResetPomo) btnResetPomo.addEventListener('click', resetearPomo);
+
+if (btnPomoModoPomodoro && btnPomoModoCustom) {
+    btnPomoModoPomodoro.addEventListener('click', () => {
+        btnPomoModoPomodoro.classList.add('activo');
+        btnPomoModoCustom.classList.remove('activo');
+        if (cajaInputsCustom) cajaInputsCustom.classList.add('oculto');
+        
+        modoPomoActual = 'pomodoro';
+        fasePomodoro = 'enfoque';
+        resetearPomo();
+    });
+
+    btnPomoModoCustom.addEventListener('click', () => {
+        btnPomoModoCustom.classList.add('activo');
+        btnPomoModoPomodoro.classList.remove('activo');
+        if (cajaInputsCustom) cajaInputsCustom.classList.remove('oculto');
+
+        modoPomoActual = 'custom';
+        pausarPomo();
+        fijarCustomTiempoPomo();
+    });
+}
+
+if (btnAplicarCustomPomo) {
+    btnAplicarCustomPomo.addEventListener('click', () => {
+        pausarPomo();
+        fijarCustomTiempoPomo();
+    });
+}
+
+// ==========================================
+// 18. INICIALIZACIÓN GENERAL
 // ==========================================
 cargarFraseAleatoria();
 actualizarSelectCategorias();
@@ -2517,3 +3230,4 @@ renderizarTareas();
 renderizarNotas();
 renderizarModuloHabitos();
 cargarVistaHoy();
+actualizarDisplayPomo();
