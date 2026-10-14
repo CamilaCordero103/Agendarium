@@ -823,7 +823,7 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 /* =========================================================
-   --- CALENDARIO MES (REPARADO) ---
+   --- CALENDARIO MES & BIENESTAR INTEGRADO ---
    ========================================================= */
 .encabezado-mes-modulo {
     display: flex;
@@ -914,6 +914,58 @@ h2, h3 { letter-spacing: -0.2px; }
     cursor: help;
 }
 
+/* Píldora de Bienestar dentro de las casillas del mes */
+.pill-bienestar-mes {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 8px;
+    cursor: help;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    line-height: 1.2;
+    transition: transform 0.15s ease;
+}
+
+.pill-bienestar-mes:hover {
+    transform: scale(1.15);
+}
+
+.pill-bienestar-mes.nivel-1 { background: #dcfce7; color: #15803d; }
+.pill-bienestar-mes.nivel-2 { background: #bbf7d0; color: #166534; }
+.pill-bienestar-mes.nivel-3 { background: #86efac; color: #14532d; }
+.pill-bienestar-mes.nivel-4 { background: #22c55e; color: #ffffff; box-shadow: 0 0 5px rgba(34, 197, 94, 0.4); }
+
+.pill-bienestar-mes[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 135%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #ffffff;
+    color: var(--texto-oscuro);
+    border: 1px solid var(--borde-suave);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: pre;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 99999;
+    box-shadow: 0 6px 18px rgba(87, 152, 215, 0.22);
+    line-height: 1.35;
+    text-align: center;
+}
+
+.pill-bienestar-mes[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
 .etiqueta-evento {
     font-size: 10px;
     font-weight: 700;
@@ -927,7 +979,7 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 /* =========================================================
-   --- VISTA AÑO (GRILLA 3x4) ---
+   --- VISTA AÑO (GRILLA 3x4 & UNIFORMIDAD) ---
    ========================================================= */
 .grid-12-meses {
     display: grid !important;
@@ -944,6 +996,10 @@ h2, h3 { letter-spacing: -0.2px; }
     padding: 10px;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 195px; /* Mantiene la misma altura en todos los meses */
 }
 
 .mini-mes-card:hover {
@@ -965,6 +1021,7 @@ h2, h3 { letter-spacing: -0.2px; }
     grid-template-columns: repeat(7, 1fr) !important;
     gap: 2px;
     text-align: center;
+    align-content: start;
 }
 
 .mini-dia-header {
@@ -991,7 +1048,7 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 /* =========================================================
-   --- MÓDULO HÁBITOS & RECOMPENSA ---
+   --- MÓDULO HÁBITOS & RECOMPENSA PIXEL ART ---
    ========================================================= */
 .cabecera-habitos-modulo {
     display: flex;
@@ -1084,6 +1141,33 @@ h2, h3 { letter-spacing: -0.2px; }
     gap: 6px;
 }
 
+.fila-habito-item {
+    cursor: grab;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.fila-habito-item.arrastrando {
+    opacity: 0.45;
+    background: #f1f5f9;
+}
+
+.fila-habito-item.drag-over {
+    border-top: 2px dashed var(--iced-denim) !important;
+    transform: translateY(2px);
+}
+
+.drag-handle-habito {
+    color: #cbd5e1;
+    font-size: 13px;
+    cursor: grab;
+    padding: 0 2px;
+    user-select: none;
+}
+
+.drag-handle-habito:hover {
+    color: var(--iced-denim);
+}
+
 .nombre-habito-celda {
     width: 210px;
     min-width: 210px;
@@ -1102,6 +1186,8 @@ h2, h3 { letter-spacing: -0.2px; }
     display: flex;
     gap: 3px;
     overflow-x: auto;
+    padding: 3px 2px; /* Margen para evitar recortes */
+    align-items: center;
 }
 
 .celda-dia-habito {
@@ -1135,6 +1221,183 @@ h2, h3 { letter-spacing: -0.2px; }
     opacity: 0.35;
     cursor: not-allowed;
     border-style: dashed !important;
+}
+
+/* Casilla previa a la creación del hábito (Interactiva sin cortes) */
+.celda-dia-habito.previo-creacion {
+    background: #f8fafc !important;
+    color: #cbd5e1 !important;
+    cursor: pointer !important;
+    opacity: 0.55;
+    font-weight: 700;
+    border-style: dashed !important;
+    transition: all 0.2s ease;
+}
+
+.celda-dia-habito.previo-creacion:hover {
+    opacity: 1 !important;
+    border-color: var(--iced-denim) !important;
+    background: var(--frost) !important;
+    color: var(--iced-denim) !important;
+    border-style: solid !important;
+    box-shadow: 0 0 0 1px var(--iced-denim);
+    position: relative;
+    z-index: 2;
+}
+
+/* Selector interactivo de días en hábito */
+.badge-dias-resumen.editable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.badge-dias-resumen.editable:hover {
+    background: var(--frost);
+    color: var(--iced-denim);
+    transform: scale(1.05);
+}
+
+.editor-dias-habito-inline {
+    display: flex;
+    gap: 3px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.btn-dia-habito-toggle {
+    font-size: 9px;
+    font-weight: 800;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid var(--borde-suave);
+    background: #ffffff;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-dia-habito-toggle.activo {
+    background: var(--iced-denim);
+    color: #ffffff;
+    border-color: var(--iced-denim);
+}
+
+/* =========================================================
+   --- WELLNESS HEATMAP & TOOLTIPS (SEMANA Y AÑO) ---
+   ========================================================= */
+.caja-heatmap-wrapper {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.05);
+    position: relative;
+    z-index: 15;
+    overflow: visible !important;
+}
+
+.cabecera-heatmap-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.titulo-heatmap {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--iced-denim);
+}
+
+.leyenda-heatmap-mini {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.leyenda-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.grid-heatmap-semana { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 6px; 
+    overflow: visible !important;
+}
+
+.grid-heatmap-ano { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 3px; 
+    overflow: visible !important;
+}
+
+.celda-heatmap {
+    position: relative;
+    height: 22px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.grid-heatmap-ano .celda-heatmap {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.celda-heatmap:hover {
+    transform: scale(1.3);
+    z-index: 50;
+}
+
+.celda-heatmap.nivel-0, .leyenda-dot.nivel-0 { background-color: #f1f5f9; }
+.celda-heatmap.nivel-1, .leyenda-dot.nivel-1 { background-color: #dcfce7; }
+.celda-heatmap.nivel-2, .leyenda-dot.nivel-2 { background-color: #86efac; }
+.celda-heatmap.nivel-3, .leyenda-dot.nivel-3 { background-color: #4ade80; }
+.celda-heatmap.nivel-4, .leyenda-dot.nivel-4 { 
+    background-color: #22c55e; 
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+}
+
+/* Tooltip claro y nítido para Heatmaps */
+.celda-heatmap[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #ffffff;
+    color: var(--texto-oscuro);
+    border: 1px solid var(--borde-suave);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: pre;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 9999;
+    box-shadow: 0 6px 18px rgba(87, 152, 215, 0.22);
+    line-height: 1.35;
+    text-align: center;
+}
+
+.celda-heatmap[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
 /* =========================================================
@@ -1249,6 +1512,33 @@ h2, h3 { letter-spacing: -0.2px; }
 .btn-toggle-completadas { background: none; border: none; font-weight: bold; color: #777; cursor: pointer; font-size: 12px; }
 
 /* =========================================================
+   --- EDICIÓN DIRECTA EN TAREAS & HÁBITOS ---
+   ========================================================= */
+.texto-tarea[contenteditable="true"],
+.nombre-habito-texto[contenteditable="true"],
+.item-habito-hoy span[contenteditable="true"] {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 1px 4px;
+    transition: background 0.2s ease;
+}
+
+.texto-tarea[contenteditable="true"]:hover,
+.nombre-habito-texto[contenteditable="true"]:hover,
+.item-habito-hoy span[contenteditable="true"]:hover {
+    background: rgba(87, 152, 215, 0.12);
+}
+
+.texto-tarea[contenteditable="true"]:focus,
+.nombre-habito-texto[contenteditable="true"]:focus,
+.item-habito-hoy span[contenteditable="true"]:focus {
+    outline: none;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px var(--iced-denim);
+    color: var(--texto-oscuro) !important;
+}
+
+/* =========================================================
    --- PARTÍCULAS DE CONFETI ---
    ========================================================= */
 .particula-confeti {
@@ -1276,7 +1566,7 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 /* =========================================================
-   --- MURO DE NOTAS ---
+   --- MURO DE NOTAS & HASHTAGS ---
    ========================================================= */
 .cabecera-notas { 
     display: flex; 
@@ -1374,6 +1664,66 @@ h2, h3 { letter-spacing: -0.2px; }
     margin-bottom: 2px;
 }
 
+.postit-tags-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.pill-tag-nota {
+    font-size: 10px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.65);
+    color: #334155;
+    padding: 2px 7px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.btn-del-tag-nota {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.6;
+}
+
+.btn-del-tag-nota:hover {
+    opacity: 1;
+    color: #ef4444;
+}
+
+.input-add-tag-nota {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border: 1px dashed rgba(0, 0, 0, 0.15) !important;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    outline: none;
+    width: 35px;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.input-add-tag-nota:focus {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-style: solid !important;
+    border-color: rgba(0, 0, 0, 0.25) !important;
+    width: 55px;
+}
+
+.input-add-tag-nota::placeholder {
+    color: rgba(0, 0, 0, 0.35);
+}
+
 .postit-pie { 
     display: flex; 
     justify-content: space-between; 
@@ -1395,6 +1745,179 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 .dot-color:hover { transform: scale(1.2); }
+
+/* =========================================================
+   --- CONTADOR DE HIDRATACIÓN ---
+   ========================================================= */
+.layout-hidratacion-flex {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.vaso-agua-wrapper {
+    position: relative;
+    width: 65px;
+    height: 80px;
+    border: 3px solid var(--iced-denim);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    background: rgba(255, 255, 255, 0.7);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 8px rgba(87, 152, 215, 0.2);
+    flex-shrink: 0;
+}
+
+.liquido-agua {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0 0 12px 12px;
+    opacity: 0.85;
+}
+
+.texto-vaso-centro {
+    position: relative;
+    z-index: 2;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--texto-oscuro);
+    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.col-controles-agua {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.fila-iconos-vasos {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.icono-vasito {
+    font-size: 18px;
+    cursor: pointer;
+    opacity: 0.3;
+    transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+    filter: grayscale(100%);
+    user-select: none;
+}
+
+.icono-vasito.lleno {
+    opacity: 1;
+    filter: grayscale(0%);
+    transform: scale(1.15);
+}
+
+.icono-vasito:hover {
+    transform: scale(1.3);
+}
+
+.botones-agua-flex {
+    display: flex;
+    gap: 8px;
+}
+
+/* =========================================================
+   --- TEMPORIZADOR COZY POMODORO & CUENTA ATRÁS ---
+   ========================================================= */
+.layout-pomodoro-flex {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+}
+
+.reloj-cozy-display {
+    background: linear-gradient(135deg, var(--frost) 0%, #ffffff 100%);
+    border: 2px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 10px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 135px;
+    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.08);
+    flex-shrink: 0;
+}
+
+.pomo-tiempo {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--iced-denim);
+    letter-spacing: 1px;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.pomo-estado {
+    font-size: 10px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.col-controles-pomo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.caja-inputs-custom-pomo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    padding: 6px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--borde-suave);
+    width: fit-content;
+}
+
+.grupo-input-tiempo {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.grupo-input-tiempo input {
+    width: 42px;
+    padding: 4px 6px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 12px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 8px;
+    outline: none;
+}
+
+.grupo-input-tiempo label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.botones-pomo-flex {
+    display: flex;
+    gap: 8px;
+}
 
 /* =========================================================
    --- MODALES ---
@@ -1470,8 +1993,171 @@ h2, h3 { letter-spacing: -0.2px; }
 #imagen-ampliada { max-width: 85vw; max-height: 85vh; border-radius: 12px; object-fit: contain; }
 .cerrar-lightbox { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 32px; cursor: pointer; }
 
+.caja-seccion-backup h4 {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--iced-denim);
+    margin-bottom: 4px;
+}
+
+.opciones-modo-importar .check-dia {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.papel-organico .grid-comidas-cuatro {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
 /* =========================================================
-   --- MODO GRIS / OSCURO COMPLETO ---
+   --- PLANTILLA DE REPASO SCRAPBOOK ---
+   ========================================================= */
+.scrapbook-canvas {
+    width: 580px;
+    background: #fffdfa;
+    background-image: radial-gradient(#e5ddd3 0.8px, transparent 0.8px);
+    background-size: 16px 16px;
+    border: 3px solid #eddcd0;
+    border-radius: 24px;
+    padding: 30px 26px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    color: #403831;
+    font-family: 'Nunito', sans-serif;
+    box-sizing: border-box;
+}
+
+.scrapbook-header {
+    border-bottom: 2px dashed #ebd8c6;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+.scrapbook-header h1 {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--iced-denim);
+    margin-bottom: 8px;
+    letter-spacing: -0.4px;
+}
+
+.scrapbook-badges {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.scrap-badge {
+    background: #ffffff;
+    border: 1px solid #e2d4c3;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #554a3f;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.scrapbook-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.scrapbook-texto {
+    background: #ffffff;
+    border: 1px solid #ebd8c6;
+    border-left: 4px solid var(--iced-denim);
+    border-radius: 14px;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #3b332b;
+    font-style: italic;
+    white-space: pre-wrap;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.02);
+}
+
+.scrapbook-stats {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.scrap-stat-item {
+    background: #f1f8f3;
+    border: 1px solid #c0e0ca;
+    color: #246435;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+}
+
+.scrapbook-polaroid-grid {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.scrapbook-polaroid {
+    background: #ffffff;
+    padding: 8px 8px 22px 8px;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: 1px solid #e4d7c8;
+    position: relative;
+    max-width: 160px;
+    text-align: center;
+    transform: rotate(-1.5deg);
+}
+
+.scrapbook-polaroid:nth-child(even) {
+    transform: rotate(2deg);
+}
+
+.scrapbook-polaroid::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    height: 14px;
+    background: rgba(224, 209, 190, 0.75);
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.scrapbook-polaroid img {
+    width: 144px;
+    height: 144px;
+    object-fit: cover;
+    border-radius: 2px;
+    display: block;
+}
+
+.scrapbook-footer {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: #a49583;
+    border-top: 1px solid #eedecf;
+    padding-top: 12px;
+}
+
+/* =========================================================
+   --- MODO OSCURO / GRIS COMPLETO ---
    ========================================================= */
 body.modo-oscuro {
     --charcoal-noir: #2B2B2B;
@@ -1572,7 +2258,8 @@ body.modo-oscuro .tarjeta-pixel-art-top,
 body.modo-oscuro .caja-crear-habito-modulo,
 body.modo-oscuro .tabla-habitos-wrapper,
 body.modo-oscuro .form-crear-cat-mini,
-body.modo-oscuro .col-habitos-hoy-pixel {
+body.modo-oscuro .col-habitos-hoy-pixel,
+body.modo-oscuro .caja-heatmap-wrapper {
     background-color: #444444 !important;
     border-color: var(--ironclad-grey) !important;
     color: #ffffff !important;
@@ -1707,8 +2394,71 @@ body.modo-oscuro .mini-dia-celda {
     color: #ffffff !important;
 }
 
+body.modo-oscuro .celda-heatmap.nivel-0,
+body.modo-oscuro .leyenda-dot.nivel-0 { 
+    background-color: #2b2b2b !important; 
+}
+
+body.modo-oscuro .celda-heatmap[data-tooltip]::after,
+body.modo-oscuro .pill-bienestar-mes[data-tooltip]::after {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border-color: var(--ironclad-grey) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.modo-oscuro .texto-tarea[contenteditable="true"]:focus,
+body.modo-oscuro .nombre-habito-texto[contenteditable="true"]:focus,
+body.modo-oscuro .item-habito-hoy span[contenteditable="true"]:focus {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .vaso-agua-wrapper {
+    background: #2b2b2b;
+    border-color: #60a5fa;
+}
+
+body.modo-oscuro .liquido-agua {
+    background: linear-gradient(180deg, #60a5fa 0%, #1d4ed8 100%);
+}
+
+body.modo-oscuro .texto-vaso-centro {
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+body.modo-oscuro .reloj-cozy-display {
+    background: #2b2b2b !important;
+    border-color: var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .pomo-tiempo {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .pomo-estado {
+    color: #cbd5e1 !important;
+}
+
+body.modo-oscuro .caja-inputs-custom-pomo {
+    background: #333333 !important;
+    border-color: var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .grupo-input-tiempo input {
+    background: #2b2b2b !important;
+    color: #ffffff !important;
+    border-color: var(--ironclad-grey) !important;
+}
+
+body.modo-oscuro .pill-tag-nota {
+    background: rgba(255, 255, 255, 0.8) !important;
+    color: #1e293b !important;
+}
+
 /* =========================================================
-   --- ADAPTABILIDAD RESPONSIVE (MÓVIL TOTALMENTE CORREGIDO) ---
+   --- ADAPTABILIDAD RESPONSIVE (MÓVIL) ---
    ========================================================= */
 @media (max-width: 768px) {
     body {
@@ -1803,7 +2553,6 @@ body.modo-oscuro .mini-dia-celda {
         box-sizing: border-box;
     }
 
-    /* Vista Hoy Móvil */
     .cabecera-hoy-flex {
         flex-direction: column;
         align-items: flex-start;
@@ -1854,7 +2603,6 @@ body.modo-oscuro .mini-dia-celda {
         gap: 10px;
     }
 
-    /* Vista Semana Móvil */
     .fila-superiores-semana {
         grid-template-columns: 1fr;
     }
@@ -1874,7 +2622,6 @@ body.modo-oscuro .mini-dia-celda {
         min-height: auto;
     }
 
-    /* Vista Mes y Año Móvil */
     .cabecera-calendario {
         width: 100%;
     }
@@ -1895,519 +2642,8 @@ body.modo-oscuro .mini-dia-celda {
     }
 }
 
-/* --- CELEBRACIÓN DÍA PERFECTO WOW --- */
-@keyframes pulsoPerfecto {
-    0%   { transform: scale(1); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
-    50%  { transform: scale(1.08); box-shadow: 0 0 22px rgba(234, 179, 8, 0.8); }
-    100% { transform: scale(1); box-shadow: 0 0 10px rgba(234, 179, 8, 0.4); }
-}
-
-.badge-progreso.perfecto {
-    background: linear-gradient(135deg, #fef08a 0%, #fde047 100%) !important;
-    color: #713f12 !important;
-    border: 2px solid #eab308 !important;
-    font-weight: 900 !important;
-    animation: pulsoPerfecto 2s infinite ease-in-out;
-    letter-spacing: 0.3px;
-}
-
-body.modo-oscuro .badge-progreso.perfecto {
-    background: linear-gradient(135deg, #854d0e 0%, #ca8a04 100%) !important;
-    color: #fef9c3 !important;
-    border-color: #fde047 !important;
-}
-/* Adaptación de comidas en Modal */
-.papel-organico .grid-comidas-cuatro {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-}
-
 @media (max-width: 480px) {
     .papel-organico .grid-comidas-cuatro {
         grid-template-columns: 1fr;
     }
-}
-/* --- ESTILOS MODAL COPIA DE SEGURIDAD --- */
-.caja-seccion-backup h4 {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--iced-denim);
-    margin-bottom: 4px;
-}
-
-.opciones-modo-importar .check-dia {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    cursor: pointer;
-}
-
-body.modo-oscuro .caja-seccion-backup h4 {
-    color: #ffffff !important;
-}
-/* =========================================================
-   --- CONTADOR DE HIDRATACIÓN (VISTA HOY) ---
-   ========================================================= */
-.layout-hidratacion-flex {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 4px;
-}
-
-.vaso-agua-wrapper {
-    position: relative;
-    width: 65px;
-    height: 80px;
-    border: 3px solid var(--iced-denim);
-    border-top: none;
-    border-radius: 0 0 16px 16px;
-    background: rgba(255, 255, 255, 0.7);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 0 8px rgba(87, 152, 215, 0.2);
-    flex-shrink: 0;
-}
-
-.liquido-agua {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
-    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 0 0 12px 12px;
-    opacity: 0.85;
-}
-
-.texto-vaso-centro {
-    position: relative;
-    z-index: 2;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--texto-oscuro);
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
-}
-
-.col-controles-agua {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 1;
-}
-
-.fila-iconos-vasos {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.icono-vasito {
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0.3;
-    transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
-    filter: grayscale(100%);
-    user-select: none;
-}
-
-.icono-vasito.lleno {
-    opacity: 1;
-    filter: grayscale(0%);
-    transform: scale(1.15);
-}
-
-.icono-vasito:hover {
-    transform: scale(1.3);
-}
-
-.botones-agua-flex {
-    display: flex;
-    gap: 8px;
-}
-
-/* Adaptación Modo Oscuro */
-body.modo-oscuro .vaso-agua-wrapper {
-    background: #2b2b2b;
-    border-color: #60a5fa;
-}
-
-body.modo-oscuro .liquido-agua {
-    background: linear-gradient(180deg, #60a5fa 0%, #1d4ed8 100%);
-}
-
-body.modo-oscuro .texto-vaso-centro {
-    color: #ffffff;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-}
-/* =========================================================
-   --- TEMPORIZADOR POMODORO COZY & CUENTA ATRÁS ---
-   ========================================================= */
-.layout-pomodoro-flex {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-}
-
-.reloj-cozy-display {
-    background: linear-gradient(135deg, var(--frost) 0%, #ffffff 100%);
-    border: 2px solid var(--borde-suave);
-    border-radius: 16px;
-    padding: 10px 18px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 135px;
-    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.08);
-    flex-shrink: 0;
-}
-
-.pomo-tiempo {
-    font-size: 26px;
-    font-weight: 900;
-    color: var(--iced-denim);
-    letter-spacing: 1px;
-    font-family: system-ui, -apple-system, sans-serif;
-}
-
-.pomo-estado {
-    font-size: 10px;
-    font-weight: 800;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-}
-
-.col-controles-pomo {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-    min-width: 180px;
-}
-
-.caja-inputs-custom-pomo {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #f8fafc;
-    padding: 6px 10px;
-    border-radius: 12px;
-    border: 1px solid var(--borde-suave);
-    width: fit-content;
-}
-
-.grupo-input-tiempo {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-.grupo-input-tiempo input {
-    width: 42px;
-    padding: 4px 6px;
-    text-align: center;
-    font-weight: 800;
-    font-size: 12px;
-    border: 1px solid var(--borde-suave);
-    border-radius: 8px;
-    outline: none;
-}
-
-.grupo-input-tiempo label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-}
-
-.botones-pomo-flex {
-    display: flex;
-    gap: 8px;
-}
-
-/* Modo Oscuro */
-body.modo-oscuro .reloj-cozy-display {
-    background: #2b2b2b !important;
-    border-color: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .pomo-tiempo {
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .pomo-estado {
-    color: #cbd5e1 !important;
-}
-
-body.modo-oscuro .caja-inputs-custom-pomo {
-    background: #333333 !important;
-    border-color: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .grupo-input-tiempo input {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-    border-color: var(--ironclad-grey) !important;
-}
-/* =========================================================
-   --- ETIQUETAS & HASHTAGS EN NOTAS ---
-   ========================================================= */
-.postit-tags-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    align-items: center;
-    margin-top: 4px;
-}
-
-.pill-tag-nota {
-    font-size: 10px;
-    font-weight: 800;
-    background: rgba(255, 255, 255, 0.65);
-    color: #334155;
-    padding: 2px 7px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.btn-del-tag-nota {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 11px;
-    line-height: 1;
-    opacity: 0.6;
-}
-
-.btn-del-tag-nota:hover {
-    opacity: 1;
-    color: #ef4444;
-}
-
-.input-add-tag-nota {
-    background: rgba(255, 255, 255, 0.25) !important;
-    border: 1px dashed rgba(0, 0, 0, 0.15) !important;
-    border-radius: 10px;
-    padding: 2px 6px;
-    font-size: 10px;
-    font-weight: 700;
-    outline: none;
-    width: 35px; /* Tamaño súper compacto inicial */
-    color: inherit;
-    transition: all 0.2s ease;
-}
-
-.input-add-tag-nota:focus {
-    background: rgba(255, 255, 255, 0.6) !important;
-    border-style: solid !important;
-    border-color: rgba(0, 0, 0, 0.25) !important;
-    width: 55px; /* Se expande solo cuando estás escribiendo */
-}
-
-.input-add-tag-nota::placeholder {
-    color: rgba(0, 0, 0, 0.35);
-}
-
-body.modo-oscuro .pill-tag-nota {
-    background: rgba(255, 255, 255, 0.8) !important;
-    color: #1e293b !important;
-}
-/* --- EDICIÓN INLINE DE TAREAS Y HÁBITOS --- */
-.texto-tarea[contenteditable="true"],
-.nombre-habito-texto[contenteditable="true"],
-.item-habito-hoy span[contenteditable="true"] {
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 1px 4px;
-    transition: background 0.2s ease;
-}
-
-.texto-tarea[contenteditable="true"]:hover,
-.nombre-habito-texto[contenteditable="true"]:hover,
-.item-habito-hoy span[contenteditable="true"]:hover {
-    background: rgba(87, 152, 215, 0.12);
-}
-
-.texto-tarea[contenteditable="true"]:focus,
-.nombre-habito-texto[contenteditable="true"]:focus,
-.item-habito-hoy span[contenteditable="true"]:focus {
-    outline: none;
-    background: #ffffff;
-    box-shadow: 0 0 0 2px var(--iced-denim);
-    color: var(--texto-oscuro) !important;
-}
-
-body.modo-oscuro .texto-tarea[contenteditable="true"]:focus,
-body.modo-oscuro .nombre-habito-texto[contenteditable="true"]:focus,
-body.modo-oscuro .item-habito-hoy span[contenteditable="true"]:focus {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-}
-/* =========================================================
-   --- FIXES WELLNESS HEATMAP & TOOLTIPS ---
-   ========================================================= */
-.caja-heatmap-wrapper {
-    background: #ffffff;
-    border: 1px solid var(--borde-suave);
-    border-radius: 16px;
-    padding: 12px 16px;
-    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.05);
-    position: relative;
-    z-index: 15;
-    overflow: visible !important; /* Permite que los tooltips floten libremente */
-}
-
-.cabecera-heatmap-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.titulo-heatmap {
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--iced-denim);
-}
-
-.leyenda-heatmap-mini {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    color: #64748b;
-    font-weight: 700;
-}
-
-.leyenda-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    display: inline-block;
-}
-
-/* Grillas con visibilidad total (sin scrollbar ni recortes) */
-.grid-heatmap-semana { 
-    display: grid; 
-    grid-template-columns: repeat(7, 1fr); 
-    gap: 6px; 
-    overflow: visible !important;
-}
-
-.grid-heatmap-mes { 
-    display: grid; 
-    grid-template-columns: repeat(31, 1fr); 
-    gap: 3px; 
-    width: 100%; 
-    overflow: visible !important; 
-}
-
-.grid-heatmap-ano { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 3px; 
-    overflow: visible !important; /* Quita el recuadro gris con barra de desplazamiento */
-}
-
-/* Estilo de las celdas */
-.celda-heatmap {
-    position: relative;
-    height: 22px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-}
-
-.grid-heatmap-ano .celda-heatmap {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-}
-
-.celda-heatmap:hover {
-    transform: scale(1.3);
-    z-index: 50;
-}
-
-/* Niveles de Color Pastel */
-.celda-heatmap.nivel-0, .leyenda-dot.nivel-0 { background-color: #f1f5f9; }
-.celda-heatmap.nivel-1, .leyenda-dot.nivel-1 { background-color: #dcfce7; }
-.celda-heatmap.nivel-2, .leyenda-dot.nivel-2 { background-color: #86efac; }
-.celda-heatmap.nivel-3, .leyenda-dot.nivel-3 { background-color: #4ade80; }
-.celda-heatmap.nivel-4, .leyenda-dot.nivel-4 { 
-    background-color: #22c55e; 
-    box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
-}
-
-/* TOOLTIP CLARO & PASTEL (Menos oscuro y flotante) */
-.celda-heatmap[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 130%;
-    left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    background: #ffffff;
-    color: var(--texto-oscuro);
-    border: 1px solid var(--borde-suave);
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: pre;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 9999;
-    box-shadow: 0 6px 18px rgba(87, 152, 215, 0.22);
-    line-height: 1.35;
-    text-align: center;
-}
-
-.celda-heatmap[data-tooltip]:hover::after {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-/* Adaptación Modo Oscuro del Tooltip */
-body.modo-oscuro .celda-heatmap[data-tooltip]::after {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-    border-color: var(--ironclad-grey) !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* --- VISTA AÑO: UNIFORMIDAD EN TARJETAS DE MESES --- */
-.mini-mes-card {
-    background: #ffffff;
-    border: 1px solid var(--borde-suave);
-    border-radius: 14px;
-    padding: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 195px; /* Mantiene la misma altura en meses de 28, 30 y 31 días */
-}
-
-.mini-grilla-dias {
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important;
-    gap: 2px;
-    text-align: center;
-    align-content: start;
 }

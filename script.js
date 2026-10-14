@@ -57,7 +57,7 @@ const paginas = document.querySelectorAll('.pagina');
 botonesPestana.forEach(boton => {
     boton.addEventListener('click', () => {
         const destino = boton.getAttribute('data-destino');
-        if (!destino) return; // Evita dejar la pantalla en blanco
+        if (!destino) return;
 
         botonesPestana.forEach(btn => btn.classList.remove('activa'));
         paginas.forEach(pag => pag.classList.remove('activa'));
@@ -101,7 +101,7 @@ function autoExpandirTextarea(textarea) {
 }
 
 document.addEventListener('input', function(e) {
-    if (e.target.tagName.toLowerCase() === 'textarea') {
+    if (e.target.tagName && e.target.tagName.toLowerCase() === 'textarea') {
         autoExpandirTextarea(e.target);
     }
 });
@@ -146,9 +146,8 @@ function lanzarConfetiEnElemento(elemento) {
     setTimeout(() => lanzarConfeti(centroX + 40, centroY), 300);
 }
 
-
 // ==========================================
-// 6. CALENDARIO MES, LUNAS, CATEGORÍAS Y AUTO-GUARDADO MODAL
+// 6. CALENDARIO MES, LUNAS, CATEGORÍAS & AUTO-GUARDADO MODAL
 // ==========================================
 let fechaActual = new Date();
 let diaSeleccionadoClave = "";
@@ -284,7 +283,7 @@ function obtenerInfoLuna(fecha = new Date()) {
     }
 }
 
-// LÓGICA AUTO-GUARDADO Y EVENTOS MODAL
+// Auto-guardado en tiempo real en modal
 function guardarDatosModalDia() {
     if (!diaSeleccionadoClave) return;
     const datosPrevios = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
@@ -401,11 +400,25 @@ function renderizarCalendario() {
         const infoLuna = obtenerInfoLuna(fechaDia);
         const iconoLuna = infoLuna.split(' ')[0];
 
+        // Bienestar integrado en cada día del mes
+        const infoBienestar = typeof calcularBienestarDia === 'function' 
+            ? calcularBienestarDia(claveFecha) 
+            : { porcentaje: 0, nivel: 0, tooltip: "" };
+
         const encabezado = document.createElement('div');
         encabezado.classList.add('encabezado-dia-mes');
+        
+        let htmlBienestar = "";
+        if (infoBienestar.porcentaje > 0) {
+            htmlBienestar = `<span class="pill-bienestar-mes nivel-${infoBienestar.nivel}" data-tooltip="${infoBienestar.tooltip}">🌿 ${infoBienestar.porcentaje}%</span>`;
+        }
+
         encabezado.innerHTML = `
             <span class="num-dia-mes">${dia} ${datos.animo || ''}</span>
-            <span class="icono-luna-mes" title="${infoLuna}">${iconoLuna}</span>
+            <div style="display:flex; align-items:center; gap:3px;">
+                ${htmlBienestar}
+                <span class="icono-luna-mes" title="${infoLuna}">${iconoLuna}</span>
+            </div>
         `;
         cuadro.appendChild(encabezado);
 
@@ -430,14 +443,6 @@ function renderizarCalendario() {
         cuadro.addEventListener('click', () => abrirModalDia(claveFecha, dia, nombresMeses[mes]));
         grillaCalendario.appendChild(cuadro);
     }
-    const añoM = fechaActual.getFullYear();
-    const mesM = fechaActual.getMonth();
-    const totalDiasM = new Date(añoM, mesM + 1, 0).getDate();
-    const fechasMes = [];
-    for (let d = 1; d <= totalDiasM; d++) {
-        fechasMes.push(`${añoM}-${String(mesM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
-    }
-    renderizarHeatmapContenedor('heatmap-mes', fechasMes);
 }
 
 function abrirModalDia(clave, dia, mesNombre) {
@@ -514,7 +519,7 @@ if (cerrarModal) {
     });
 }
 
-// CIERRE AUTOMÁTICO DE MODALES AL CLICAR FUERA DE LA CAJA
+// Cierre automático al clicar fuera de los modales
 document.querySelectorAll('.modal').forEach(modalElement => {
     modalElement.addEventListener('click', (e) => {
         if (e.target === modalElement) {
@@ -530,7 +535,6 @@ const btnMesAnt = document.getElementById('mes-anterior');
 const btnMesSig = document.getElementById('mes-siguiente');
 if (btnMesAnt) btnMesAnt.addEventListener('click', () => { fechaActual.setMonth(fechaActual.getMonth() - 1); renderizarCalendario(); });
 if (btnMesSig) btnMesSig.addEventListener('click', () => { fechaActual.setMonth(fechaActual.getMonth() + 1); renderizarCalendario(); });
-
 
 // ==========================================
 // 7. MÓDULO DE TAREAS (CON EDICIÓN DIRECTA)
@@ -720,7 +724,6 @@ function crearElementoTarjetaTarea(tarea, esAtrasada) {
         }
     });
 
-    // TEXTO CON EDICIÓN DIRECTA
     const textoSpan = document.createElement('span');
     textoSpan.classList.add('texto-tarea');
     textoSpan.contentEditable = "true";
@@ -1053,7 +1056,7 @@ function renderizarNotas() {
 }
 
 // ==========================================
-// 9. HÁBITOS & PIXEL ART (CON EDICIÓN DIRECTA)
+// 9. HÁBITOS & PIXEL ART (COLECCIONABLES)
 // ==========================================
 let listaHabitos = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
 let indiceDibujoActual = parseInt(localStorage.getItem('indice_pixel_art_agenda')) || 0;
@@ -1331,9 +1334,7 @@ function calcularRachaHabito(habito) {
             if (marcado) {
                 racha++;
             } else {
-                if (curr.getTime() === hoyTemp.getTime()) {
-                    // Evaluación de día de hoy
-                } else {
+                if (curr.getTime() !== hoyTemp.getTime()) {
                     break;
                 }
             }
@@ -1368,6 +1369,7 @@ function agregarHabitoDesdeModulo() {
     const nuevoHabito = { 
         id: Date.now(), 
         nombre: nombre, 
+        fechaCreacion: obtenerClaveHoy(),
         diasProgramados: diasProgramados, 
         historial: {} 
     };
@@ -1432,9 +1434,41 @@ function renderizarModuloHabitos() {
     let totalCasillasPosibles = 0;
     let totalCasillasCompletadas = 0;
 
-    listaHabitos.forEach(habito => {
+    listaHabitos.forEach((habito, index) => {
+        if (!habito.fechaCreacion) {
+            const f = new Date(habito.id);
+            habito.fechaCreacion = !isNaN(f.getTime()) 
+                ? `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`
+                : "2026-01-01";
+        }
+
         const fila = document.createElement('div');
         fila.classList.add('fila-habito-item');
+        
+        // Drag and drop para reordenar
+        fila.setAttribute('draggable', 'true');
+        fila.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', index);
+            fila.classList.add('arrastrando');
+        });
+        fila.addEventListener('dragend', () => fila.classList.remove('arrastrando'));
+        fila.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fila.classList.add('drag-over');
+        });
+        fila.addEventListener('dragleave', () => fila.classList.remove('drag-over'));
+        fila.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fila.classList.remove('drag-over');
+            const origenIdx = parseInt(e.dataTransfer.getData('text/plain'));
+            if (!isNaN(origenIdx) && origenIdx !== index) {
+                const [itemMovido] = listaHabitos.splice(origenIdx, 1);
+                listaHabitos.splice(index, 0, itemMovido);
+                localStorage.setItem('mis_habitos_agenda', JSON.stringify(listaHabitos));
+                renderizarModuloHabitos();
+                renderizarHabitosHoy();
+            }
+        });
 
         const celdaNombre = document.createElement('div');
         celdaNombre.classList.add('nombre-habito-celda');
@@ -1447,7 +1481,16 @@ function renderizarModuloHabitos() {
         divInfo.style.flexDirection = 'column';
         divInfo.style.gap = '2px';
 
-        // EDICIÓN DIRECTA EN MÓDULO HÁBITOS
+        const divTituloFlex = document.createElement('div');
+        divTituloFlex.style.display = 'flex';
+        divTituloFlex.style.alignItems = 'center';
+        divTituloFlex.style.gap = '4px';
+
+        const iconHandle = document.createElement('span');
+        iconHandle.classList.add('drag-handle-habito');
+        iconHandle.textContent = '⠿';
+        iconHandle.title = 'Arrastra para reordenar';
+
         const spanTexto = document.createElement('span');
         spanTexto.classList.add('nombre-habito-texto');
         spanTexto.textContent = habito.nombre;
@@ -1471,14 +1514,54 @@ function renderizarModuloHabitos() {
             }
         });
 
+        divTituloFlex.appendChild(iconHandle);
+        divTituloFlex.appendChild(spanTexto);
+
+        // Sub-badges (Racha y Días programados)
         const divSubBadges = document.createElement('div');
         divSubBadges.style.display = 'flex';
         divSubBadges.style.gap = '4px';
         divSubBadges.style.alignItems = 'center';
 
         const badgeDias = document.createElement('span');
-        badgeDias.classList.add('badge-dias-resumen');
-        badgeDias.textContent = resumenDias;
+        badgeDias.classList.add('badge-dias-resumen', 'editable');
+        badgeDias.textContent = `🗓️ ${resumenDias}`;
+        badgeDias.title = "Haz clic para editar los días activos";
+
+        const editorDiasContainer = document.createElement('div');
+        editorDiasContainer.classList.add('editor-dias-habito-inline', 'oculto');
+
+        const diasSemanaMap = [
+            { id: 1, txt: 'L' }, { id: 2, txt: 'M' }, { id: 3, txt: 'X' },
+            { id: 4, txt: 'J' }, { id: 5, txt: 'V' }, { id: 6, txt: 'S' }, { id: 0, txt: 'D' }
+        ];
+
+        diasSemanaMap.forEach(dObj => {
+            const btnD = document.createElement('button');
+            btnD.type = 'button';
+            btnD.classList.add('btn-dia-habito-toggle');
+            if (habito.diasProgramados.includes(dObj.id)) btnD.classList.add('activo');
+            btnD.textContent = dObj.txt;
+
+            btnD.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (habito.diasProgramados.includes(dObj.id)) {
+                    habito.diasProgramados = habito.diasProgramados.filter(x => x !== dObj.id);
+                } else {
+                    habito.diasProgramados.push(dObj.id);
+                }
+                localStorage.setItem('mis_habitos_agenda', JSON.stringify(listaHabitos));
+                renderizarModuloHabitos();
+                renderizarHabitosHoy();
+            });
+
+            editorDiasContainer.appendChild(btnD);
+        });
+
+        badgeDias.addEventListener('click', () => {
+            editorDiasContainer.classList.toggle('oculto');
+        });
+
         divSubBadges.appendChild(badgeDias);
 
         if (racha > 0) {
@@ -1488,8 +1571,9 @@ function renderizarModuloHabitos() {
             divSubBadges.appendChild(badgeRacha);
         }
 
-        divInfo.appendChild(spanTexto);
+        divInfo.appendChild(divTituloFlex);
         divInfo.appendChild(divSubBadges);
+        divInfo.appendChild(editorDiasContainer);
 
         const btnBorrar = document.createElement('button');
         btnBorrar.classList.add('btn-del-mini');
@@ -1507,13 +1591,15 @@ function renderizarModuloHabitos() {
         const scrollDias = document.createElement('div');
         scrollDias.classList.add('dias-habito-scroll');
 
-        const diasProgramados = Array.isArray(habito.diasProgramados) ? habito.diasProgramados : [0,1,2,3,4,5,6];
+        const diasProgramados = Array.isArray(habito.diasProgramados) ? habito.diasProgramados : [0, 1, 2, 3, 4, 5, 6];
 
         for (let d = 1; d <= totalDiasMes; d++) {
             const fechaDiaObj = new Date(año, mes, d);
             const diaSemana = fechaDiaObj.getDay();
             const claveFecha = `${año}-${String(mes + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const aplica = diasProgramados.includes(diaSemana);
+            const esPrevio = claveFecha < habito.fechaCreacion;
+            const estaMarcado = habito.historial && !!habito.historial[claveFecha];
 
             const celdaCheck = document.createElement('div');
             celdaCheck.classList.add('celda-dia-habito');
@@ -1522,9 +1608,28 @@ function renderizarModuloHabitos() {
                 celdaCheck.classList.add('no-aplica');
                 celdaCheck.textContent = "•";
                 celdaCheck.title = "Día no programado";
+            } else if (esPrevio) {
+                if (estaMarcado) {
+                    totalCasillasPosibles++;
+                    totalCasillasCompletadas++;
+                    celdaCheck.classList.add('marcado');
+                    celdaCheck.textContent = "✓";
+                    celdaCheck.title = "Completado previamente (clic para desmarcar)";
+                } else {
+                    celdaCheck.classList.add('previo-creacion');
+                    celdaCheck.textContent = "—";
+                    celdaCheck.title = "Previo a la creación (clic para registrar como hecho)";
+                }
+
+                celdaCheck.addEventListener('click', () => {
+                    if (!habito.historial) habito.historial = {};
+                    habito.historial[claveFecha] = !estaMarcado;
+                    localStorage.setItem('mis_habitos_agenda', JSON.stringify(listaHabitos));
+                    renderizarModuloHabitos();
+                    renderizarHabitosHoy();
+                });
             } else {
                 totalCasillasPosibles++;
-                const estaMarcado = habito.historial && habito.historial[claveFecha];
                 if (estaMarcado) {
                     totalCasillasCompletadas++;
                     celdaCheck.classList.add('marcado');
@@ -1579,6 +1684,7 @@ function agregarHabitoDesdeHoy() {
     const nuevoHabito = { 
         id: Date.now(), 
         nombre: nombre, 
+        fechaCreacion: obtenerClaveHoy(),
         diasProgramados: diasProgramados, 
         historial: {} 
     };
@@ -1653,7 +1759,6 @@ function renderizarHabitosHoy() {
             renderizarModuloHabitos();
         });
 
-        // EDICIÓN DIRECTA EN VISTA HOY
         const spanNombre = document.createElement('span');
         spanNombre.textContent = habito.nombre;
         spanNombre.contentEditable = "true";
@@ -2315,6 +2420,8 @@ function renderizarVistaSemana() {
 
         contenedorParrilla.appendChild(col);
     }
+
+    // Renderizar Heatmap de la semana
     const fechasSemana = [];
     for (let i = 0; i < 7; i++) {
         const dCol = new Date(fechaLunes);
@@ -2521,6 +2628,8 @@ function renderizarVistaAno() {
 
         gridMeses.appendChild(card);
     }
+
+    // Renderizar Heatmap del año
     const fechasAno = [];
     for (let m = 0; m < 12; m++) {
         const totalD = new Date(anoSeleccionado, m + 1, 0).getDate();
@@ -3051,13 +3160,14 @@ if (btnRestarAgua) {
 }
 
 // ==========================================
-// 17. TEMPORIZADOR COZY
+// 17. TEMPORIZADOR COZY (SIN FRENO EN SEGUNDO PLANO)
 // ==========================================
 let modoPomoActual = 'pomodoro';
 let fasePomodoro = 'enfoque';
 
 let segundosTotalesPomo = 1500;
 let segundosRestantesPomo = 1500;
+let timestampFinPomo = null;
 let intervaloPomo = null;
 let corriendoPomo = false;
 
@@ -3118,10 +3228,13 @@ function actualizarDisplayPomo() {
 }
 
 function tickPomo() {
-    if (segundosRestantesPomo > 0) {
-        segundosRestantesPomo--;
-        actualizarDisplayPomo();
-    } else {
+    if (!corriendoPomo || !timestampFinPomo) return;
+
+    const diff = Math.max(0, Math.round((timestampFinPomo - Date.now()) / 1000));
+    segundosRestantesPomo = diff;
+    actualizarDisplayPomo();
+
+    if (segundosRestantesPomo <= 0) {
         pausarPomo();
         sonarCampanaCozy();
 
@@ -3154,13 +3267,20 @@ function tickPomo() {
 function iniciarPomo() {
     if (corriendoPomo) return;
     corriendoPomo = true;
+    timestampFinPomo = Date.now() + (segundosRestantesPomo * 1000);
+    
     const btnStart = document.getElementById('btn-pomo-start');
     if (btnStart) btnStart.textContent = "⏸️ Pausar";
-    intervaloPomo = setInterval(tickPomo, 1000);
+    
+    intervaloPomo = setInterval(tickPomo, 500);
 }
 
 function pausarPomo() {
+    if (corriendoPomo && timestampFinPomo) {
+        segundosRestantesPomo = Math.max(0, Math.round((timestampFinPomo - Date.now()) / 1000));
+    }
     corriendoPomo = false;
+    timestampFinPomo = null;
     if (intervaloPomo) {
         clearInterval(intervaloPomo);
         intervaloPomo = null;
@@ -3168,6 +3288,12 @@ function pausarPomo() {
     const btnStart = document.getElementById('btn-pomo-start');
     if (btnStart) btnStart.textContent = "▶️ Iniciar";
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && corriendoPomo && timestampFinPomo) {
+        tickPomo();
+    }
+});
 
 function resetearPomo() {
     pausarPomo();
@@ -3242,7 +3368,7 @@ if (btnAplicarCustomPomo) {
 }
 
 // ==========================================
-// 18. LÓGICA WELLNESS HEATMAP (MAPA DE CALOR)
+// 18. LÓGICA WELLNESS HEATMAP (EVALUACIÓN REAL)
 // ==========================================
 function calcularBienestarDia(claveFecha) {
     const datos = JSON.parse(localStorage.getItem(claveFecha)) || {};
@@ -3250,7 +3376,6 @@ function calcularBienestarDia(claveFecha) {
     const tieneAnimo = datos.animo && datos.animo !== "";
     const vasos = typeof datos.vasosAgua === 'number' ? datos.vasosAgua : 0;
 
-    // Hábitos del día
     const fechaObj = new Date(claveFecha + 'T00:00:00');
     const diaSem = fechaObj.getDay();
     let habsProgramados = 0;
@@ -3266,10 +3391,9 @@ function calcularBienestarDia(claveFecha) {
         });
     }
 
-    // Si el día no tiene absolutamente ningún registro, queda en nivel 0 (gris)
     const tieneRegistros = tieneAnimo || vasos > 0 || habsHechos > 0;
     if (!tieneRegistros) {
-        const habsTxt = habsProgramados > 0 ? `🌱 Hábitos: 0/${habsProgramados}` : '🌱 Hábitos: Sin hábitos hoy';
+        const habsTxt = habsProgramados > 0 ? `🐸 Hábitos: 0/${habsProgramados}` : '🐸 Hábitos: Sin hábitos hoy';
         return {
             porcentaje: 0,
             nivel: 0,
@@ -3277,20 +3401,14 @@ function calcularBienestarDia(claveFecha) {
         };
     }
 
-    // 1. Ánimo (0% a 100%) - Si hay actividad en el día pero no registraste ánimo, se toma como 0%
     const valoresAnimo = { "😄": 100, "🙂": 75, "😐": 50, "😔": 25, "😡": 0 };
     const ptsAnimo = tieneAnimo ? valoresAnimo[datos.animo] : 0;
-
-    // 2. Agua (0% a 100%) - SIEMPRE entra al promedio como pilar fundamental
     const ptsAgua = Math.min(100, Math.round((vasos / 8) * 100));
-
-    // 3. Hábitos (0% a 100%)
     const ptsHabs = habsProgramados > 0 ? Math.round((habsHechos / habsProgramados) * 100) : null;
 
-    // Promedio Real de Pilares
     const factores = [ptsAnimo, ptsAgua];
     if (ptsHabs !== null) {
-        factores.push(ptsHabs); // Solo entra al promedio si hay hábitos programados para ese día
+        factores.push(ptsHabs);
     }
 
     const porcentajeFinal = Math.round(factores.reduce((a, b) => a + b, 0) / factores.length);
@@ -3301,10 +3419,9 @@ function calcularBienestarDia(claveFecha) {
     else if (porcentajeFinal > 50 && porcentajeFinal <= 80) nivel = 3;
     else if (porcentajeFinal > 80) nivel = 4;
 
-    // Texto descriptivo detallado para el Tooltip
     const animoTxt = tieneAnimo ? `Ánimo: ${datos.animo} (${ptsAnimo}%)` : 'Ánimo: Sin registro (0%)';
     const aguaTxt = `🥛 Agua: ${vasos}/8 vasos (${ptsAgua}%)`;
-    const habsTxt = habsProgramados > 0 ? `🌱 Hábitos: ${habsHechos}/${habsProgramados} (${ptsHabs}%)` : '🌱 Hábitos: Descanso';
+    const habsTxt = habsProgramados > 0 ? `🐸 Hábitos: ${habsHechos}/${habsProgramados} (${ptsHabs}%)` : '🐸 Hábitos: Descanso';
     const tooltipText = `${claveFecha}\n${animoTxt}\n${aguaTxt}\n${habsTxt}\n✨ Bienestar: ${porcentajeFinal}%`;
 
     return { porcentaje: porcentajeFinal, nivel: nivel, tooltip: tooltipText };
@@ -3321,7 +3438,6 @@ function renderizarHeatmapContenedor(contenedorId, listaFechas) {
         celda.classList.add('celda-heatmap', `nivel-${info.nivel}`);
         celda.setAttribute('data-tooltip', info.tooltip);
 
-        // Al hacer clic abre el modal del día
         celda.addEventListener('click', () => {
             const partes = claveFecha.split('-');
             if (partes.length === 3) {
@@ -3336,7 +3452,130 @@ function renderizarHeatmapContenedor(contenedorId, listaFechas) {
 }
 
 // ==========================================
-// 19. INICIALIZACIÓN GENERAL
+// 19. EXPORTAR HOJA A IMAGEN SCRAPBOOK (PNG)
+// ==========================================
+function exportarScrapbook(claveFecha, fechaLegible) {
+    if (typeof html2canvas !== 'function') {
+        alert("La herramienta de captura aún se está cargando. Por favor, reintenta en unos segundos.");
+        return;
+    }
+
+    const datos = JSON.parse(localStorage.getItem(claveFecha)) || {};
+    const plantilla = document.getElementById('plantilla-scrapbook');
+    if (!plantilla) return;
+
+    // Poblar plantilla
+    const elFecha = document.getElementById('scrapbook-fecha');
+    const elLuna = document.getElementById('scrapbook-luna');
+    const elAnimo = document.getElementById('scrapbook-animo');
+    const elResumen = document.getElementById('scrapbook-resumen');
+    const elStatAgua = document.getElementById('scrapbook-stat-agua');
+    const elStatHabs = document.getElementById('scrapbook-stat-habitos');
+    const elGaleria = document.getElementById('scrapbook-galeria');
+
+    if (elFecha) elFecha.textContent = fechaLegible || claveFecha;
+
+    const partesFecha = claveFecha.split('-');
+    if (partesFecha.length === 3 && elLuna) {
+        const fObj = new Date(parseInt(partesFecha[0]), parseInt(partesFecha[1]) - 1, parseInt(partesFecha[2]));
+        elLuna.textContent = obtenerInfoLuna(fObj);
+    }
+
+    const animoNombres = { "😄": "Excelente", "🙂": "Bueno", "😐": "Neutral", "😔": "Bajo", "😡": "Molesto" };
+    if (elAnimo) {
+        elAnimo.textContent = datos.animo ? `${datos.animo} Ánimo ${animoNombres[datos.animo] || ''}` : "💭 Sin registro de ánimo";
+    }
+
+    if (elResumen) {
+        elResumen.textContent = (datos.resumen && datos.resumen.trim() !== "") 
+            ? `"${datos.resumen}"` 
+            : '"Hoy fue un día tranquilo en mi Agendarium."';
+    }
+
+    const vasos = typeof datos.vasosAgua === 'number' ? datos.vasosAgua : 0;
+    if (elStatAgua) {
+        elStatAgua.textContent = vasos >= 8 ? `💧 Meta de Agua Cumplida (${vasos}/8 vasos)` : `💧 Agua: ${vasos}/8 vasos`;
+    }
+
+    const fechaObj = new Date(claveFecha + 'T00:00:00');
+    const diaSem = fechaObj.getDay();
+    let habsProg = 0;
+    let habsHechos = 0;
+    if (Array.isArray(listaHabitos)) {
+        listaHabitos.forEach(h => {
+            const dias = Array.isArray(h.diasProgramados) ? h.diasProgramados : [0, 1, 2, 3, 4, 5, 6];
+            if (dias.includes(diaSem)) {
+                habsProg++;
+                if (h.historial && h.historial[claveFecha]) habsHechos++;
+            }
+        });
+    }
+
+    if (elStatHabs) {
+        elStatHabs.textContent = habsProg > 0 ? `🐸 Hábitos: ${habsHechos}/${habsProg}` : `🐸 Hábitos: Día de descanso`;
+    }
+
+    // Insertar fotos con formato Polaroid
+    if (elGaleria) {
+        elGaleria.innerHTML = "";
+        const fotos = Array.isArray(datos.imagenesBase64) ? datos.imagenesBase64 : [];
+        fotos.forEach(imgB64 => {
+            const polaroid = document.createElement('div');
+            polaroid.classList.add('scrapbook-polaroid');
+            const imgEl = document.createElement('img');
+            imgEl.src = imgB64;
+            polaroid.appendChild(imgEl);
+            elGaleria.appendChild(polaroid);
+        });
+    }
+
+    // Renderizar y descargar PNG
+    html2canvas(plantilla, {
+        scale: 2,
+        backgroundColor: '#fffdfa',
+        useCORS: true
+    }).then(canvas => {
+        const enlace = document.createElement('a');
+        enlace.download = `Agendarium_Scrapbook_${claveFecha}.png`;
+        enlace.href = canvas.toDataURL('image/png');
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
+
+        const centroX = window.innerWidth / 2;
+        if (typeof lanzarConfeti === 'function') {
+            lanzarConfeti(centroX, 220);
+        }
+    }).catch(err => {
+        console.error("Error al exportar Scrapbook:", err);
+        alert("Ocurrió un inconveniente al generar la imagen del Scrapbook.");
+    });
+}
+
+// Botón Scrapbook en Vista Hoy
+const btnScrapbookHoy = document.getElementById('btn-scrapbook-hoy');
+if (btnScrapbookHoy) {
+    btnScrapbookHoy.addEventListener('click', () => {
+        const claveHoy = obtenerClaveHoy();
+        const f = new Date();
+        const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const fechaLegible = `${f.getDate()} de ${nombresMeses[f.getMonth()]} de ${f.getFullYear()}`;
+        exportarScrapbook(claveHoy, fechaLegible);
+    });
+}
+
+// Botón Scrapbook en Modal del Día
+const btnScrapbookModal = document.getElementById('btn-scrapbook-modal');
+if (btnScrapbookModal) {
+    btnScrapbookModal.addEventListener('click', () => {
+        if (!diaSeleccionadoClave) return;
+        const txtFecha = document.getElementById('fecha-modal') ? document.getElementById('fecha-modal').textContent : diaSeleccionadoClave;
+        exportarScrapbook(diaSeleccionadoClave, txtFecha);
+    });
+}
+
+// ==========================================
+// 20. INICIALIZACIÓN GENERAL
 // ==========================================
 cargarFraseAleatoria();
 actualizarSelectCategorias();

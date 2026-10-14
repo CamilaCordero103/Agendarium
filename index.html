@@ -7,6 +7,8 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
     <title>Agendarium</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Librería html2canvas para generar la imagen Scrapbook -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -28,7 +30,7 @@
                 <button class="btn-pestana" data-destino="calendario">🗓️ Mes</button>
                 <button class="btn-pestana" data-destino="anual">🎯 Año</button>
                 <button class="btn-pestana" data-destino="tareas">☑️ Tareas</button>
-                <button class="btn-pestana" data-destino="habitos">🌱 Hábitos</button>
+                <button class="btn-pestana" data-destino="habitos">🐸 Hábitos</button>
                 <button class="btn-pestana" data-destino="notas">📌 Notas</button>
                 <button type="button" id="btn-modal-backup" class="btn-pestana" style="margin-top: 15px; color: var(--iced-denim); font-weight: 800;">💾 Copia de Seguridad</button>
             </nav>
@@ -128,7 +130,7 @@
                     <!-- CARD TEMPORIZADOR COZY (POMODORO + CUENTA ATRÁS) -->
                     <div class="tarjeta-hoy tarjeta-pomodoro">
                         <div class="cabecera-card-flex" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <h3>⏱️ Temporizador</h3>
+                            <h3>🍅 Temporizador</h3>
                             <div class="pills-filtros-semana">
                                 <button type="button" id="btn-pomo-pomodoro" class="btn-filtro-semana activo">🍅 Pomodoro</button>
                                 <button type="button" id="btn-pomo-custom" class="btn-filtro-semana">⏱️ Cuenta Atrás</button>
@@ -170,7 +172,7 @@
                     <!-- Fila Hábitos Hoy -->
                     <div class="tarjeta-hoy tarjeta-rectangulo-medio">
                         <div class="cabecera-habitos-hoy">
-                            <h3>🌱 Rastreador de Hábitos del Día</h3>
+                            <h3>🐸 Rastreador de Hábitos del Día</h3>
                             <span id="progreso-habitos-texto" class="badge-progreso">0/0 completados</span>
                         </div>
                         
@@ -203,7 +205,10 @@
 
                     <!-- Fila Diario y Comidas -->
                     <div class="tarjeta-hoy tarjeta-rectangulo-grande">
-                        <h3>📖 Resumen y Diario Personal</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3>📖 Resumen y Diario Personal</h3>
+                            <button type="button" id="btn-scrapbook-hoy" class="btn-estetico-secundario">📸 Guardar Scrapbook</button>
+                        </div>
                         <textarea id="hoy-resumen" class="auto-expand textarea-grande-hoy" placeholder="Escribe aquí tu diario o resumen del día..."></textarea>
 
                         <h3 style="margin-top: 14px;">🍽️ Registro de Comidas</h3>
@@ -305,7 +310,7 @@
                 </div>
 
                 <!-- HEATMAP SEMANAL -->
-                <div class="caja-heatmap-wrapper">
+                <div class="caja-heatmap-wrapper" style="margin-bottom: 14px;">
                     <div class="cabecera-heatmap-flex">
                         <span class="titulo-heatmap">📊 Balance de Bienestar de la Semana</span>
                         <div class="leyenda-heatmap-mini">
@@ -329,20 +334,6 @@
                     </div>
                 </div>
 
-                <!-- HEATMAP MENSUAL (UBICADO ARRIBA DE LOS DÍAS) -->
-                <div class="caja-heatmap-wrapper" style="margin-bottom: 16px;">
-                    <div class="cabecera-heatmap-flex">
-                        <span class="titulo-heatmap">📊 Mapa del Mes</span>
-                        <div class="leyenda-heatmap-mini">
-                            <span>Bajo</span>
-                            <span class="leyenda-dot nivel-0"></span><span class="leyenda-dot nivel-1"></span><span class="leyenda-dot nivel-2"></span><span class="leyenda-dot nivel-3"></span><span class="leyenda-dot nivel-4"></span>
-                            <span>Alto</span>
-                        </div>
-                    </div>
-                    <div id="heatmap-mes" class="grid-heatmap-mes"></div>
-                </div>
-
-                <!-- Nombres de los Días -->
                 <div class="dias-semana">
                     <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div>
                     <div>Vie</div><div>Sáb</div><div>Dom</div>
@@ -411,7 +402,7 @@
                 <!-- HEATMAP ANUAL COMPLETO -->
                 <div class="caja-heatmap-wrapper" style="margin-top: 20px;">
                     <div class="cabecera-heatmap-flex">
-                        <span class="titulo-heatmap">📊 Mapa de Bienestar Anual</span>
+                        <span class="titulo-heatmap">📊 Mapa de Calor de Bienestar Anual</span>
                         <div class="leyenda-heatmap-mini">
                             <span>0%</span>
                             <span class="leyenda-dot nivel-0"></span><span class="leyenda-dot nivel-1"></span><span class="leyenda-dot nivel-2"></span><span class="leyenda-dot nivel-3"></span><span class="leyenda-dot nivel-4"></span>
@@ -467,14 +458,14 @@
             <!-- Vista 6: Hábitos -->
             <section id="habitos" class="pagina">
                 <div class="cabecera-habitos-modulo">
-                    <h2>🌱 Rastreador de Hábitos Mensual</h2>
+                    <h2>🐸 Rastreador de Hábitos Mensual</h2>
                 </div>
 
                 <div class="layout-habitos-vertical">
                     <!-- Recompensa Pixel Art -->
                     <div class="tarjeta-pixel-art-top">
                         <div class="pixel-art-header">
-                            <h3>🎨 Recompensa</h3>
+                            <h3>🎨 Recompensa en Píxeles del Mes</h3>
                             <button type="button" id="btn-cambiar-pixel-art" class="btn-estetico-secundario">🎲 Cambiar Ilustración</button>
                         </div>
                         
@@ -536,8 +527,11 @@
     <div id="modal-dia" class="modal oculto">
         <div class="contenido-modal papel-organico">
             <span id="cerrar-modal" class="cerrar">&times;</span>
-            <h3 id="fecha-modal">Detalle del Día</h3>
-            <span id="modal-fase-lunar" class="badge-fase-lunar" style="margin-bottom: 12px; display: inline-flex;"></span>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <h3 id="fecha-modal">Detalle del Día</h3>
+                <button type="button" id="btn-scrapbook-modal" class="btn-estetico-secundario" style="font-size: 10px; padding: 4px 8px;">📸 Guardar Scrapbook</button>
+            </div>
+            <span id="modal-fase-lunar" class="badge-fase-lunar" style="margin-bottom: 12px; display: inline-flex; margin-top: 4px;"></span>
             
             <div class="campo">
                 <label>💭 Ánimo del día:</label>
@@ -612,7 +606,7 @@
                 <div id="contenedor-galeria" class="contenedor-galeria"></div>
             </div>
 
-            <button id="btn-guardar-dia" class="btn-estetico-principal" style="margin-top: 18px; width: 100%;">Guardar Hoja</button>
+            <button id="btn-guardar-dia" class="btn-estetico-principal" style="margin-top: 18px; width: 100%;">✔ Listo</button>
         </div>
     </div>
 
@@ -647,43 +641,71 @@
     </div>
 
     <!-- MODAL COPIA DE SEGURIDAD (EXPORTAR / IMPORTAR) -->
-<div id="modal-backup" class="modal oculto">
-    <div class="contenido-modal papel-organico" style="width: 400px;">
-        <span id="cerrar-modal-backup" class="cerrar">&times;</span>
-        <h3>💾 Copia de Seguridad</h3>
-        <p style="font-size: 12px; color: #64748b; margin: 6px 0 16px 0;">Sincroniza y respalda todos los datos de tu Agendarium entre tu celular y tu notebook.</p>
+    <div id="modal-backup" class="modal oculto">
+        <div class="contenido-modal papel-organico" style="width: 400px;">
+            <span id="cerrar-modal-backup" class="cerrar">&times;</span>
+            <h3>💾 Copia de Seguridad</h3>
+            <p style="font-size: 12px; color: #64748b; margin: 6px 0 16px 0;">Sincroniza y respalda todos los datos de tu Agendarium entre tu celular y tu notebook.</p>
 
-        <!-- Sección Exportar -->
-        <div class="caja-seccion-backup">
-            <h4>📥 Exportar Respaldo</h4>
-            <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Descarga una copia con todas tus tareas, hábitos, notas y fotos.</p>
-            <button type="button" id="btn-exportar-json" class="btn-estetico-principal" style="width: 100%;">⬇️ Descargar Copia (.json)</button>
-        </div>
-
-        <hr style="border: 0; border-top: 1px dashed var(--borde-suave); margin: 16px 0;">
-
-        <!-- Sección Importar -->
-        <div class="caja-seccion-backup">
-            <h4>📤 Importar o Mezclar Respaldo</h4>
-            <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Selecciona el archivo `.json` que descargaste en tu otro dispositivo.</p>
-            
-            <input type="file" id="input-archivo-backup" accept=".json" style="font-size: 11px; margin-bottom: 10px; width: 100%;">
-
-            <div class="opciones-modo-importar" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
-                <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
-                    <input type="radio" name="modo-importacion" value="mezclar" checked>
-                    🔀 <b>Mezcla Inteligente</b> (Conserva lo nuevo de ambos)
-                </label>
-                <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
-                    <input type="radio" name="modo-importacion" value="reemplazar">
-                    ⚠️ <b>Reemplazar Todo</b> (Limpia y deja solo el respaldo)
-                </label>
+            <!-- Sección Exportar -->
+            <div class="caja-seccion-backup">
+                <h4>📥 Exportar Respaldo</h4>
+                <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Descarga una copia con todas tus tareas, hábitos, notas y fotos.</p>
+                <button type="button" id="btn-exportar-json" class="btn-estetico-principal" style="width: 100%;">⬇️ Descargar Copia (.json)</button>
             </div>
 
-            <button type="button" id="btn-importar-json" class="btn-estetico-secundario" style="width: 100%;">🔄 Cargar en Agendarium</button>
+            <hr style="border: 0; border-top: 1px dashed var(--borde-suave); margin: 16px 0;">
+
+            <!-- Sección Importar -->
+            <div class="caja-seccion-backup">
+                <h4>📤 Importar o Mezclar Respaldo</h4>
+                <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Selecciona el archivo `.json` que descargaste en tu otro dispositivo.</p>
+                
+                <input type="file" id="input-archivo-backup" accept=".json" style="font-size: 11px; margin-bottom: 10px; width: 100%;">
+
+                <div class="opciones-modo-importar" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+                    <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
+                        <input type="radio" name="modo-importacion" value="mezclar" checked>
+                        🔀 <b>Mezcla Inteligente</b> (Conserva lo nuevo de ambos)
+                    </label>
+                    <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
+                        <input type="radio" name="modo-importacion" value="reemplazar">
+                        ⚠️ <b>Reemplazar Todo</b> (Limpia y deja solo el respaldo)
+                    </label>
+                </div>
+
+                <button type="button" id="btn-importar-json" class="btn-estetico-secundario" style="width: 100%;">🔄 Cargar en Agendarium</button>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- CONTENEDOR OCULTO PARA RENDERIZAR EL SCRAPBOOK ANTES DE DESCARGAR -->
+    <div id="zona-render-scrapbook" style="position: absolute; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;">
+        <div id="plantilla-scrapbook" class="scrapbook-canvas">
+            <div class="scrapbook-header">
+                <h1 id="scrapbook-fecha">14 de Octubre de 2026</h1>
+                <div class="scrapbook-badges">
+                    <span id="scrapbook-luna" class="scrap-badge">🌕 Luna llena</span>
+                    <span id="scrapbook-animo" class="scrap-badge">😄 Ánimo Excelente</span>
+                </div>
+            </div>
+            
+            <div class="scrapbook-content">
+                <p id="scrapbook-resumen" class="scrapbook-texto"></p>
+                
+                <div class="scrapbook-stats">
+                    <div id="scrapbook-stat-agua" class="scrap-stat-item">💧 Meta de Agua: Completada</div>
+                    <div id="scrapbook-stat-habitos" class="scrap-stat-item">🐸 Hábitos: 3/3</div>
+                </div>
+
+                <div id="scrapbook-galeria" class="scrapbook-polaroid-grid"></div>
+            </div>
+            
+            <div class="scrapbook-footer">
+                <span>Guardado desde mi Agendarium ✨</span>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
