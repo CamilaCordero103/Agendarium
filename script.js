@@ -631,6 +631,7 @@ function sincronizarFechasTareas() {
         // Si la fecha objetivo ya llegó al día de hoy, migra a 'hoy'
         if (t.fechaObjetivo && t.fechaObjetivo === claveHoy && t.categoria !== 'hoy') {
             t.categoria = 'hoy';
+            t.fechaAsignada = claveHoy; // Sella la fecha de hoy para que no se marque como atrasada
             huboCambios = true;
         }
     });
@@ -2853,7 +2854,7 @@ if (inputCasaModal) {
 }
 
 // ==========================================
-// 15. COPIA DE SEGURIDAD (BLOB EXPORT + MERGE)
+// 15. COPIA DE SEGURIDAD (EXPORTACIÓN E IMPORTACIÓN BLINDADA)
 // ==========================================
 const btnModalBackup = document.getElementById('btn-modal-backup');
 const modalBackup = document.getElementById('modal-backup');
@@ -2866,19 +2867,40 @@ if (cerrarModalBackup && modalBackup) {
     cerrarModalBackup.addEventListener('click', () => modalBackup.classList.add('oculto'));
 }
 
+// Funciones auxiliares para evitar el error "[object Object]"
+function desarmarDatoSeguro(val) {
+    if (typeof val === 'string') {
+        try {
+            return JSON.parse(val);
+        } catch (e) {
+            return val;
+        }
+    }
+    return val;
+}
+
+function empaquetarComoString(val) {
+    if (typeof val === 'object' && val !== null) {
+        return JSON.stringify(val);
+    }
+    return String(val);
+}
+
 const btnExportarJson = document.getElementById('btn-exportar-json');
 if (btnExportarJson) {
     btnExportarJson.addEventListener('click', () => {
         const datosExportar = {};
         for (let i = 0; i < localStorage.length; i++) {
             const clave = localStorage.key(i);
-            datosExportar[clave] = localStorage.getItem(clave);
+            const valorCrudo = localStorage.getItem(clave);
+            // Guarda el dato limpio para no generar dobles comillas escapadas
+            datosExportar[clave] = desarmarDatoSeguro(valorCrudo);
         }
 
         const hoy = new Date();
         const fechaStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
         
-        const blob = new Blob([JSON.stringify(datosExportar, null, 2)], { type: "application/json" });
+        const blob = new Blob([JSON.stringify(datosExportar, null, 2)], { type: "application/json;charset=utf-8" });
         const url = URL.createObjectURL(blob);
 
         const descargaAnchor = document.createElement('a');
@@ -2886,39 +2908,55 @@ if (btnExportarJson) {
         descargaAnchor.download = `Agendarium_Respaldo_${fechaStr}.json`;
         document.body.appendChild(descargaAnchor);
         descargaAnchor.click();
-        descargaAnchor.remove();
-        URL.revokeObjectURL(url);
+
+        // Espera 1.5 segundos antes de revocar para dar tiempo al navegador a escribir el archivo
+        setTimeout(() => {
+            descargaAnchor.remove();
+            URL.revokeObjectURL(url);
+        }, 1500);
     });
 }
 
 function smartMergeAgendarium(dataIncoming) {
     const mergeArrayDeObjetos = (claveKey) => {
-        if (dataIncoming[claveKey]) {
+        if (dataIncoming[claveKey] !== undefined) {
             try {
-                let actual = JSON.parse(localStorage.getItem(claveKey)) || [];
-                let incoming = JSON.parse(dataIncoming[claveKey]) || [];
+                let actual = desarmarDatoSeguro(localStorage.getItem(claveKey)) || [];
+                let incoming = desarmarDatoSeguro(dataIncoming[claveKey]) || [];
+                if (!Array.isArray(actual)) actual = [];
+                if (!Array.isArray(incoming)) incoming = [];
+
                 let mapa = new Map();
 
-                actual.forEach(i => mapa.set(i.id || i.nombre || i.texto || i.item, i));
+                actual.forEach(i => {
+                    const id = i.id || i.nombre || i.texto || i.item;
+                    if (id !== undefined) mapa.set(id, i);
+                });
+
                 incoming.forEach(i => {
                     const id = i.id || i.nombre || i.texto || i.item;
-                    if (mapa.has(id)) {
-                        let prev = mapa.get(id);
-                        if (claveKey === 'mis_habitos_agenda') {
-                            let mergedHistorial = { ...(prev.historial || {}), ...(i.historial || {}) };
-                            Object.keys(mergedHistorial).forEach(dateKey => {
-                                mergedHistorial[dateKey] = (prev.historial && prev.historial[dateKey]) || (i.historial && i.historial[dateKey]);
-                            });
-                            mapa.set(id, { ...prev, ...i, historial: mergedHistorial });
+                    if (id !== undefined) {
+                        if (mapa.has(id)) {
+                            let prev = mapa.get(id);
+                            if (claveKey === 'mis_habitos_agenda') {
+                                let mergedHistorial = { ...(prev.historial || {}), ...(i.historial || {}) };
+                                Object.keys(mergedHistorial).forEach(dateKey => {
+                                    mergedHistorial[dateKey] = (prev.historial && prev.historial[dateKey]) || (i.historial && i.historial[dateKey]);
+                                });
+                                mapa.set(id, { ...prev, ...i, historial: mergedHistorial });
+                            } else {
+                                mapa.set(id, { ...prev, ...i, completada: prev.completada || i.completada });
+                            }
                         } else {
-                            mapa.set(id, { ...prev, ...i, completada: prev.completada || i.completada });
+                            mapa.set(id, i);
                         }
-                    } else {
-                        mapa.set(id, i);
                     }
                 });
+
                 localStorage.setItem(claveKey, JSON.stringify(Array.from(mapa.values())));
-            } catch (e) { console.error(`Error mezclando ${claveKey}:`, e); }
+            } catch (e) {
+                console.error(`Error mezclando ${claveKey}:`, e);
+            }
         }
     };
 
@@ -2930,38 +2968,42 @@ function smartMergeAgendarium(dataIncoming) {
     mergeArrayDeObjetos('mis_compras_agenda');
     mergeArrayDeObjetos('mi_stock_agenda');
 
+    // Mezcla de días, semanas, años y configuraciones
     Object.keys(dataIncoming).forEach(key => {
-        if (['mis_tareas_agenda', 'mis_notas_agenda', 'mis_habitos_agenda', 'mis_categorias_eventos', 'mis_gastos_agenda', 'mis_compras_agenda', 'mi_stock_agenda', 'tema', 'indice_pixel_art_agenda'].includes(key)) return;
+        if (['mis_tareas_agenda', 'mis_notas_agenda', 'mis_habitos_agenda', 'mis_categorias_eventos', 'mis_gastos_agenda', 'mis_compras_agenda', 'mi_stock_agenda'].includes(key)) return;
 
-        let prevValStr = localStorage.getItem(key);
-        let incValStr = dataIncoming[key];
+        let prevVal = desarmarDatoSeguro(localStorage.getItem(key));
+        let incVal = desarmarDatoSeguro(dataIncoming[key]);
 
-        if (!prevValStr) {
-            localStorage.setItem(key, incValStr);
+        if (prevVal === null || prevVal === undefined) {
+            localStorage.setItem(key, empaquetarComoString(incVal));
             return;
         }
 
         try {
-            let prevObj = JSON.parse(prevValStr);
-            let incObj = JSON.parse(incValStr);
+            if (typeof prevVal === 'object' && prevVal !== null && typeof incVal === 'object' && incVal !== null) {
+                let mergedObj = { ...prevVal };
 
-            if (typeof prevObj === 'object' && prevObj !== null && typeof incObj === 'object' && incObj !== null) {
-                let mergedObj = { ...prevObj };
+                // Ánimo
+                if (!mergedObj.animo && incVal.animo) mergedObj.animo = incVal.animo;
 
-                if (!mergedObj.animo && incObj.animo) mergedObj.animo = incObj.animo;
+                // Agua
+                mergedObj.vasosAgua = Math.max(Number(mergedObj.vasosAgua) || 0, Number(incVal.vasosAgua) || 0);
 
-                if (Array.isArray(incObj.eventos)) {
-                    let prevEv = Array.isArray(prevObj.eventos) ? prevObj.eventos : [];
+                // Eventos del día
+                if (Array.isArray(incVal.eventos)) {
+                    let prevEv = Array.isArray(prevVal.eventos) ? prevVal.eventos : [];
                     let setEvs = new Set(prevEv.map(e => JSON.stringify(e)));
-                    incObj.eventos.forEach(e => setEvs.add(JSON.stringify(e)));
+                    incVal.eventos.forEach(e => setEvs.add(JSON.stringify(e)));
                     mergedObj.eventos = Array.from(setEvs).map(e => JSON.parse(e));
                 }
 
-                if (Array.isArray(incObj.tareasCasa)) {
-                    let prevTC = Array.isArray(prevObj.tareasCasa) ? prevObj.tareasCasa : [];
+                // Tareas de la casa
+                if (Array.isArray(incVal.tareasCasa)) {
+                    let prevTC = Array.isArray(prevVal.tareasCasa) ? prevVal.tareasCasa : [];
                     let mapTC = new Map();
                     prevTC.forEach(t => mapTC.set(t.texto, t));
-                    incObj.tareasCasa.forEach(t => {
+                    incVal.tareasCasa.forEach(t => {
                         if (mapTC.has(t.texto)) {
                             let ex = mapTC.get(t.texto);
                             mapTC.set(t.texto, { texto: t.texto, completada: ex.completada || t.completada });
@@ -2972,34 +3014,47 @@ function smartMergeAgendarium(dataIncoming) {
                     mergedObj.tareasCasa = Array.from(mapTC.values());
                 }
 
-                if (incObj.comidasDetalle) {
+                // Comidas
+                if (incVal.comidasDetalle) {
                     mergedObj.comidasDetalle = mergedObj.comidasDetalle || {};
                     ['desayuno', 'almuerzo', 'cena', 'snacks'].forEach(c => {
-                        if (!mergedObj.comidasDetalle[c] && incObj.comidasDetalle[c]) {
-                            mergedObj.comidasDetalle[c] = incObj.comidasDetalle[c];
+                        if (!mergedObj.comidasDetalle[c] && incVal.comidasDetalle[c]) {
+                            mergedObj.comidasDetalle[c] = incVal.comidasDetalle[c];
                         }
                     });
                 }
 
+                // Textos de diario / hobbies / enfoque
                 ['resumen', 'casa', 'hobbies', 'enfoque'].forEach(field => {
-                    if (!mergedObj[field] && incObj[field]) mergedObj[field] = incObj[field];
-                    else if (mergedObj[field] && incObj[field] && mergedObj[field] !== incObj[field]) {
-                        if (!mergedObj[field].includes(incObj[field])) {
-                            mergedObj[field] = `${mergedObj[field]}\n---\n${incObj[field]}`;
+                    if (!mergedObj[field] && incVal[field]) mergedObj[field] = incVal[field];
+                    else if (mergedObj[field] && incVal[field] && mergedObj[field] !== incVal[field]) {
+                        if (!mergedObj[field].includes(incVal[field])) {
+                            mergedObj[field] = `${mergedObj[field]}\n---\n${incVal[field]}`;
                         }
                     }
                 });
 
-                if (Array.isArray(incObj.imagenesBase64)) {
-                    let prevImg = Array.isArray(prevObj.imagenesBase64) ? prevObj.imagenesBase64 : [];
-                    let setImg = new Set([...prevImg, ...incObj.imagenesBase64]);
+                // Prioridades semanales y Metas anuales
+                if (Array.isArray(incVal.prioridades) && (!mergedObj.prioridades || mergedObj.prioridades.every(p => p === ""))) {
+                    mergedObj.prioridades = incVal.prioridades;
+                }
+                if (Array.isArray(incVal.metas) && (!mergedObj.metas || mergedObj.metas.every(m => m === ""))) {
+                    mergedObj.metas = incVal.metas;
+                }
+
+                // Fotos
+                if (Array.isArray(incVal.imagenesBase64)) {
+                    let prevImg = Array.isArray(prevVal.imagenesBase64) ? prevVal.imagenesBase64 : [];
+                    let setImg = new Set([...prevImg, ...incVal.imagenesBase64]);
                     mergedObj.imagenesBase64 = Array.from(setImg);
                 }
 
                 localStorage.setItem(key, JSON.stringify(mergedObj));
+            } else {
+                localStorage.setItem(key, empaquetarComoString(incVal));
             }
         } catch (e) {
-            if (!prevValStr && incValStr) localStorage.setItem(key, incValStr);
+            localStorage.setItem(key, empaquetarComoString(incVal));
         }
     });
 }
@@ -3026,19 +3081,34 @@ if (btnImportarJson && inputArchivoBackup) {
                 if (modo === 'reemplazar') {
                     if (!confirm("⚠️ ¿Estás seguro de REEMPLAZAR todo? Perderás los datos actuales no incluidos en este respaldo.")) return;
                     localStorage.clear();
-                    Object.keys(dataIncoming).forEach(k => localStorage.setItem(k, dataIncoming[k]));
+                    Object.keys(dataIncoming).forEach(k => {
+                        const valLimpio = empaquetarComoString(desarmarDatoSeguro(dataIncoming[k]));
+                        localStorage.setItem(k, valLimpio);
+                    });
                 } else {
                     smartMergeAgendarium(dataIncoming);
                 }
 
-                listaTareas = JSON.parse(localStorage.getItem('mis_tareas_agenda')) || [];
-                listaNotas = JSON.parse(localStorage.getItem('mis_notas_agenda')) || [];
-                listaHabitos = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
-                listaCategoriasEventos = JSON.parse(localStorage.getItem('mis_categorias_eventos')) || listaCategoriasEventos;
-                listaGastos = JSON.parse(localStorage.getItem('mis_gastos_agenda')) || [];
-                listaCompras = JSON.parse(localStorage.getItem('mis_compras_agenda')) || [];
-                listaStock = JSON.parse(localStorage.getItem('mi_stock_agenda')) || [];
+                // Recargar variables en memoria
+                listaTareas = desarmarDatoSeguro(localStorage.getItem('mis_tareas_agenda')) || [];
+                listaNotas = desarmarDatoSeguro(localStorage.getItem('mis_notas_agenda')) || [];
+                listaHabitos = desarmarDatoSeguro(localStorage.getItem('mis_habitos_agenda')) || [];
+                listaCategoriasEventos = desarmarDatoSeguro(localStorage.getItem('mis_categorias_eventos')) || listaCategoriasEventos;
+                listaGastos = desarmarDatoSeguro(localStorage.getItem('mis_gastos_agenda')) || [];
+                listaCompras = desarmarDatoSeguro(localStorage.getItem('mis_compras_agenda')) || [];
+                listaStock = desarmarDatoSeguro(localStorage.getItem('mi_stock_agenda')) || [];
 
+                // Aplicar tema si venía en el respaldo
+                const temaGuardado = localStorage.getItem('tema');
+                if (temaGuardado === 'oscuro') {
+                    document.body.classList.add('modo-oscuro');
+                    if (btnModo) btnModo.textContent = '☀️ Modo Color';
+                } else {
+                    document.body.classList.remove('modo-oscuro');
+                    if (btnModo) btnModo.textContent = '🌙 Modo Gris';
+                }
+
+                // Renderizar todas las pantallas de inmediato
                 cargarVistaHoy();
                 renderizarCalendario();
                 renderizarVistaSemana();
@@ -3065,7 +3135,7 @@ if (btnImportarJson && inputArchivoBackup) {
                 console.error(err);
             }
         };
-        lector.readAsText(archivo);
+        lector.readAsText(archivo, "UTF-8");
     });
 }
 

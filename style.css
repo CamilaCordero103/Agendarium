@@ -2468,3 +2468,16 @@ body.modo-oscuro .pill-tag-nota { background: rgba(255, 255, 255, 0.8) !importan
 @media (max-width: 480px) {
     .papel-organico .grid-comidas-cuatro { grid-template-columns: 1fr; }
 }
+/* Centrado de etiqueta en la tarjeta de despensa viva */
+.item-stock .badge-cat-gasto {
+    align-self: center;
+}
+
+/* Evita que los botones < y > de la billetera salten al cambiar de mes */
+#label-mes-billetera {
+    min-width: 140px;
+    text-align: center;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}

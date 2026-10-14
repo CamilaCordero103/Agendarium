@@ -552,6 +552,8 @@
                         <input type="text" id="input-desc-gasto" class="input-estetico" placeholder="Descripción (ej: Almuerzo, sueldo, Uber)...">
                         
                         <select id="select-categoria-gasto" class="select-estetico">
+                            <option value="💰 Sueldo / Salario">💰 Sueldo / Salario</option>
+                            <option value="💼 Extra / Honorarios">💼 Extra / Honorarios</option>
                             <option value="🛒 Supermercado">🛒 Supermercado</option>
                             <option value="☕ Comida & Antojos">☕ Comida & Antojos</option>
                             <option value="🚌 Transporte">🚌 Transporte</option>
@@ -798,7 +800,7 @@
                 <h4>📤 Importar o Mezclar Respaldo</h4>
                 <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Selecciona el archivo `.json` que descargaste en tu otro dispositivo.</p>
                 
-                <input type="file" id="input-archivo-backup" accept=".json" style="font-size: 11px; margin-bottom: 10px; width: 100%;">
+                <input type="file" id="input-archivo-backup" accept=".json,application/json,text/plain" style="font-size: 11px; margin-bottom: 10px; width: 100%;">
 
                 <div class="opciones-modo-importar" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
                     <label class="check-dia" style="font-size: 11px; padding: 6px 8px;">
