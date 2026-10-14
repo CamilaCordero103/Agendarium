@@ -61,6 +61,8 @@ select,
     background: #ffffff;
     color: var(--texto-oscuro);
     transition: all 0.2s ease;
+    min-width: 0; /* Permite que el input se encoja sin desbordar */
+    box-sizing: border-box;
 }
 
 .input-estetico:focus, 
@@ -269,6 +271,45 @@ h2, h3 { letter-spacing: -0.2px; }
     width: 100%;
 }
 
+.input-evento-wrapper {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap; /* Si no cabe el botón, pasa abajo en vez de salir de la caja */
+}
+
+.input-evento-wrapper select {
+    flex: 1 1 95px;
+    max-width: 100%;
+    font-size: 11px;
+    padding: 6px;
+    min-width: 0;
+}
+
+.input-evento-wrapper input {
+    flex: 2 1 110px;
+    min-width: 0;
+}
+
+.mini-form-inline {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    flex-wrap: wrap; /* Permite salto de línea en pantallas reducidas */
+}
+
+.mini-form-inline input { 
+    flex: 1 1 120px; 
+    min-width: 0; 
+}
+
+.grid-comidas-cuatro {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
 .flex-hoy-contenedor {
     display: flex;
     flex-direction: column;
@@ -278,7 +319,7 @@ h2, h3 { letter-spacing: -0.2px; }
 
 .fila-cuadros-superiores {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* Evita que las 3 tarjetas empujen la pantalla */
     gap: 16px;
 }
 
@@ -288,6 +329,7 @@ h2, h3 { letter-spacing: -0.2px; }
     border-radius: 16px;
     padding: 16px;
     min-width: 0;
+    overflow: hidden; /* Corta cualquier fuga lateral */
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -306,16 +348,17 @@ h2, h3 { letter-spacing: -0.2px; }
     align-items: center;
     width: 100%;
     padding: 4px 0;
+    gap: 2px;
 }
 
 .btn-animo-hoy, .btn-animo {
-    font-size: 22px;
+    font-size: clamp(16px, 1.8vw, 22px); /* Reduce proporcionalmente los emojis si se achica la ventana */
     background: transparent;
     border: 2px solid transparent;
     cursor: pointer;
     padding: 2px;
     border-radius: 50%;
-    flex-shrink: 0;
+    flex-shrink: 1;
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -365,30 +408,7 @@ h2, h3 { letter-spacing: -0.2px; }
     font-weight: 600;
 }
 
-.input-evento-wrapper {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    width: 100%;
-}
 
-.input-evento-wrapper select {
-    max-width: 110px;
-    font-size: 11px;
-    padding: 6px;
-}
-
-.input-evento-wrapper input {
-    flex: 1;
-    min-width: 0;
-}
-
-.mini-form-inline {
-    display: flex;
-    gap: 6px;
-}
-
-.mini-form-inline input { flex: 1; }
 
 .mini-lista-hoy.interactiva {
     max-height: 120px;
@@ -516,12 +536,6 @@ h2, h3 { letter-spacing: -0.2px; }
 .textarea-grande-hoy {
     min-height: 100px !important;
     line-height: 1.4;
-}
-
-.grid-comidas-cuatro {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
 }
 
 .sub-campos-resumen {
@@ -748,9 +762,11 @@ h2, h3 { letter-spacing: -0.2px; }
 
 .parrilla-semana-dias {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(115px, 1fr)); /* Mantiene legibles los 7 días */
     gap: 10px;
     width: 100%;
+    overflow-x: auto; /* Si la ventana es angosta, añade desplazamiento horizontal suave sin romper la tarjeta */
+    padding-bottom: 8px;
 }
 
 .columna-dia-semana {
@@ -1992,7 +2008,7 @@ h2, h3 { letter-spacing: -0.2px; }
 
 .layout-despensa-split {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Controla estrictamente el 50% por columna */
     gap: 16px;
     align-items: start;
 }
@@ -2004,6 +2020,8 @@ h2, h3 { letter-spacing: -0.2px; }
     border-radius: 16px;
     padding: 16px;
     box-shadow: 0 4px 12px rgba(87,152,215,0.05);
+    min-width: 0; /* Previene que los selectores empujen la columna hacia afuera */
+    overflow: hidden;
 }
 
 .cabecera-panel-despensa {
@@ -2362,6 +2380,25 @@ body.modo-oscuro .pomo-estado { color: #cbd5e1 !important; }
 body.modo-oscuro .caja-inputs-custom-pomo { background: #333333 !important; border-color: var(--ironclad-grey) !important; }
 body.modo-oscuro .grupo-input-tiempo input { background: #2b2b2b !important; color: #ffffff !important; border-color: var(--ironclad-grey) !important; }
 body.modo-oscuro .pill-tag-nota { background: rgba(255, 255, 255, 0.8) !important; color: #1e293b !important; }
+
+/* --- ADAPTABILIDAD INTERMEDIA (VENTANAS DE COMPUTADOR REDUCIDAS Y TABLETS) --- */
+@media (max-width: 1050px) {
+    .fila-cuadros-superiores {
+        grid-template-columns: 1fr; /* Pasa las tarjetas de Ánimo, Eventos y Tareas a 1 columna */
+    }
+
+    .grid-comidas-cuatro {
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columnas en vez de 4 apretadas */
+    }
+
+    .layout-despensa-split {
+        grid-template-columns: 1fr; /* Lista de compras arriba y despensa abajo */
+    }
+
+    .fila-balances-billetera {
+        grid-template-columns: 1fr;
+    }
+}
 
 /* =========================================================
    --- ADAPTABILIDAD RESPONSIVE (MÓVIL) ---
