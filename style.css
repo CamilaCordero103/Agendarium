@@ -646,7 +646,8 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 #btn-semana-ant, #btn-semana-sig,
-#btn-ano-ant, #btn-ano-sig {
+#btn-ano-ant, #btn-ano-sig,
+#btn-billetera-mes-ant, #btn-billetera-mes-sig {
     width: 32px;
     height: 32px;
     padding: 0;

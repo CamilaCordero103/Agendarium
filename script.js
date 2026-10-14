@@ -589,15 +589,55 @@ function actualizarSelloFechaTarea(tarea, nuevaCategoria) {
     const yyyy = hoy.getFullYear();
     const mm = String(hoy.getMonth() + 1).padStart(2, '0');
     const dd = String(hoy.getDate()).padStart(2, '0');
-    
+    const claveHoy = `${yyyy}-${mm}-${dd}`;
+
     const lunes = obtenerLunesDeSemana(hoy);
     const lyyyy = lunes.getFullYear();
     const lmm = String(lunes.getMonth() + 1).padStart(2, '0');
     const ldd = String(lunes.getDate()).padStart(2, '0');
 
     tarea.categoria = nuevaCategoria;
-    tarea.fechaAsignada = `${yyyy}-${mm}-${dd}`;
+    tarea.fechaAsignada = claveHoy;
     tarea.lunesAsignado = `${lyyyy}-${lmm}-${ldd}`;
+
+    // Fijamos la fecha exacta a la que apunta la tarea
+    if (nuevaCategoria === 'hoy') {
+        tarea.fechaObjetivo = claveHoy;
+    } else if (nuevaCategoria === 'manana') {
+        const manana = new Date(hoy);
+        manana.setDate(hoy.getDate() + 1);
+        tarea.fechaObjetivo = `${manana.getFullYear()}-${String(manana.getMonth() + 1).padStart(2, '0')}-${String(manana.getDate()).padStart(2, '0')}`;
+    } else {
+        tarea.fechaObjetivo = null;
+    }
+}
+
+// Revisa cada día si las tareas agendadas para 'mañana' ya corresponden a 'hoy'
+function sincronizarFechasTareas() {
+    const hoy = new Date();
+    const claveHoy = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+
+    let huboCambios = false;
+    listaTareas.forEach(t => {
+        if (t.completada) return;
+
+        // Compatibilidad con tareas creadas anteriormente
+        if (!t.fechaObjetivo && t.categoria === 'manana' && t.fechaAsignada) {
+            const f = new Date(t.fechaAsignada + 'T00:00:00');
+            f.setDate(f.getDate() + 1);
+            t.fechaObjetivo = `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
+        }
+
+        // Si la fecha objetivo ya llegó al día de hoy, migra a 'hoy'
+        if (t.fechaObjetivo && t.fechaObjetivo === claveHoy && t.categoria !== 'hoy') {
+            t.categoria = 'hoy';
+            huboCambios = true;
+        }
+    });
+
+    if (huboCambios) {
+        localStorage.setItem('mis_tareas_agenda', JSON.stringify(listaTareas));
+    }
 }
 
 function agregarNuevaTarea() {
@@ -644,6 +684,7 @@ function guardarYRenderizarTareas() {
 }
 
 function renderizarTareas() {
+    sincronizarFechasTareas();
     const contenedor = document.getElementById('contenedor-lista-tareas');
     const contenedorCompletadas = document.getElementById('lista-completadas');
     const spanCantCompletadas = document.getElementById('cant-completadas');
@@ -1871,6 +1912,7 @@ if (btnAddTareaHoy && inputTareaHoy) {
 }
 
 function cargarVistaHoy() {
+    sincronizarFechasTareas();
     actualizarSelectCategorias();
     const claveHoy = obtenerClaveHoy();
     const datos = JSON.parse(localStorage.getItem(claveHoy)) || {};
@@ -3521,10 +3563,11 @@ if (btnScrapbookModal) {
 }
 
 // ==========================================
-// 20. BILLETERA & GASTOS
+// 20. BILLETERA & GASTOS (CON NAVEGACIÓN Y SALDO ACUMULADO)
 // ==========================================
 let listaGastos = JSON.parse(localStorage.getItem('mis_gastos_agenda')) || [];
 let filtroGastoActual = 'todas';
+let fechaBilleteraActual = new Date();
 let temporizadorToast = null;
 
 function mostrarToast(mensaje) {
@@ -3589,6 +3632,22 @@ document.querySelectorAll('#pills-filtros-gastos .btn-filtro-semana').forEach(bt
     });
 });
 
+const btnBillMesAnt = document.getElementById('btn-billetera-mes-ant');
+const btnBillMesSig = document.getElementById('btn-billetera-mes-sig');
+
+if (btnBillMesAnt) {
+    btnBillMesAnt.addEventListener('click', () => {
+        fechaBilleteraActual.setMonth(fechaBilleteraActual.getMonth() - 1);
+        renderizarBilletera();
+    });
+}
+if (btnBillMesSig) {
+    btnBillMesSig.addEventListener('click', () => {
+        fechaBilleteraActual.setMonth(fechaBilleteraActual.getMonth() + 1);
+        renderizarBilletera();
+    });
+}
+
 function renderizarBilletera() {
     const contenedor = document.getElementById('contenedor-historial-gastos');
     const elIngresos = document.getElementById('total-ingresos-mes');
@@ -3597,44 +3656,53 @@ function renderizarBilletera() {
     const lblMes = document.getElementById('label-mes-billetera');
     if (!contenedor) return;
 
-    const hoyReal = new Date();
-    const claveHoy = obtenerClaveHoy();
-    const prefijoMes = `${hoyReal.getFullYear()}-${String(hoyReal.getMonth() + 1).padStart(2, '0')}`;
+    const anoSel = fechaBilleteraActual.getFullYear();
+    const mesSel = fechaBilleteraActual.getMonth();
+    const prefijoMesSel = `${anoSel}-${String(mesSel + 1).padStart(2, '0')}`;
     
     const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    if (lblMes) lblMes.textContent = `${nombresMeses[hoyReal.getMonth()]} ${hoyReal.getFullYear()}`;
+    if (lblMes) lblMes.textContent = `${nombresMeses[mesSel]} ${anoSel}`;
 
-    let totalIngresos = 0;
-    let totalGastos = 0;
+    let totalIngresosMes = 0;
+    let totalGastosMes = 0;
+    let saldoHistoricoAcumulado = 0;
 
+    // Calcula el total del mes y el balance acumulado
     listaGastos.forEach(g => {
-        if (g.fecha.startsWith(prefijoMes)) {
-            if (g.tipo === 'ingreso') totalIngresos += g.monto;
-            else totalGastos += g.monto;
+        const esIngreso = g.tipo === 'ingreso';
+        const mesGasto = g.fecha.slice(0, 7);
+
+        if (mesGasto === prefijoMesSel) {
+            if (esIngreso) totalIngresosMes += g.monto;
+            else totalGastosMes += g.monto;
+        }
+
+        if (mesGasto <= prefijoMesSel) {
+            if (esIngreso) saldoHistoricoAcumulado += g.monto;
+            else saldoHistoricoAcumulado -= g.monto;
         }
     });
 
-    const saldo = totalIngresos - totalGastos;
-    if (elIngresos) elIngresos.textContent = `$${totalIngresos.toLocaleString('es-CL')}`;
-    if (elMes) elMes.textContent = `$${totalGastos.toLocaleString('es-CL')}`;
+    if (elIngresos) elIngresos.textContent = `$${totalIngresosMes.toLocaleString('es-CL')}`;
+    if (elMes) elMes.textContent = `$${totalGastosMes.toLocaleString('es-CL')}`;
     if (elSaldo) {
-        elSaldo.textContent = `${saldo < 0 ? '-' : ''}$${Math.abs(saldo).toLocaleString('es-CL')}`;
-        elSaldo.classList.toggle('saldo-negativo', saldo < 0);
+        elSaldo.textContent = `${saldoHistoricoAcumulado < 0 ? '-' : ''}$${Math.abs(saldoHistoricoAcumulado).toLocaleString('es-CL')}`;
+        elSaldo.classList.toggle('saldo-negativo', saldoHistoricoAcumulado < 0);
     }
 
     contenedor.innerHTML = "";
     
-    let filtrados = listaGastos.filter(g => g.fecha.startsWith(prefijoMes));
+    let filtrados = listaGastos.filter(g => g.fecha.startsWith(prefijoMesSel));
     if (filtroGastoActual !== 'todas') {
         filtrados = filtrados.filter(g => g.cat === filtroGastoActual);
     }
 
     if (filtrados.length === 0) {
-        contenedor.innerHTML = `<p style="color:#aaa; font-style:italic; font-size:12px; text-align:center; padding: 20px;">Sin gastos registrados.</p>`;
+        contenedor.innerHTML = `<p style="color:#aaa; font-style:italic; font-size:12px; text-align:center; padding: 20px;">Sin movimientos registrados en este mes.</p>`;
         return;
     }
 
-    filtrados.forEach((g, idxRealArray) => {
+    filtrados.forEach((g) => {
         const item = document.createElement('div');
         item.classList.add('item-gasto');
         const esIngreso = g.tipo === 'ingreso';
@@ -3680,7 +3748,6 @@ function renderizarBilletera() {
         });
 
         divDer.appendChild(btnDel);
-
         item.appendChild(divIzq);
         item.appendChild(divDer);
         contenedor.appendChild(item);
@@ -3766,6 +3833,17 @@ function renderizarCompras() {
             chk.checked = c.comprado;
             chk.addEventListener('change', () => {
                 c.comprado = chk.checked;
+
+                // Si se marca como comprado, busca si existe en Despensa Viva para rellenarlo
+                if (c.comprado) {
+                    const itemEnDespensa = listaStock.find(s => s.item.trim().toLowerCase() === c.item.trim().toLowerCase());
+                    if (itemEnDespensa) {
+                        itemEnDespensa.estado = 'lleno';
+                        guardarYRenderizarStock();
+                        mostrarToast(`✨ "${itemEnDespensa.item}" se reabasteció como Lleno en la Despensa`);
+                    }
+                }
+
                 guardarYRenderizarCompras();
             });
 

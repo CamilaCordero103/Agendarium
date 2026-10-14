@@ -517,7 +517,11 @@
             <section id="billetera" class="pagina">
                 <div class="cabecera-billetera">
                     <h2>👛 Billetera & Control de Gastos</h2>
-                    <span class="badge-progreso" id="label-mes-billetera">Octubre 2026</span>
+                    <div class="navegacion-semana">
+                        <button type="button" id="btn-billetera-mes-ant" class="btn-estetico-secundario">&lt;</button>
+                        <span class="badge-progreso" id="label-mes-billetera">Octubre 2026</span>
+                        <button type="button" id="btn-billetera-mes-sig" class="btn-estetico-secundario">&gt;</button>
+                    </div>
                 </div>
 
                 <!-- Tarjetas de Balance -->
@@ -531,7 +535,7 @@
                         <h3 id="total-gastado-mes">$0</h3>
                     </div>
                     <div class="tarjeta-balance-billetera principal">
-                        <span class="subtitulo-balance">Saldo Actual</span>
+                        <span class="subtitulo-balance">Saldo Total Acumulado</span>
                         <h3 id="saldo-actual">$0</h3>
                     </div>
                 </div>
@@ -589,7 +593,7 @@
             <!-- Vista 9: Despensa Viva & Lista de Compras (NUEVO) -->
             <section id="despensa" class="pagina">
                 <div class="cabecera-despensa">
-                    <h2>🛒 Despensa Viva & Lista de Compras</h2>
+                    <h2>🛒 Despensa Viva</h2>
                     <button type="button" id="btn-limpiar-comprados" class="btn-estetico-secundario" style="font-size: 11px;">🧹 Limpiar Comprados</button>
                 </div>
 
