@@ -49,6 +49,7 @@ body {
    ========================================================= */
 .input-estetico, 
 input[type="text"], 
+input[type="number"],
 textarea, 
 select, 
 .select-estetico {
@@ -64,6 +65,7 @@ select,
 
 .input-estetico:focus, 
 input[type="text"]:focus, 
+input[type="number"]:focus,
 textarea:focus, 
 select:focus {
     border-color: var(--iced-denim);
@@ -579,7 +581,8 @@ h2, h3 { letter-spacing: -0.2px; }
     user-select: none;
 }
 
-.check-dia input[type="checkbox"] {
+.check-dia input[type="checkbox"],
+.check-dia input[type="radio"] {
     accent-color: var(--iced-denim);
     cursor: pointer;
 }
@@ -619,7 +622,6 @@ h2, h3 { letter-spacing: -0.2px; }
     gap: 8px;
 }
 
-/* Fijamos el ancho del texto central para que nunca empuje los botones */
 #label-rango-semana {
     min-width: 160px;
     text-align: center;
@@ -629,9 +631,8 @@ h2, h3 { letter-spacing: -0.2px; }
     white-space: nowrap;
 }
 
-/* Le damos un tamaño cuadrado y exacto a los botones < y > */
-#btn-semana-ant,
-#btn-semana-sig {
+#btn-semana-ant, #btn-semana-sig,
+#btn-ano-ant, #btn-ano-sig {
     width: 32px;
     height: 32px;
     padding: 0;
@@ -914,7 +915,6 @@ h2, h3 { letter-spacing: -0.2px; }
     cursor: help;
 }
 
-/* Píldora de Bienestar dentro de las casillas del mes */
 .pill-bienestar-mes {
     font-size: 9px;
     font-weight: 800;
@@ -999,7 +999,7 @@ h2, h3 { letter-spacing: -0.2px; }
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    min-height: 195px; /* Mantiene la misma altura en todos los meses */
+    min-height: 195px;
 }
 
 .mini-mes-card:hover {
@@ -1186,7 +1186,7 @@ h2, h3 { letter-spacing: -0.2px; }
     display: flex;
     gap: 3px;
     overflow-x: auto;
-    padding: 3px 2px; /* Margen para evitar recortes */
+    padding: 3px 2px;
     align-items: center;
 }
 
@@ -1223,7 +1223,6 @@ h2, h3 { letter-spacing: -0.2px; }
     border-style: dashed !important;
 }
 
-/* Casilla previa a la creación del hábito (Interactiva sin cortes) */
 .celda-dia-habito.previo-creacion {
     background: #f8fafc !important;
     color: #cbd5e1 !important;
@@ -1245,7 +1244,6 @@ h2, h3 { letter-spacing: -0.2px; }
     z-index: 2;
 }
 
-/* Selector interactivo de días en hábito */
 .badge-dias-resumen.editable {
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1371,7 +1369,6 @@ h2, h3 { letter-spacing: -0.2px; }
     box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
 }
 
-/* Tooltip claro y nítido para Heatmaps */
 .celda-heatmap[data-tooltip]::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -1552,17 +1549,9 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 @keyframes animacionConfeti {
-    0% {
-        opacity: 1;
-        transform: translate(0, 0) rotate(0deg) scale(1);
-    }
-    80% {
-        opacity: 0.9;
-    }
-    100% {
-        opacity: 0;
-        transform: translate(var(--dx), calc(var(--dy) + 350px)) rotate(720deg) scale(0.5);
-    }
+    0% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+    80% { opacity: 0.9; }
+    100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 350px)) rotate(720deg) scale(0.5); }
 }
 
 /* =========================================================
@@ -1655,15 +1644,6 @@ h2, h3 { letter-spacing: -0.2px; }
     word-break: break-word;
 }
 
-.postit-contenido ul {
-    padding-left: 16px;
-    margin: 4px 0;
-}
-
-.postit-contenido li {
-    margin-bottom: 2px;
-}
-
 .postit-tags-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -1695,10 +1675,7 @@ h2, h3 { letter-spacing: -0.2px; }
     opacity: 0.6;
 }
 
-.btn-del-tag-nota:hover {
-    opacity: 1;
-    color: #ef4444;
-}
+.btn-del-tag-nota:hover { opacity: 1; color: #ef4444; }
 
 .input-add-tag-nota {
     background: rgba(255, 255, 255, 0.25) !important;
@@ -1720,9 +1697,7 @@ h2, h3 { letter-spacing: -0.2px; }
     width: 55px;
 }
 
-.input-add-tag-nota::placeholder {
-    color: rgba(0, 0, 0, 0.35);
-}
+.input-add-tag-nota::placeholder { color: rgba(0, 0, 0, 0.35); }
 
 .postit-pie { 
     display: flex; 
@@ -1734,213 +1709,87 @@ h2, h3 { letter-spacing: -0.2px; }
 }
 
 .postit-colores { display: flex; gap: 4px; }
-
 .dot-color { 
-    width: 12px; 
-    height: 12px; 
-    border-radius: 50%; 
-    cursor: pointer; 
-    border: 1px solid rgba(0,0,0,0.15); 
+    width: 12px; height: 12px; border-radius: 50%; 
+    cursor: pointer; border: 1px solid rgba(0,0,0,0.15); 
     transition: transform 0.2s;
 }
-
 .dot-color:hover { transform: scale(1.2); }
 
 /* =========================================================
    --- CONTADOR DE HIDRATACIÓN ---
    ========================================================= */
-.layout-hidratacion-flex {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 4px;
-}
+.layout-hidratacion-flex { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
 
 .vaso-agua-wrapper {
-    position: relative;
-    width: 65px;
-    height: 80px;
-    border: 3px solid var(--iced-denim);
-    border-top: none;
-    border-radius: 0 0 16px 16px;
-    background: rgba(255, 255, 255, 0.7);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 0 8px rgba(87, 152, 215, 0.2);
-    flex-shrink: 0;
+    position: relative; width: 65px; height: 80px;
+    border: 3px solid var(--iced-denim); border-top: none;
+    border-radius: 0 0 16px 16px; background: rgba(255, 255, 255, 0.7);
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 8px rgba(87, 152, 215, 0.2); flex-shrink: 0;
 }
 
 .liquido-agua {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    position: absolute; bottom: 0; left: 0; width: 100%;
     background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
     transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 0 0 12px 12px;
-    opacity: 0.85;
+    border-radius: 0 0 12px 12px; opacity: 0.85;
 }
 
-.texto-vaso-centro {
-    position: relative;
-    z-index: 2;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--texto-oscuro);
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
-}
+.texto-vaso-centro { position: relative; z-index: 2; font-size: 11px; font-weight: 800; color: var(--texto-oscuro); text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8); }
 
-.col-controles-agua {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 1;
-}
-
-.fila-iconos-vasos {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    align-items: center;
-}
+.col-controles-agua { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.fila-iconos-vasos { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
 .icono-vasito {
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0.3;
+    font-size: 18px; cursor: pointer; opacity: 0.3;
     transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
-    filter: grayscale(100%);
-    user-select: none;
+    filter: grayscale(100%); user-select: none;
 }
+.icono-vasito.lleno { opacity: 1; filter: grayscale(0%); transform: scale(1.15); }
+.icono-vasito:hover { transform: scale(1.3); }
 
-.icono-vasito.lleno {
-    opacity: 1;
-    filter: grayscale(0%);
-    transform: scale(1.15);
-}
-
-.icono-vasito:hover {
-    transform: scale(1.3);
-}
-
-.botones-agua-flex {
-    display: flex;
-    gap: 8px;
-}
+.botones-agua-flex { display: flex; gap: 8px; }
 
 /* =========================================================
    --- TEMPORIZADOR COZY POMODORO & CUENTA ATRÁS ---
    ========================================================= */
-.layout-pomodoro-flex {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-}
+.layout-pomodoro-flex { display: flex; align-items: center; gap: 16px; margin-top: 6px; flex-wrap: wrap; }
 
 .reloj-cozy-display {
     background: linear-gradient(135deg, var(--frost) 0%, #ffffff 100%);
-    border: 2px solid var(--borde-suave);
-    border-radius: 16px;
-    padding: 10px 18px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 135px;
-    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.08);
-    flex-shrink: 0;
+    border: 2px solid var(--borde-suave); border-radius: 16px;
+    padding: 10px 18px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; min-width: 135px;
+    box-shadow: 0 4px 12px rgba(87, 152, 215, 0.08); flex-shrink: 0;
 }
 
-.pomo-tiempo {
-    font-size: 26px;
-    font-weight: 900;
-    color: var(--iced-denim);
-    letter-spacing: 1px;
-    font-family: system-ui, -apple-system, sans-serif;
-}
+.pomo-tiempo { font-size: 26px; font-weight: 900; color: var(--iced-denim); letter-spacing: 1px; font-family: system-ui, -apple-system, sans-serif; }
+.pomo-estado { font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 
-.pomo-estado {
-    font-size: 10px;
-    font-weight: 800;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-}
-
-.col-controles-pomo {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-    min-width: 180px;
-}
+.col-controles-pomo { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 180px; }
 
 .caja-inputs-custom-pomo {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #f8fafc;
-    padding: 6px 10px;
-    border-radius: 12px;
-    border: 1px solid var(--borde-suave);
-    width: fit-content;
+    display: flex; align-items: center; gap: 6px; background: #f8fafc;
+    padding: 6px 10px; border-radius: 12px; border: 1px solid var(--borde-suave); width: fit-content;
 }
 
-.grupo-input-tiempo {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-.grupo-input-tiempo input {
-    width: 42px;
-    padding: 4px 6px;
-    text-align: center;
-    font-weight: 800;
-    font-size: 12px;
-    border: 1px solid var(--borde-suave);
-    border-radius: 8px;
-    outline: none;
-}
-
-.grupo-input-tiempo label {
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-}
-
-.botones-pomo-flex {
-    display: flex;
-    gap: 8px;
-}
+.grupo-input-tiempo { display: flex; align-items: center; gap: 3px; }
+.grupo-input-tiempo input { width: 42px; padding: 4px 6px; text-align: center; font-weight: 800; font-size: 12px; border: 1px solid var(--borde-suave); border-radius: 8px; outline: none; }
+.grupo-input-tiempo label { font-size: 10px; font-weight: 700; color: #64748b; }
+.botones-pomo-flex { display: flex; gap: 8px; }
 
 /* =========================================================
    --- MODALES ---
    ========================================================= */
 .modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.45);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.45); display: flex; justify-content: center; align-items: center; z-index: 100;
 }
 
 .papel-organico {
-    background-color: #fff;
-    border: 1px solid var(--borde-suave);
-    border-radius: 20px;
-    padding: 22px;
-    width: 420px;
-    max-height: 90vh;
-    overflow-y: auto;
+    background-color: #fff; border: 1px solid var(--borde-suave); border-radius: 20px;
+    padding: 22px; width: 420px; max-height: 90vh; overflow-y: auto;
     box-shadow: 0 10px 35px rgba(0,0,0,0.18);
 }
 
@@ -1951,37 +1800,17 @@ h2, h3 { letter-spacing: -0.2px; }
 .cabecera-campo-flex { display: flex; justify-content: space-between; align-items: center; }
 
 .btn-pill-mini {
-    background: var(--frost);
-    color: var(--iced-denim);
-    border: 1px solid var(--iced-denim);
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 10px;
-    font-weight: 700;
-    cursor: pointer;
+    background: var(--frost); color: var(--iced-denim); border: 1px solid var(--iced-denim);
+    padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; cursor: pointer;
 }
 
 .form-crear-cat-mini {
-    background: #f8fafc;
-    border: 1px solid var(--borde-suave);
-    border-radius: 12px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    background: #f8fafc; border: 1px solid var(--borde-suave); border-radius: 12px;
+    padding: 8px; display: flex; flex-direction: column; gap: 5px;
 }
 
 .pills-categorias-gestion { display: flex; flex-wrap: wrap; gap: 4px; }
-.pill-cat-gestion {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-
+.pill-cat-gestion { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; display: inline-flex; align-items: center; gap: 4px; }
 .btn-del-cat-pill { background: none; border: none; font-weight: bold; cursor: pointer; opacity: 0.7; }
 
 .contenedor-galeria { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
@@ -1993,25 +1822,297 @@ h2, h3 { letter-spacing: -0.2px; }
 #imagen-ampliada { max-width: 85vw; max-height: 85vh; border-radius: 12px; object-fit: contain; }
 .cerrar-lightbox { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 32px; cursor: pointer; }
 
-.caja-seccion-backup h4 {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--iced-denim);
-    margin-bottom: 4px;
+.caja-seccion-backup h4 { font-size: 13px; font-weight: 800; color: var(--iced-denim); margin-bottom: 4px; }
+
+.opciones-modo-importar .check-dia { display: flex; align-items: center; gap: 6px; width: 100%; cursor: pointer; }
+
+.papel-organico .grid-comidas-cuatro { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+/* =========================================================
+   --- NUEVO MÓDULO: BILLETERA & GASTOS ---
+   ========================================================= */
+.cabecera-billetera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
 }
 
-.opciones-modo-importar .check-dia {
+.fila-balances-billetera {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.tarjeta-balance-billetera {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(87,152,215,0.05);
+}
+
+.tarjeta-balance-billetera.principal {
+    background: var(--frost);
+    border: 2px solid var(--iced-denim);
+}
+
+.tarjeta-balance-billetera h3 {
+    font-size: 22px;
+    color: var(--iced-denim);
+    margin-top: 6px;
+}
+
+.tarjeta-balance-billetera.principal h3 { color: #16a34a; }
+.tarjeta-balance-billetera.principal h3.saldo-negativo { color: #e11d48; }
+
+.subtitulo-balance {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.caja-nuevo-gasto {
+    background: var(--frost);
+    border: 1px solid var(--borde-suave);
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 18px;
+}
+
+.grid-form-gasto {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.grid-form-gasto input, 
+.grid-form-gasto select {
+    flex: 1;
+    min-width: 130px;
+}
+
+.contenedor-historial-gastos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.item-gasto {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    padding: 10px 14px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.15s ease;
+}
+
+.item-gasto:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.gasto-info-izq {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gasto-monto-der {
+    font-size: 16px;
+    font-weight: 800;
+    color: #e11d48;
     display: flex;
     align-items: center;
-    gap: 6px;
-    width: 100%;
-    cursor: pointer;
+    gap: 8px;
 }
 
-.papel-organico .grid-comidas-cuatro {
+.item-gasto.ingreso .gasto-monto-der { color: #16a34a; }
+
+.toast-notificacion {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 300;
+    max-width: min(360px, calc(100vw - 32px));
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #166534;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast-notificacion.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.badge-cat-gasto {
+    font-size: 10px;
+    font-weight: 800;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.badge-metodo-gasto {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--iced-denim);
+    background: var(--frost);
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+/* =========================================================
+   --- NUEVO MÓDULO: DESPENSA VIVA & COMPRAS ---
+   ========================================================= */
+.cabecera-despensa {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.layout-despensa-split {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.col-compras-panel, 
+.col-stock-panel {
+    background: #ffffff;
+    border: 1px solid var(--borde-suave);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(87,152,215,0.05);
+}
+
+.cabecera-panel-despensa {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    border-bottom: 1px dashed var(--borde-suave);
+    padding-bottom: 8px;
+}
+
+.form-add-compra {
+    margin-bottom: 14px;
+}
+
+.lista-compras-agrupada {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.grupo-pasillo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.titulo-pasillo {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--iced-denim);
+    background: var(--frost);
+    padding: 4px 8px;
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.item-compra {
+    display: flex;
+    align-items: center;
     gap: 8px;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.item-compra:hover {
+    background: #f8fafc;
+}
+
+.item-compra.comprado {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.grid-stock-despensa {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.item-stock {
+    border: 1px solid var(--borde-suave);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    background: #f8fafc;
+}
+
+.nombre-stock {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--texto-oscuro);
+    word-break: break-word;
+}
+
+.botones-estado-stock {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.btn-stock-estado {
+    font-size: 10px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    flex: 1;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.btn-stock-lleno { background: #dcfce7; color: #166534; }
+.btn-stock-medio { background: #fef08a; color: #854d0e; }
+.btn-stock-agotado { background: #fee2e2; color: #991b1b; }
+
+.btn-stock-estado.activo {
+    outline: 2px solid currentColor;
+    font-weight: 900;
+    transform: scale(1.05);
 }
 
 /* =========================================================
@@ -2121,9 +2222,7 @@ h2, h3 { letter-spacing: -0.2px; }
     transform: rotate(-1.5deg);
 }
 
-.scrapbook-polaroid:nth-child(even) {
-    transform: rotate(2deg);
-}
+.scrapbook-polaroid:nth-child(even) { transform: rotate(2deg); }
 
 .scrapbook-polaroid::before {
     content: "";
@@ -2170,480 +2269,164 @@ body.modo-oscuro {
     color: #ffffff !important;
 }
 
-body.modo-oscuro h1,
-body.modo-oscuro h2,
-body.modo-oscuro h3,
-body.modo-oscuro h4,
-body.modo-oscuro p,
-body.modo-oscuro span,
-body.modo-oscuro label,
-body.modo-oscuro li,
-body.modo-oscuro div {
+body.modo-oscuro h1, body.modo-oscuro h2, body.modo-oscuro h3, body.modo-oscuro h4,
+body.modo-oscuro p, body.modo-oscuro span, body.modo-oscuro label, body.modo-oscuro li, body.modo-oscuro div {
     color: #ffffff !important;
 }
 
-body.modo-oscuro .caja-frase {
-    background-color: #2b2b2b !important;
-    border-left-color: var(--iced-denim) !important;
+body.modo-oscuro .caja-frase { background-color: #2b2b2b !important; border-left-color: var(--iced-denim) !important; }
+body.modo-oscuro .btn-modo { background-color: #444444 !important; color: #ffffff !important; border-color: var(--urban-fog) !important; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important; }
+body.modo-oscuro .app-layout { background: #383838; border-color: var(--ironclad-grey); }
+body.modo-oscuro .btn-pestana { color: #e0e0e0 !important; }
+body.modo-oscuro .btn-pestana.activa { background-color: var(--ironclad-grey) !important; color: #ffffff !important; }
+body.modo-oscuro .paginas, body.modo-oscuro .papel-organico { background-color: #383838; color: #ffffff !important; }
+
+body.modo-oscuro .badge-semana, body.modo-oscuro .badge-fase-lunar, body.modo-oscuro .badge-progreso {
+    background: #2b2b2b !important; color: #ffffff !important; border: 1px solid var(--ironclad-grey) !important;
 }
 
-body.modo-oscuro .frase-motivacional {
-    color: #ffffff !important;
+body.modo-oscuro .input-estetico, body.modo-oscuro input[type="text"], body.modo-oscuro input[type="number"], body.modo-oscuro textarea, body.modo-oscuro select {
+    background-color: var(--charcoal-noir) !important; color: #ffffff !important; border: 1px solid var(--ironclad-grey);
 }
 
-body.modo-oscuro .btn-modo {
-    background-color: #444444 !important;
-    color: #ffffff !important;
-    border-color: var(--urban-fog) !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+body.modo-oscuro .btn-editar-semana { background: #444444 !important; color: #ffffff !important; border: 1px solid var(--urban-fog) !important; }
+body.modo-oscuro .btn-editar-semana:hover { background: var(--ironclad-grey) !important; }
+
+body.modo-oscuro .columna-dia-semana, body.modo-oscuro .tarjeta-hoy, body.modo-oscuro .caja-nueva-tarea,
+body.modo-oscuro .tarjeta-tarea, body.modo-oscuro .cuadro-dia, body.modo-oscuro .tarjeta-pixel-art-top,
+body.modo-oscuro .caja-crear-habito-modulo, body.modo-oscuro .tabla-habitos-wrapper, body.modo-oscuro .form-crear-cat-mini,
+body.modo-oscuro .col-habitos-hoy-pixel, body.modo-oscuro .caja-heatmap-wrapper,
+body.modo-oscuro .tarjeta-balance-billetera, body.modo-oscuro .caja-nuevo-gasto,
+body.modo-oscuro .item-gasto, body.modo-oscuro .col-compras-panel, body.modo-oscuro .col-stock-panel, body.modo-oscuro .item-stock {
+    background-color: #444444 !important; border-color: var(--ironclad-grey) !important; color: #ffffff !important;
 }
 
-body.modo-oscuro .app-layout {
-    background: #383838;
-    border-color: var(--ironclad-grey);
+body.modo-oscuro .tarjeta-balance-billetera.principal {
+    background-color: #2c3a47 !important; border-color: var(--iced-denim) !important;
 }
 
-body.modo-oscuro .sidebar-brand h3 {
-    color: #ffffff !important;
+body.modo-oscuro .titulo-pasillo {
+    background: #2b2b2b !important; color: #86efac !important;
 }
 
-body.modo-oscuro .btn-pestana {
-    color: #e0e0e0 !important;
+body.modo-oscuro .gasto-monto-der { color: #fda4af !important; }
+body.modo-oscuro .item-gasto.ingreso .gasto-monto-der { color: #4ade80 !important; }
+
+body.modo-oscuro .btn-stock-lleno { background: #14532d !important; color: #dcfce7 !important; border-color: transparent; }
+body.modo-oscuro .btn-stock-medio { background: #713f12 !important; color: #fef08a !important; border-color: transparent; }
+body.modo-oscuro .btn-stock-agotado { background: #7f1d1d !important; color: #fee2e2 !important; border-color: transparent; }
+
+body.modo-oscuro .item-compra:hover { background: #333333 !important; }
+
+body.modo-oscuro .check-dia { background: #333333 !important; border-color: var(--ironclad-grey) !important; color: #ffffff !important; }
+body.modo-oscuro .celda-dia-habito.no-aplica { background: #222222 !important; opacity: 0.25; }
+body.modo-oscuro .badge-racha { background: #431407 !important; color: #ffedd5 !important; border-color: #9a3412 !important; }
+body.modo-oscuro .badge-dias-resumen { background: #2b2b2b !important; color: #cbd5e1 !important; }
+
+body.modo-oscuro .barra-filtros-semana { background: #2b2b2b !important; border: 1px solid var(--ironclad-grey) !important; }
+body.modo-oscuro .btn-filtro-semana { color: #b3b3b3 !important; background: transparent !important; }
+body.modo-oscuro .btn-filtro-semana.activo { background: var(--ironclad-grey) !important; color: #ffffff !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important; }
+
+body.modo-oscuro .columna-dia-semana.es-hoy, body.modo-oscuro .cuadro-dia.hoy { background: #2c3a47 !important; border: 2px solid var(--iced-denim) !important; }
+
+body.modo-oscuro .btn-estetico-principal, body.modo-oscuro .btn-accion-icono, body.modo-oscuro .btn-nav-mes { background-color: var(--ironclad-grey) !important; color: #ffffff !important; border: 1px solid var(--urban-fog); }
+body.modo-oscuro .btn-estetico-secundario, body.modo-oscuro .btn-aplazar, body.modo-oscuro .btn-pill-mini { background-color: #2b2b2b !important; color: #ffffff !important; border: 1px solid var(--ironclad-grey); }
+
+body.modo-oscuro .item-semana-tag, body.modo-oscuro .mini-item-hoy, body.modo-oscuro .item-habito-hoy, body.modo-oscuro .celda-dia-habito {
+    background: #333333 !important; color: #ffffff !important; border-color: var(--ironclad-grey);
 }
 
-body.modo-oscuro .btn-pestana.activa {
-    background-color: var(--ironclad-grey) !important;
-    color: #ffffff !important;
-}
+body.modo-oscuro .titulo-grupo-tarea.titulo-atrasadas { color: #f43f5e !important; border-bottom-color: #881337 !important; }
+body.modo-oscuro .tarjeta-tarea.tarjeta-atrasada { background: #4c0519 !important; border-color: #881337 !important; border-left-color: #f43f5e !important; }
+body.modo-oscuro .tarjeta-tarea.tarjeta-atrasada .texto-tarea { color: #ffe4e6 !important; }
+body.modo-oscuro .mini-item-hoy.atrasada-mini { background-color: #4c0519 !important; border-color: #881337 !important; color: #ffe4e6 !important; }
 
-body.modo-oscuro .paginas,
-body.modo-oscuro .papel-organico {
-    background-color: #383838;
-    color: #ffffff !important;
-}
+body.modo-oscuro .grid-pixel-art.grande, body.modo-oscuro .grid-pixel-art.mini { background: #2b2b2b; }
+body.modo-oscuro .postit .postit-titulo, body.modo-oscuro .postit .postit-contenido, body.modo-oscuro .postit .btn-format-postit { color: #222222 !important; }
+body.modo-oscuro .postit .postit-titulo { background: transparent !important; }
+body.modo-oscuro .btn-animo.seleccionado, body.modo-oscuro .btn-animo-hoy.seleccionado { background-color: #565656 !important; border-color: #ffffff !important; box-shadow: 0 0 12px rgba(255, 255, 255, 0.25) !important; }
+body.modo-oscuro .mini-mes-card { background: #383838 !important; border-color: var(--ironclad-grey) !important; }
+body.modo-oscuro .mini-mes-titulo { color: #ffffff !important; }
+body.modo-oscuro .mini-dia-header { color: #b3b3b3 !important; }
+body.modo-oscuro .mini-dia-celda { color: #ffffff !important; }
+body.modo-oscuro .celda-heatmap.nivel-0, body.modo-oscuro .leyenda-dot.nivel-0 { background-color: #2b2b2b !important; }
+body.modo-oscuro .celda-heatmap[data-tooltip]::after, body.modo-oscuro .pill-bienestar-mes[data-tooltip]::after { background: #2b2b2b !important; color: #ffffff !important; border-color: var(--ironclad-grey) !important; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important; }
 
-body.modo-oscuro .badge-semana,
-body.modo-oscuro .badge-fase-lunar,
-body.modo-oscuro .badge-progreso {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-    border: 1px solid var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .input-estetico,
-body.modo-oscuro input[type="text"], 
-body.modo-oscuro textarea, 
-body.modo-oscuro select {
-    background-color: var(--charcoal-noir) !important;
-    color: #ffffff !important;
-    border: 1px solid var(--ironclad-grey);
-}
-
-body.modo-oscuro .btn-editar-semana {
-    background: #444444 !important;
-    color: #ffffff !important;
-    border: 1px solid var(--urban-fog) !important;
-}
-
-body.modo-oscuro .btn-editar-semana:hover {
-    background: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .columna-dia-semana,
-body.modo-oscuro .tarjeta-hoy,
-body.modo-oscuro .caja-nueva-tarea,
-body.modo-oscuro .tarjeta-tarea,
-body.modo-oscuro .cuadro-dia,
-body.modo-oscuro .tarjeta-pixel-art-top,
-body.modo-oscuro .caja-crear-habito-modulo,
-body.modo-oscuro .tabla-habitos-wrapper,
-body.modo-oscuro .form-crear-cat-mini,
-body.modo-oscuro .col-habitos-hoy-pixel,
-body.modo-oscuro .caja-heatmap-wrapper {
-    background-color: #444444 !important;
-    border-color: var(--ironclad-grey) !important;
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .check-dia {
-    background: #333333 !important;
-    border-color: var(--ironclad-grey) !important;
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .celda-dia-habito.no-aplica {
-    background: #222222 !important;
-    opacity: 0.25;
-}
-
-body.modo-oscuro .badge-racha {
-    background: #431407 !important;
-    color: #ffedd5 !important;
-    border-color: #9a3412 !important;
-}
-
-body.modo-oscuro .badge-dias-resumen {
-    background: #2b2b2b !important;
-    color: #cbd5e1 !important;
-}
-
-body.modo-oscuro .barra-filtros-semana {
-    background: #2b2b2b !important;
-    border: 1px solid var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .btn-filtro-semana {
-    color: #b3b3b3 !important;
-    background: transparent !important;
-}
-
-body.modo-oscuro .btn-filtro-semana.activo {
-    background: var(--ironclad-grey) !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.modo-oscuro .columna-dia-semana.es-hoy,
-body.modo-oscuro .cuadro-dia.hoy {
-    background: #2c3a47 !important;
-    border: 2px solid var(--iced-denim) !important;
-}
-
-body.modo-oscuro .btn-estetico-principal,
-body.modo-oscuro .btn-accion-icono,
-body.modo-oscuro .btn-nav-mes {
-    background-color: var(--ironclad-grey) !important;
-    color: #ffffff !important;
-    border: 1px solid var(--urban-fog);
-}
-
-body.modo-oscuro .btn-estetico-secundario,
-body.modo-oscuro .btn-aplazar,
-body.modo-oscuro .btn-pill-mini {
-    background-color: #2b2b2b !important;
-    color: #ffffff !important;
-    border: 1px solid var(--ironclad-grey);
-}
-
-body.modo-oscuro .item-semana-tag,
-body.modo-oscuro .mini-item-hoy,
-body.modo-oscuro .item-habito-hoy,
-body.modo-oscuro .celda-dia-habito {
-    background: #333333 !important;
-    color: #ffffff !important;
-    border-color: var(--ironclad-grey);
-}
-
-body.modo-oscuro .titulo-grupo-tarea.titulo-atrasadas {
-    color: #f43f5e !important;
-    border-bottom-color: #881337 !important;
-}
-
-body.modo-oscuro .tarjeta-tarea.tarjeta-atrasada {
-    background: #4c0519 !important;
-    border-color: #881337 !important;
-    border-left-color: #f43f5e !important;
-}
-
-body.modo-oscuro .tarjeta-tarea.tarjeta-atrasada .texto-tarea {
-    color: #ffe4e6 !important;
-}
-
-body.modo-oscuro .mini-item-hoy.atrasada-mini {
-    background-color: #4c0519 !important;
-    border-color: #881337 !important;
-    color: #ffe4e6 !important;
-}
-
-body.modo-oscuro .grid-pixel-art.grande,
-body.modo-oscuro .grid-pixel-art.mini {
-    background: #2b2b2b;
-}
-
-body.modo-oscuro .postit .postit-titulo,
-body.modo-oscuro .postit .postit-contenido,
-body.modo-oscuro .postit .btn-format-postit {
-    color: #222222 !important;
-}
-
-body.modo-oscuro .postit .postit-titulo {
-    background: transparent !important;
-}
-
-body.modo-oscuro .btn-animo.seleccionado,
-body.modo-oscuro .btn-animo-hoy.seleccionado {
-    background-color: #565656 !important;
-    border-color: #ffffff !important;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.25) !important;
-}
-
-body.modo-oscuro .mini-mes-card {
-    background: #383838 !important;
-    border-color: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .mini-mes-titulo {
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .mini-dia-header {
-    color: #b3b3b3 !important;
-}
-
-body.modo-oscuro .mini-dia-celda {
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .celda-heatmap.nivel-0,
-body.modo-oscuro .leyenda-dot.nivel-0 { 
-    background-color: #2b2b2b !important; 
-}
-
-body.modo-oscuro .celda-heatmap[data-tooltip]::after,
-body.modo-oscuro .pill-bienestar-mes[data-tooltip]::after {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-    border-color: var(--ironclad-grey) !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
-}
-
-body.modo-oscuro .texto-tarea[contenteditable="true"]:focus,
-body.modo-oscuro .nombre-habito-texto[contenteditable="true"]:focus,
-body.modo-oscuro .item-habito-hoy span[contenteditable="true"]:focus {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .vaso-agua-wrapper {
-    background: #2b2b2b;
-    border-color: #60a5fa;
-}
-
-body.modo-oscuro .liquido-agua {
-    background: linear-gradient(180deg, #60a5fa 0%, #1d4ed8 100%);
-}
-
-body.modo-oscuro .texto-vaso-centro {
-    color: #ffffff;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-}
-
-body.modo-oscuro .reloj-cozy-display {
-    background: #2b2b2b !important;
-    border-color: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .pomo-tiempo {
-    color: #ffffff !important;
-}
-
-body.modo-oscuro .pomo-estado {
-    color: #cbd5e1 !important;
-}
-
-body.modo-oscuro .caja-inputs-custom-pomo {
-    background: #333333 !important;
-    border-color: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .grupo-input-tiempo input {
-    background: #2b2b2b !important;
-    color: #ffffff !important;
-    border-color: var(--ironclad-grey) !important;
-}
-
-body.modo-oscuro .pill-tag-nota {
-    background: rgba(255, 255, 255, 0.8) !important;
-    color: #1e293b !important;
-}
+body.modo-oscuro .texto-tarea[contenteditable="true"]:focus, body.modo-oscuro .nombre-habito-texto[contenteditable="true"]:focus, body.modo-oscuro .item-habito-hoy span[contenteditable="true"]:focus { background: #2b2b2b !important; color: #ffffff !important; }
+body.modo-oscuro .vaso-agua-wrapper { background: #2b2b2b; border-color: #60a5fa; }
+body.modo-oscuro .liquido-agua { background: linear-gradient(180deg, #60a5fa 0%, #1d4ed8 100%); }
+body.modo-oscuro .texto-vaso-centro { color: #ffffff; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); }
+body.modo-oscuro .reloj-cozy-display { background: #2b2b2b !important; border-color: var(--ironclad-grey) !important; }
+body.modo-oscuro .pomo-tiempo { color: #ffffff !important; }
+body.modo-oscuro .pomo-estado { color: #cbd5e1 !important; }
+body.modo-oscuro .caja-inputs-custom-pomo { background: #333333 !important; border-color: var(--ironclad-grey) !important; }
+body.modo-oscuro .grupo-input-tiempo input { background: #2b2b2b !important; color: #ffffff !important; border-color: var(--ironclad-grey) !important; }
+body.modo-oscuro .pill-tag-nota { background: rgba(255, 255, 255, 0.8) !important; color: #1e293b !important; }
 
 /* =========================================================
    --- ADAPTABILIDAD RESPONSIVE (MÓVIL) ---
    ========================================================= */
 @media (max-width: 768px) {
-    body {
-        padding-top: 55px !important;
-    }
+    body { padding-top: 55px !important; }
 
     .app-layout {
-        flex-direction: column;
-        width: 100vw;
-        max-width: 100vw;
-        margin: 10px 0 0 0 !important;
-        border-radius: 20px 20px 0 0 !important;
-        box-shadow: none;
-        border: none;
+        flex-direction: column; width: 100vw; max-width: 100vw;
+        margin: 10px 0 0 0 !important; border-radius: 20px 20px 0 0 !important;
+        box-shadow: none; border: none;
     }
 
-    .sidebar {
-        width: 100%;
-        min-width: 100%;
-        padding: 12px 14px 6px 14px;
-        position: relative;
-        top: 0;
-        border-radius: 0;
-        gap: 10px;
-        box-sizing: border-box;
-    }
-
-    .sidebar-brand {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding-left: 0;
-    }
+    .sidebar { width: 100%; min-width: 100%; padding: 12px 14px 6px 14px; position: relative; top: 0; border-radius: 0; gap: 10px; box-sizing: border-box; }
+    .sidebar-brand { display: flex; justify-content: center; align-items: center; width: 100%; padding-left: 0; }
 
     .btn-modo {
-        position: absolute !important;
-        top: 12px !important;
-        left: 50% !important;
-        right: auto !important;
-        transform: translateX(-50%) !important;
-        z-index: 1000 !important;
-        margin: 0 !important;
-        width: auto !important;
-        white-space: nowrap !important;
-        font-size: 12px !important;
-        padding: 6px 16px !important;
-        border-radius: 20px !important;
-        align-self: center !important;
+        position: absolute !important; top: 12px !important; left: 50% !important; right: auto !important;
+        transform: translateX(-50%) !important; z-index: 1000 !important; margin: 0 !important;
+        width: auto !important; white-space: nowrap !important; font-size: 12px !important;
+        padding: 6px 16px !important; border-radius: 20px !important; align-self: center !important;
     }
-    .btn-modo:hover {
-        transform: translateX(-50%) scale(1.04) !important;
-    }
+    .btn-modo:hover { transform: translateX(-50%) scale(1.04) !important; }
 
     .pestanas {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        width: 100% !important;
-        padding: 4px 0 8px 0 !important;
-        gap: 8px !important;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
+        display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important;
+        overflow-x: auto !important; overflow-y: hidden !important; width: 100% !important;
+        padding: 4px 0 8px 0 !important; gap: 8px !important; -webkit-overflow-scrolling: touch; scrollbar-width: thin;
     }
 
-    .pestanas::-webkit-scrollbar {
-        height: 4px;
-    }
+    .pestanas::-webkit-scrollbar { height: 4px; }
+    .pestanas::-webkit-scrollbar-thumb { background: var(--iced-denim); border-radius: 10px; }
 
-    .pestanas::-webkit-scrollbar-thumb {
-        background: var(--iced-denim);
-        border-radius: 10px;
-    }
+    .btn-pestana { width: auto !important; white-space: nowrap !important; padding: 8px 14px !important; font-size: 13px !important; border-radius: 12px !important; flex-shrink: 0 !important; display: inline-flex !important; align-items: center !important; }
 
-    .btn-pestana {
-        width: auto !important;
-        white-space: nowrap !important;
-        padding: 8px 14px !important;
-        font-size: 13px !important;
-        border-radius: 12px !important;
-        flex-shrink: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-    }
+    .paginas { padding: 14px 12px; border-radius: 0; width: 100%; box-sizing: border-box; }
 
-    .paginas {
-        padding: 14px 12px;
-        border-radius: 0;
-        width: 100%;
-        box-sizing: border-box;
-    }
+    .cabecera-hoy-flex { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .fila-cuadros-superiores { grid-template-columns: 1fr; gap: 12px; }
+    .tarjeta-hoy { width: 100%; box-sizing: border-box; }
 
-    .cabecera-hoy-flex {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-    }
+    .input-evento-wrapper { flex-wrap: wrap; }
+    .input-evento-wrapper select { max-width: 100%; flex: 1 1 100px; }
+    .input-evento-wrapper input { flex: 1 1 120px; min-width: 0; }
 
-    .fila-cuadros-superiores {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
+    .layout-habitos-hoy-split { flex-direction: column; align-items: stretch; }
+    .col-habitos-hoy-pixel { width: 100%; min-width: 100%; box-sizing: border-box; }
+    .grid-comidas-cuatro { grid-template-columns: 1fr; }
+    .sub-campos-resumen { flex-direction: column; gap: 10px; }
 
-    .tarjeta-hoy {
-        width: 100%;
-        box-sizing: border-box;
-    }
+    .fila-superiores-semana { grid-template-columns: 1fr; }
+    .barra-filtros-semana { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .parrilla-semana-dias { grid-template-columns: 1fr; gap: 10px; }
+    .columna-dia-semana { min-height: auto; }
+    .cabecera-calendario { width: 100%; }
+    .grid-12-meses { grid-template-columns: 1fr !important; }
+    .contenedor-notas { grid-template-columns: 1fr; }
+    .papel-organico { width: 92%; max-height: 85vh; padding: 16px; border-radius: 16px; }
 
-    .input-evento-wrapper {
-        flex-wrap: wrap;
-    }
-
-    .input-evento-wrapper select {
-        max-width: 100%;
-        flex: 1 1 100px;
-    }
-
-    .input-evento-wrapper input {
-        flex: 1 1 120px;
-        min-width: 0;
-    }
-
-    .layout-habitos-hoy-split {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .col-habitos-hoy-pixel {
-        width: 100%;
-        min-width: 100%;
-        box-sizing: border-box;
-    }
-
-    .grid-comidas-cuatro {
-        grid-template-columns: 1fr;
-    }
-
-    .sub-campos-resumen {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .fila-superiores-semana {
-        grid-template-columns: 1fr;
-    }
-
-    .barra-filtros-semana {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .parrilla-semana-dias {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-
-    .columna-dia-semana {
-        min-height: auto;
-    }
-
-    .cabecera-calendario {
-        width: 100%;
-    }
-
-    .grid-12-meses {
-        grid-template-columns: 1fr !important;
-    }
-
-    .contenedor-notas {
-        grid-template-columns: 1fr;
-    }
-
-    .papel-organico {
-        width: 92%;
-        max-height: 85vh;
-        padding: 16px;
-        border-radius: 16px;
-    }
+    /* Responsividad Nuevos Módulos Billetera & Despensa */
+    .fila-balances-billetera { grid-template-columns: 1fr; }
+    .grid-form-gasto { flex-direction: column; align-items: stretch; }
+    .layout-despensa-split { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-    .papel-organico .grid-comidas-cuatro {
-        grid-template-columns: 1fr;
-    }
+    .papel-organico .grid-comidas-cuatro { grid-template-columns: 1fr; }
 }

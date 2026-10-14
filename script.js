@@ -283,7 +283,6 @@ function obtenerInfoLuna(fecha = new Date()) {
     }
 }
 
-// Auto-guardado en tiempo real en modal
 function guardarDatosModalDia() {
     if (!diaSeleccionadoClave) return;
     const datosPrevios = JSON.parse(localStorage.getItem(diaSeleccionadoClave)) || {};
@@ -400,7 +399,6 @@ function renderizarCalendario() {
         const infoLuna = obtenerInfoLuna(fechaDia);
         const iconoLuna = infoLuna.split(' ')[0];
 
-        // Bienestar integrado en cada día del mes
         const infoBienestar = typeof calcularBienestarDia === 'function' 
             ? calcularBienestarDia(claveFecha) 
             : { porcentaje: 0, nivel: 0, tooltip: "" };
@@ -519,7 +517,6 @@ if (cerrarModal) {
     });
 }
 
-// Cierre automático al clicar fuera de los modales
 document.querySelectorAll('.modal').forEach(modalElement => {
     modalElement.addEventListener('click', (e) => {
         if (e.target === modalElement) {
@@ -1445,7 +1442,6 @@ function renderizarModuloHabitos() {
         const fila = document.createElement('div');
         fila.classList.add('fila-habito-item');
         
-        // Drag and drop para reordenar
         fila.setAttribute('draggable', 'true');
         fila.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', index);
@@ -1517,7 +1513,6 @@ function renderizarModuloHabitos() {
         divTituloFlex.appendChild(iconHandle);
         divTituloFlex.appendChild(spanTexto);
 
-        // Sub-badges (Racha y Días programados)
         const divSubBadges = document.createElement('div');
         divSubBadges.style.display = 'flex';
         divSubBadges.style.gap = '4px';
@@ -1802,7 +1797,6 @@ function renderizarHabitosHoy() {
         btnBorrar.addEventListener('click', () => {
             listaHabitos = listaHabitos.filter(h => h.id !== habito.id);
             localStorage.setItem('mis_habitos_agenda', JSON.stringify(listaHabitos));
-            
             renderizarHabitosHoy();
             renderizarModuloHabitos();
         });
@@ -2421,7 +2415,6 @@ function renderizarVistaSemana() {
         contenedorParrilla.appendChild(col);
     }
 
-    // Renderizar Heatmap de la semana
     const fechasSemana = [];
     for (let i = 0; i < 7; i++) {
         const dCol = new Date(fechaLunes);
@@ -2629,7 +2622,6 @@ function renderizarVistaAno() {
         gridMeses.appendChild(card);
     }
 
-    // Renderizar Heatmap del año
     const fechasAno = [];
     for (let m = 0; m < 12; m++) {
         const totalD = new Date(anoSeleccionado, m + 1, 0).getDate();
@@ -2858,93 +2850,46 @@ if (btnExportarJson) {
 }
 
 function smartMergeAgendarium(dataIncoming) {
-    if (dataIncoming.mis_tareas_agenda) {
-        try {
-            let actual = JSON.parse(localStorage.getItem('mis_tareas_agenda')) || [];
-            let incoming = JSON.parse(dataIncoming.mis_tareas_agenda) || [];
-            let mapTareas = new Map();
+    const mergeArrayDeObjetos = (claveKey) => {
+        if (dataIncoming[claveKey]) {
+            try {
+                let actual = JSON.parse(localStorage.getItem(claveKey)) || [];
+                let incoming = JSON.parse(dataIncoming[claveKey]) || [];
+                let mapa = new Map();
 
-            actual.forEach(t => mapTareas.set(t.id, t));
-            incoming.forEach(t => {
-                if (mapTareas.has(t.id)) {
-                    let prev = mapTareas.get(t.id);
-                    mapTareas.set(t.id, {
-                        ...prev,
-                        ...t,
-                        completada: prev.completada || t.completada
-                    });
-                } else {
-                    mapTareas.set(t.id, t);
-                }
-            });
-            localStorage.setItem('mis_tareas_agenda', JSON.stringify(Array.from(mapTareas.values())));
-        } catch (e) { console.error("Error mezclando tareas:", e); }
-    }
+                actual.forEach(i => mapa.set(i.id || i.nombre || i.texto || i.item, i));
+                incoming.forEach(i => {
+                    const id = i.id || i.nombre || i.texto || i.item;
+                    if (mapa.has(id)) {
+                        let prev = mapa.get(id);
+                        if (claveKey === 'mis_habitos_agenda') {
+                            let mergedHistorial = { ...(prev.historial || {}), ...(i.historial || {}) };
+                            Object.keys(mergedHistorial).forEach(dateKey => {
+                                mergedHistorial[dateKey] = (prev.historial && prev.historial[dateKey]) || (i.historial && i.historial[dateKey]);
+                            });
+                            mapa.set(id, { ...prev, ...i, historial: mergedHistorial });
+                        } else {
+                            mapa.set(id, { ...prev, ...i, completada: prev.completada || i.completada });
+                        }
+                    } else {
+                        mapa.set(id, i);
+                    }
+                });
+                localStorage.setItem(claveKey, JSON.stringify(Array.from(mapa.values())));
+            } catch (e) { console.error(`Error mezclando ${claveKey}:`, e); }
+        }
+    };
 
-    if (dataIncoming.mis_notas_agenda) {
-        try {
-            let actual = JSON.parse(localStorage.getItem('mis_notas_agenda')) || [];
-            let incoming = JSON.parse(dataIncoming.mis_notas_agenda) || [];
-            let mapNotas = new Map();
-
-            actual.forEach(n => mapNotas.set(n.id, n));
-            incoming.forEach(n => {
-                if (mapNotas.has(n.id)) {
-                    let prev = mapNotas.get(n.id);
-                    mapNotas.set(n.id, { ...prev, ...n });
-                } else {
-                    mapNotas.set(n.id, n);
-                }
-            });
-            localStorage.setItem('mis_notas_agenda', JSON.stringify(Array.from(mapNotas.values())));
-        } catch (e) { console.error("Error mezclando notas:", e); }
-    }
-
-    if (dataIncoming.mis_habitos_agenda) {
-        try {
-            let actual = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
-            let incoming = JSON.parse(dataIncoming.mis_habitos_agenda) || [];
-            let mapHabitos = new Map();
-
-            actual.forEach(h => mapHabitos.set(h.id, h));
-            incoming.forEach(h => {
-                if (mapHabitos.has(h.id)) {
-                    let prev = mapHabitos.get(h.id);
-                    let mergedHistorial = { ...(prev.historial || {}), ...(h.historial || {}) };
-                    
-                    Object.keys(mergedHistorial).forEach(dateKey => {
-                        mergedHistorial[dateKey] = (prev.historial && prev.historial[dateKey]) || (h.historial && h.historial[dateKey]);
-                    });
-
-                    mapHabitos.set(h.id, {
-                        ...prev,
-                        ...h,
-                        historial: mergedHistorial
-                    });
-                } else {
-                    mapHabitos.set(h.id, h);
-                }
-            });
-            localStorage.setItem('mis_habitos_agenda', JSON.stringify(Array.from(mapHabitos.values())));
-        } catch (e) { console.error("Error mezclando hábitos:", e); }
-    }
-
-    if (dataIncoming.mis_categorias_eventos) {
-        try {
-            let actual = JSON.parse(localStorage.getItem('mis_categorias_eventos')) || [];
-            let incoming = JSON.parse(dataIncoming.mis_categorias_eventos) || [];
-            let mapCats = new Map();
-
-            actual.forEach(c => mapCats.set(c.nombre, c));
-            incoming.forEach(c => {
-                if (!mapCats.has(c.nombre)) mapCats.set(c.nombre, c);
-            });
-            localStorage.setItem('mis_categorias_eventos', JSON.stringify(Array.from(mapCats.values())));
-        } catch (e) { console.error("Error mezclando categorías:", e); }
-    }
+    mergeArrayDeObjetos('mis_tareas_agenda');
+    mergeArrayDeObjetos('mis_notas_agenda');
+    mergeArrayDeObjetos('mis_habitos_agenda');
+    mergeArrayDeObjetos('mis_categorias_eventos');
+    mergeArrayDeObjetos('mis_gastos_agenda');
+    mergeArrayDeObjetos('mis_compras_agenda');
+    mergeArrayDeObjetos('mi_stock_agenda');
 
     Object.keys(dataIncoming).forEach(key => {
-        if (['mis_tareas_agenda', 'mis_notas_agenda', 'mis_habitos_agenda', 'mis_categorias_eventos', 'tema', 'indice_pixel_art_agenda'].includes(key)) return;
+        if (['mis_tareas_agenda', 'mis_notas_agenda', 'mis_habitos_agenda', 'mis_categorias_eventos', 'mis_gastos_agenda', 'mis_compras_agenda', 'mi_stock_agenda', 'tema', 'indice_pixel_art_agenda'].includes(key)) return;
 
         let prevValStr = localStorage.getItem(key);
         let incValStr = dataIncoming[key];
@@ -3048,6 +2993,9 @@ if (btnImportarJson && inputArchivoBackup) {
                 listaNotas = JSON.parse(localStorage.getItem('mis_notas_agenda')) || [];
                 listaHabitos = JSON.parse(localStorage.getItem('mis_habitos_agenda')) || [];
                 listaCategoriasEventos = JSON.parse(localStorage.getItem('mis_categorias_eventos')) || listaCategoriasEventos;
+                listaGastos = JSON.parse(localStorage.getItem('mis_gastos_agenda')) || [];
+                listaCompras = JSON.parse(localStorage.getItem('mis_compras_agenda')) || [];
+                listaStock = JSON.parse(localStorage.getItem('mi_stock_agenda')) || [];
 
                 cargarVistaHoy();
                 renderizarCalendario();
@@ -3056,6 +3004,9 @@ if (btnImportarJson && inputArchivoBackup) {
                 renderizarTareas();
                 renderizarNotas();
                 renderizarModuloHabitos();
+                renderizarBilletera();
+                renderizarCompras();
+                renderizarStock();
 
                 if (modalBackup) modalBackup.classList.add('oculto');
                 inputArchivoBackup.value = "";
@@ -3368,7 +3319,7 @@ if (btnAplicarCustomPomo) {
 }
 
 // ==========================================
-// 18. LÓGICA WELLNESS HEATMAP (EVALUACIÓN REAL)
+// 18. LÓGICA WELLNESS HEATMAP
 // ==========================================
 function calcularBienestarDia(claveFecha) {
     const datos = JSON.parse(localStorage.getItem(claveFecha)) || {};
@@ -3464,7 +3415,6 @@ function exportarScrapbook(claveFecha, fechaLegible) {
     const plantilla = document.getElementById('plantilla-scrapbook');
     if (!plantilla) return;
 
-    // Poblar plantilla
     const elFecha = document.getElementById('scrapbook-fecha');
     const elLuna = document.getElementById('scrapbook-luna');
     const elAnimo = document.getElementById('scrapbook-animo');
@@ -3515,7 +3465,6 @@ function exportarScrapbook(claveFecha, fechaLegible) {
         elStatHabs.textContent = habsProg > 0 ? `🐸 Hábitos: ${habsHechos}/${habsProg}` : `🐸 Hábitos: Día de descanso`;
     }
 
-    // Insertar fotos con formato Polaroid
     if (elGaleria) {
         elGaleria.innerHTML = "";
         const fotos = Array.isArray(datos.imagenesBase64) ? datos.imagenesBase64 : [];
@@ -3529,7 +3478,6 @@ function exportarScrapbook(claveFecha, fechaLegible) {
         });
     }
 
-    // Renderizar y descargar PNG
     html2canvas(plantilla, {
         scale: 2,
         backgroundColor: '#fffdfa',
@@ -3552,7 +3500,6 @@ function exportarScrapbook(claveFecha, fechaLegible) {
     });
 }
 
-// Botón Scrapbook en Vista Hoy
 const btnScrapbookHoy = document.getElementById('btn-scrapbook-hoy');
 if (btnScrapbookHoy) {
     btnScrapbookHoy.addEventListener('click', () => {
@@ -3564,7 +3511,6 @@ if (btnScrapbookHoy) {
     });
 }
 
-// Botón Scrapbook en Modal del Día
 const btnScrapbookModal = document.getElementById('btn-scrapbook-modal');
 if (btnScrapbookModal) {
     btnScrapbookModal.addEventListener('click', () => {
@@ -3575,7 +3521,390 @@ if (btnScrapbookModal) {
 }
 
 // ==========================================
-// 20. INICIALIZACIÓN GENERAL
+// 20. BILLETERA & GASTOS
+// ==========================================
+let listaGastos = JSON.parse(localStorage.getItem('mis_gastos_agenda')) || [];
+let filtroGastoActual = 'todas';
+let temporizadorToast = null;
+
+function mostrarToast(mensaje) {
+    const toast = document.getElementById('toast-notificacion');
+    if (!toast) return;
+    toast.textContent = mensaje;
+    toast.classList.add('visible');
+    clearTimeout(temporizadorToast);
+    temporizadorToast = setTimeout(() => toast.classList.remove('visible'), 2600);
+}
+
+function guardarYRenderizarGastos() {
+    localStorage.setItem('mis_gastos_agenda', JSON.stringify(listaGastos));
+    renderizarBilletera();
+}
+
+const btnAgregarGasto = document.getElementById('btn-agregar-gasto');
+function registrarMovimiento() {
+    const inpMonto = document.getElementById('input-monto-gasto');
+    const inpDesc = document.getElementById('input-desc-gasto');
+    const selCat = document.getElementById('select-categoria-gasto');
+    const selMet = document.getElementById('select-metodo-gasto');
+    const selTipo = document.getElementById('select-tipo-movimiento');
+
+    if (!inpMonto || !inpDesc) return;
+    const monto = parseFloat(inpMonto.value);
+    const desc = inpDesc.value.trim();
+    if (isNaN(monto) || monto <= 0 || desc === "") return;
+
+    listaGastos.unshift({
+        id: Date.now(),
+        fecha: obtenerClaveHoy(),
+        monto: monto,
+        desc: desc,
+        cat: selCat ? selCat.value : '📦 Otros',
+        metodo: selMet ? selMet.value : '',
+        tipo: selTipo ? selTipo.value : 'gasto'
+    });
+
+    inpMonto.value = "";
+    inpDesc.value = "";
+    guardarYRenderizarGastos();
+}
+
+if (btnAgregarGasto) btnAgregarGasto.addEventListener('click', registrarMovimiento);
+['input-monto-gasto', 'input-desc-gasto'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            registrarMovimiento();
+        }
+    });
+});
+
+document.querySelectorAll('#pills-filtros-gastos .btn-filtro-semana').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('#pills-filtros-gastos .btn-filtro-semana').forEach(b => b.classList.remove('activo'));
+        btn.classList.add('activo');
+        filtroGastoActual = btn.getAttribute('data-cat-gasto');
+        renderizarBilletera();
+    });
+});
+
+function renderizarBilletera() {
+    const contenedor = document.getElementById('contenedor-historial-gastos');
+    const elIngresos = document.getElementById('total-ingresos-mes');
+    const elMes = document.getElementById('total-gastado-mes');
+    const elSaldo = document.getElementById('saldo-actual');
+    const lblMes = document.getElementById('label-mes-billetera');
+    if (!contenedor) return;
+
+    const hoyReal = new Date();
+    const claveHoy = obtenerClaveHoy();
+    const prefijoMes = `${hoyReal.getFullYear()}-${String(hoyReal.getMonth() + 1).padStart(2, '0')}`;
+    
+    const nombresMeses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    if (lblMes) lblMes.textContent = `${nombresMeses[hoyReal.getMonth()]} ${hoyReal.getFullYear()}`;
+
+    let totalIngresos = 0;
+    let totalGastos = 0;
+
+    listaGastos.forEach(g => {
+        if (g.fecha.startsWith(prefijoMes)) {
+            if (g.tipo === 'ingreso') totalIngresos += g.monto;
+            else totalGastos += g.monto;
+        }
+    });
+
+    const saldo = totalIngresos - totalGastos;
+    if (elIngresos) elIngresos.textContent = `$${totalIngresos.toLocaleString('es-CL')}`;
+    if (elMes) elMes.textContent = `$${totalGastos.toLocaleString('es-CL')}`;
+    if (elSaldo) {
+        elSaldo.textContent = `${saldo < 0 ? '-' : ''}$${Math.abs(saldo).toLocaleString('es-CL')}`;
+        elSaldo.classList.toggle('saldo-negativo', saldo < 0);
+    }
+
+    contenedor.innerHTML = "";
+    
+    let filtrados = listaGastos.filter(g => g.fecha.startsWith(prefijoMes));
+    if (filtroGastoActual !== 'todas') {
+        filtrados = filtrados.filter(g => g.cat === filtroGastoActual);
+    }
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = `<p style="color:#aaa; font-style:italic; font-size:12px; text-align:center; padding: 20px;">Sin gastos registrados.</p>`;
+        return;
+    }
+
+    filtrados.forEach((g, idxRealArray) => {
+        const item = document.createElement('div');
+        item.classList.add('item-gasto');
+        const esIngreso = g.tipo === 'ingreso';
+        if (esIngreso) item.classList.add('ingreso');
+
+        const divIzq = document.createElement('div');
+        divIzq.classList.add('gasto-info-izq');
+        
+        const divBadges = document.createElement('div');
+        divBadges.style.display = 'flex';
+        divBadges.style.gap = '6px';
+        
+        const bCat = document.createElement('span');
+        bCat.classList.add('badge-cat-gasto');
+        bCat.textContent = g.cat;
+        
+        const bMet = document.createElement('span');
+        bMet.classList.add('badge-metodo-gasto');
+        bMet.textContent = g.metodo;
+
+        divBadges.appendChild(bCat);
+        divBadges.appendChild(bMet);
+
+        const desc = document.createElement('span');
+        desc.style.fontSize = "13px";
+        desc.style.fontWeight = "700";
+        desc.textContent = `${g.desc} (${g.fecha})`;
+
+        divIzq.appendChild(divBadges);
+        divIzq.appendChild(desc);
+
+        const divDer = document.createElement('div');
+        divDer.classList.add('gasto-monto-der');
+        divDer.textContent = `${esIngreso ? '+' : '-'}$${g.monto.toLocaleString('es-CL')}`;
+
+        const btnDel = document.createElement('button');
+        btnDel.classList.add('btn-del-mini');
+        btnDel.innerHTML = '&times;';
+        btnDel.style.marginLeft = "8px";
+        btnDel.addEventListener('click', () => {
+            listaGastos = listaGastos.filter(x => x.id !== g.id);
+            guardarYRenderizarGastos();
+        });
+
+        divDer.appendChild(btnDel);
+
+        item.appendChild(divIzq);
+        item.appendChild(divDer);
+        contenedor.appendChild(item);
+    });
+}
+
+// ==========================================
+// 21. DESPENSA VIVA & LISTA DE COMPRAS
+// ==========================================
+let listaCompras = JSON.parse(localStorage.getItem('mis_compras_agenda')) || [];
+let listaStock = JSON.parse(localStorage.getItem('mi_stock_agenda')) || [];
+
+function guardarYRenderizarCompras() {
+    localStorage.setItem('mis_compras_agenda', JSON.stringify(listaCompras));
+    renderizarCompras();
+}
+
+function guardarYRenderizarStock() {
+    localStorage.setItem('mi_stock_agenda', JSON.stringify(listaStock));
+    renderizarStock();
+}
+
+const btnAddCompra = document.getElementById('btn-add-compra');
+if (btnAddCompra) {
+    btnAddCompra.addEventListener('click', () => {
+        const inpItem = document.getElementById('input-item-compra');
+        const selPasillo = document.getElementById('select-pasillo-compra');
+        if (!inpItem || !selPasillo) return;
+
+        const txt = inpItem.value.trim();
+        if (txt === "") return;
+
+        listaCompras.push({ id: Date.now(), item: txt, pasillo: selPasillo.value, comprado: false });
+        inpItem.value = "";
+        guardarYRenderizarCompras();
+    });
+}
+
+const btnLimpiarComprados = document.getElementById('btn-limpiar-comprados');
+if (btnLimpiarComprados) {
+    btnLimpiarComprados.addEventListener('click', () => {
+        listaCompras = listaCompras.filter(c => !c.comprado);
+        guardarYRenderizarCompras();
+    });
+}
+
+function renderizarCompras() {
+    const contenedor = document.getElementById('contenedor-lista-compras');
+    const badgeTot = document.getElementById('badge-total-compras');
+    if (!contenedor) return;
+
+    contenedor.innerHTML = "";
+    const pendientes = listaCompras.filter(c => !c.comprado).length;
+    if (badgeTot) badgeTot.textContent = `${pendientes} pendientes`;
+
+    if (listaCompras.length === 0) {
+        contenedor.innerHTML = `<p style="color:#aaa; font-style:italic; font-size:12px; text-align:center; padding: 20px;">Lista de compras vacía.</p>`;
+        return;
+    }
+
+    const agrupadito = {};
+    listaCompras.forEach(c => {
+        if (!agrupadito[c.pasillo]) agrupadito[c.pasillo] = [];
+        agrupadito[c.pasillo].push(c);
+    });
+
+    for (let pasillo in agrupadito) {
+        const divGrp = document.createElement('div');
+        divGrp.classList.add('grupo-pasillo');
+
+        const titulo = document.createElement('span');
+        titulo.classList.add('titulo-pasillo');
+        titulo.textContent = pasillo;
+        divGrp.appendChild(titulo);
+
+        agrupadito[pasillo].forEach(c => {
+            const divItm = document.createElement('div');
+            divItm.classList.add('item-compra');
+            if (c.comprado) divItm.classList.add('comprado');
+
+            const chk = document.createElement('input');
+            chk.type = 'checkbox';
+            chk.checked = c.comprado;
+            chk.addEventListener('change', () => {
+                c.comprado = chk.checked;
+                guardarYRenderizarCompras();
+            });
+
+            const txt = document.createElement('span');
+            txt.textContent = c.item;
+            txt.style.flex = "1";
+
+            const btnDel = document.createElement('button');
+            btnDel.classList.add('btn-del-mini');
+            btnDel.innerHTML = '&times;';
+            btnDel.addEventListener('click', () => {
+                listaCompras = listaCompras.filter(x => x.id !== c.id);
+                guardarYRenderizarCompras();
+            });
+
+            divItm.appendChild(chk);
+            divItm.appendChild(txt);
+            divItm.appendChild(btnDel);
+            divGrp.appendChild(divItm);
+        });
+        contenedor.appendChild(divGrp);
+    }
+}
+
+const btnAddStock = document.getElementById('btn-add-item-despensa');
+function agregarItemStock() {
+    const inp = document.getElementById('input-item-despensa');
+    const selPasillo = document.getElementById('select-pasillo-stock');
+    if (!inp) return;
+    const txt = inp.value.trim();
+    if (txt === "") return;
+
+    listaStock.push({
+        id: Date.now(),
+        item: txt,
+        estado: 'lleno',
+        pasillo: selPasillo ? selPasillo.value : '📌 Varios'
+    });
+    inp.value = "";
+    guardarYRenderizarStock();
+}
+
+if (btnAddStock) btnAddStock.addEventListener('click', agregarItemStock);
+const inputItemDespensa = document.getElementById('input-item-despensa');
+if (inputItemDespensa) inputItemDespensa.addEventListener('keydown', event => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        agregarItemStock();
+    }
+});
+
+function renderizarStock() {
+    const contenedor = document.getElementById('contenedor-stock-despensa');
+    if (!contenedor) return;
+    contenedor.innerHTML = "";
+
+    if (listaStock.length === 0) {
+        contenedor.innerHTML = `<p style="color:#aaa; font-style:italic; font-size:12px; grid-column: 1/-1; padding: 10px;">Agrega tus insumos básicos de casa aquí.</p>`;
+        return;
+    }
+
+    listaStock.forEach(s => {
+        const card = document.createElement('div');
+        card.classList.add('item-stock');
+
+        const divSup = document.createElement('div');
+        divSup.style.display = 'flex';
+        divSup.style.justifyContent = 'space-between';
+        divSup.style.alignItems = 'flex-start';
+
+        const nombre = document.createElement('span');
+        nombre.classList.add('nombre-stock');
+        nombre.textContent = s.item;
+
+        const pasillo = document.createElement('span');
+        pasillo.classList.add('badge-cat-gasto');
+        pasillo.textContent = s.pasillo || '📌 Varios';
+
+        const btnDel = document.createElement('button');
+        btnDel.classList.add('btn-del-mini');
+        btnDel.innerHTML = '&times;';
+        btnDel.addEventListener('click', () => {
+            listaStock = listaStock.filter(x => x.id !== s.id);
+            guardarYRenderizarStock();
+        });
+
+        divSup.appendChild(nombre);
+        divSup.appendChild(btnDel);
+
+        const btnGrp = document.createElement('div');
+        btnGrp.classList.add('botones-estado-stock');
+
+        const btnLleno = document.createElement('button');
+        btnLleno.classList.add('btn-stock-estado', 'btn-stock-lleno');
+        if (s.estado === 'lleno') btnLleno.classList.add('activo');
+        btnLleno.textContent = 'Lleno';
+        btnLleno.addEventListener('click', () => { s.estado = 'lleno'; guardarYRenderizarStock(); });
+
+        const btnMedio = document.createElement('button');
+        btnMedio.classList.add('btn-stock-estado', 'btn-stock-medio');
+        if (s.estado === 'medio') btnMedio.classList.add('activo');
+        btnMedio.textContent = 'Medio';
+        btnMedio.addEventListener('click', () => { s.estado = 'medio'; guardarYRenderizarStock(); });
+
+        const btnAgotado = document.createElement('button');
+        btnAgotado.classList.add('btn-stock-estado', 'btn-stock-agotado');
+        if (s.estado === 'agotado') btnAgotado.classList.add('activo');
+        btnAgotado.textContent = 'Agotado';
+        btnAgotado.addEventListener('click', () => {
+            s.estado = 'agotado';
+            const yaEsta = listaCompras.some(c => c.item.toLowerCase() === s.item.toLowerCase() && !c.comprado);
+            if (yaEsta) {
+                mostrarToast(`${s.item} ya está pendiente en la lista de compras.`);
+            } else {
+                listaCompras.push({
+                    id: Date.now() + Math.random(),
+                    item: s.item,
+                    pasillo: s.pasillo || '📌 Varios',
+                    comprado: false
+                });
+                guardarYRenderizarCompras();
+                mostrarToast(`${s.item} se agregó a la lista de compras.`);
+            }
+            guardarYRenderizarStock();
+        });
+
+        btnGrp.appendChild(btnLleno);
+        btnGrp.appendChild(btnMedio);
+        btnGrp.appendChild(btnAgotado);
+
+        card.appendChild(divSup);
+    card.appendChild(pasillo);
+        card.appendChild(btnGrp);
+        contenedor.appendChild(card);
+    });
+}
+
+// ==========================================
+// 22. INICIALIZACIÓN GENERAL
 // ==========================================
 cargarFraseAleatoria();
 actualizarSelectCategorias();
@@ -3587,3 +3916,6 @@ renderizarNotas();
 renderizarModuloHabitos();
 cargarVistaHoy();
 actualizarDisplayPomo();
+renderizarBilletera();
+renderizarCompras();
+renderizarStock();

@@ -32,6 +32,8 @@
                 <button class="btn-pestana" data-destino="tareas">☑️ Tareas</button>
                 <button class="btn-pestana" data-destino="habitos">🐸 Hábitos</button>
                 <button class="btn-pestana" data-destino="notas">📌 Notas</button>
+                <button class="btn-pestana" data-destino="billetera">👛 Billetera</button>
+                <button class="btn-pestana" data-destino="despensa">🛒 Despensa</button>
                 <button type="button" id="btn-modal-backup" class="btn-pestana" style="margin-top: 15px; color: var(--iced-denim); font-weight: 800;">💾 Copia de Seguridad</button>
             </nav>
         </aside>
@@ -108,17 +110,13 @@
                         </div>
 
                         <div class="layout-hidratacion-flex">
-                            <!-- Vaso con animación de llenado líquido -->
                             <div class="vaso-agua-wrapper">
                                 <div id="liquido-agua" class="liquido-agua" style="height: 0%;"></div>
                                 <span id="texto-vaso-centro" class="texto-vaso-centro">0 ml</span>
                             </div>
 
-                            <!-- Fila de vasitos + botones -->
                             <div class="col-controles-agua">
-                                <div id="fila-iconos-vasos" class="fila-iconos-vasos">
-                                    <!-- Se generan automáticamente 8 vasitos 🥛 -->
-                                </div>
+                                <div id="fila-iconos-vasos" class="fila-iconos-vasos"></div>
                                 <div class="botones-agua-flex">
                                     <button type="button" id="btn-restar-agua" class="btn-estetico-secundario" style="padding: 4px 10px; font-size: 11px;">-1 Vaso</button>
                                     <button type="button" id="btn-sumar-agua" class="btn-estetico-principal" style="padding: 4px 12px; font-size: 11px;">+1 Vaso (250ml)</button>
@@ -127,10 +125,10 @@
                         </div>
                     </div>
 
-                    <!-- CARD TEMPORIZADOR COZY (POMODORO + CUENTA ATRÁS) -->
+                    <!-- CARD TEMPORIZADOR COZY -->
                     <div class="tarjeta-hoy tarjeta-pomodoro">
                         <div class="cabecera-card-flex" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            <h3>🍅 Temporizador</h3>
+                            <h3>⏱️ Temporizador</h3>
                             <div class="pills-filtros-semana">
                                 <button type="button" id="btn-pomo-pomodoro" class="btn-filtro-semana activo">🍅 Pomodoro</button>
                                 <button type="button" id="btn-pomo-custom" class="btn-filtro-semana">⏱️ Cuenta Atrás</button>
@@ -138,15 +136,12 @@
                         </div>
 
                         <div class="layout-pomodoro-flex">
-                            <!-- Reloj Display -->
                             <div class="reloj-cozy-display">
                                 <span id="pomo-display-tiempo" class="pomo-tiempo">25:00</span>
                                 <span id="pomo-label-estado" class="pomo-estado">Enfoque (25m)</span>
                             </div>
 
-                            <!-- Controles -->
                             <div class="col-controles-pomo">
-                                <!-- Inputs para Cuenta Atrás Personalizada (Oculto en modo Pomodoro) -->
                                 <div id="caja-inputs-custom-pomo" class="caja-inputs-custom-pomo oculto">
                                     <div class="grupo-input-tiempo">
                                         <input type="number" id="input-pomo-horas" min="0" max="23" value="0" placeholder="0">
@@ -160,7 +155,6 @@
                                     <button type="button" id="btn-aplicar-custom-pomo" class="btn-pill-mini">Fijar</button>
                                 </div>
 
-                                <!-- Botones Iniciar / Pausar / Reiniciar -->
                                 <div class="botones-pomo-flex">
                                     <button type="button" id="btn-pomo-start" class="btn-estetico-principal">▶️ Iniciar</button>
                                     <button type="button" id="btn-pomo-reset" class="btn-estetico-secundario">🔄 Reiniciar</button>
@@ -402,7 +396,7 @@
                 <!-- HEATMAP ANUAL COMPLETO -->
                 <div class="caja-heatmap-wrapper" style="margin-top: 20px;">
                     <div class="cabecera-heatmap-flex">
-                        <span class="titulo-heatmap">📊 Mapa de Calor de Bienestar Anual</span>
+                        <span class="titulo-heatmap">📊 Bienestar Anual</span>
                         <div class="leyenda-heatmap-mini">
                             <span>0%</span>
                             <span class="leyenda-dot nivel-0"></span><span class="leyenda-dot nivel-1"></span><span class="leyenda-dot nivel-2"></span><span class="leyenda-dot nivel-3"></span><span class="leyenda-dot nivel-4"></span>
@@ -477,7 +471,7 @@
                         <span id="texto-progreso-pixel-modulo" class="texto-progreso-habito">Progreso Mensual: 0%</span>
                     </div>
 
-                    <!-- FORMULARIO DE AGREGAR HÁBITO CON FRECUENCIA -->
+                    <!-- Formulario de Crear Hábito -->
                     <div class="caja-crear-habito-modulo">
                         <div class="mini-form-inline">
                             <input type="text" id="input-habito-modulo" class="input-estetico" placeholder="Nuevo hábito (ej: Meditar, Beber Agua)...">
@@ -509,7 +503,6 @@
                     <button id="btn-nueva-nota" class="btn-estetico-principal">+ Nueva Nota</button>
                 </div>
                 
-                <!-- BARRA DE FILTRO POR ETIQUETAS DE NOTAS -->
                 <div class="barra-filtros-semana" style="margin-bottom: 16px;">
                     <span class="titulo-filtros-semana">Filtrar por etiqueta:</span>
                     <div id="pills-filtros-notas" class="pills-filtros-semana" style="flex-wrap: wrap;">
@@ -520,8 +513,150 @@
                 <div id="contenedor-notas" class="contenedor-notas"></div>
             </section>
 
+            <!-- Vista 8: Billetera & Gastos (NUEVO) -->
+            <section id="billetera" class="pagina">
+                <div class="cabecera-billetera">
+                    <h2>👛 Billetera & Control de Gastos</h2>
+                    <span class="badge-progreso" id="label-mes-billetera">Octubre 2026</span>
+                </div>
+
+                <!-- Tarjetas de Balance -->
+                <div class="fila-balances-billetera">
+                    <div class="tarjeta-balance-billetera">
+                        <span class="subtitulo-balance">Ingresos del Mes</span>
+                        <h3 id="total-ingresos-mes">$0</h3>
+                    </div>
+                    <div class="tarjeta-balance-billetera">
+                        <span class="subtitulo-balance">Gastos del Mes</span>
+                        <h3 id="total-gastado-mes">$0</h3>
+                    </div>
+                    <div class="tarjeta-balance-billetera principal">
+                        <span class="subtitulo-balance">Saldo Actual</span>
+                        <h3 id="saldo-actual">$0</h3>
+                    </div>
+                </div>
+
+                <!-- Formulario Nuevo Movimiento -->
+                <div class="caja-nuevo-gasto">
+                    <h3>Nuevo Movimiento</h3>
+                    <div class="grid-form-gasto">
+                        <select id="select-tipo-movimiento" class="select-estetico" aria-label="Tipo de movimiento">
+                            <option value="gasto" selected>Gasto 📉</option>
+                            <option value="ingreso">Ingreso 📈</option>
+                        </select>
+                        <input type="number" id="input-monto-gasto" class="input-estetico" placeholder="Monto ($)..." min="0">
+                        <input type="text" id="input-desc-gasto" class="input-estetico" placeholder="Descripción (ej: Almuerzo, sueldo, Uber)...">
+                        
+                        <select id="select-categoria-gasto" class="select-estetico">
+                            <option value="🛒 Supermercado">🛒 Supermercado</option>
+                            <option value="☕ Comida & Antojos">☕ Comida & Antojos</option>
+                            <option value="🚌 Transporte">🚌 Transporte</option>
+                            <option value="💡 Servicios & Cuentas">💡 Servicios & Cuentas</option>
+                            <option value="💊 Salud & Farmacia">💊 Salud & Farmacia</option>
+                            <option value="🍿 Ocio & Salidas">🍿 Ocio & Salidas</option>
+                            <option value="🛍️ Compras & Ropa">🛍️ Compras & Ropa</option>
+                            <option value="📦 Otros">📦 Otros</option>
+                        </select>
+
+                        <select id="select-metodo-gasto" class="select-estetico">
+                            <option value="💳 Débito">💳 Débito</option>
+                            <option value="💵 Efectivo">💵 Efectivo</option>
+                            <option value="💳 Crédito">💳 Crédito</option>
+                            <option value="📲 Transferencia">📲 Transferencia</option>
+                        </select>
+
+                        <button type="button" id="btn-agregar-gasto" class="btn-estetico-principal">+ Registrar</button>
+                    </div>
+                </div>
+
+                <!-- Filtros por Categoría de Gastos -->
+                <div class="barra-filtros-semana" style="margin-bottom: 14px;">
+                    <span class="titulo-filtros-semana">Filtrar por:</span>
+                    <div id="pills-filtros-gastos" class="pills-filtros-semana" style="flex-wrap: wrap;">
+                        <button type="button" class="btn-filtro-semana activo" data-cat-gasto="todas">🎛️ Todos</button>
+                        <button type="button" class="btn-filtro-semana" data-cat-gasto="🛒 Supermercado">🛒 Super</button>
+                        <button type="button" class="btn-filtro-semana" data-cat-gasto="☕ Comida & Antojos">☕ Comida</button>
+                        <button type="button" class="btn-filtro-semana" data-cat-gasto="🚌 Transporte">🚌 Transporte</button>
+                        <button type="button" class="btn-filtro-semana" data-cat-gasto="💡 Servicios & Cuentas">💡 Cuentas</button>
+                        <button type="button" class="btn-filtro-semana" data-cat-gasto="🍿 Ocio & Salidas">🍿 Ocio</button>
+                    </div>
+                </div>
+
+                <!-- Historial de Gastos del Mes -->
+                <div id="contenedor-historial-gastos" class="contenedor-historial-gastos"></div>
+            </section>
+
+            <!-- Vista 9: Despensa Viva & Lista de Compras (NUEVO) -->
+            <section id="despensa" class="pagina">
+                <div class="cabecera-despensa">
+                    <h2>🛒 Despensa Viva & Lista de Compras</h2>
+                    <button type="button" id="btn-limpiar-comprados" class="btn-estetico-secundario" style="font-size: 11px;">🧹 Limpiar Comprados</button>
+                </div>
+
+                <div class="layout-despensa-split">
+                    <!-- Columna 1: Lista de Compras Dinámica -->
+                    <div class="col-compras-panel">
+                        <div class="cabecera-panel-despensa">
+                            <h3>📝 Lista de Compras</h3>
+                            <span id="badge-total-compras" class="badge-progreso">0 pendientes</span>
+                        </div>
+
+                        <div class="form-add-compra">
+                            <div class="input-evento-wrapper">
+                                <select id="select-pasillo-compra" class="select-estetico" style="max-width: 140px;">
+                                    <option value="🥬 Verdulería">🥬 Verdulería</option>
+                                    <option value="🥫 Almacén">🥫 Almacén</option>
+                                    <option value="🥛 Lácteos">🥛 Lácteos</option>
+                                    <option value="🥩 Carnicería">🥩 Carnicería</option>
+                                    <option value="🧼 Limpieza">🧼 Limpieza</option>
+                                    <option value="💊 Farmacia">💊 Farmacia</option>
+                                    <option value="🍞 Panadería">🍞 Panadería</option>
+                                    <option value="🐾 Mascotas">🐾 Mascotas</option>
+                                    <option value="❄️ Congelados">❄️ Congelados</option>
+                                    <option value="📌 Varios">📌 Varios</option>
+                                </select>
+                                <input type="text" id="input-item-compra" class="input-estetico" placeholder="Agregar a la lista (ej: Avena, Manzanas)...">
+                                <button type="button" id="btn-add-compra" class="btn-accion-icono">+</button>
+                            </div>
+                        </div>
+
+                        <div id="contenedor-lista-compras" class="lista-compras-agrupada"></div>
+                    </div>
+
+                    <!-- Columna 2: Despensa Viva (Stock de Casa) -->
+                    <div class="col-stock-panel">
+                        <div class="cabecera-panel-despensa">
+                            <h3>🏠 Despensa Viva (Stock en Casa)</h3>
+                        </div>
+
+                        <p class="texto-placeholder-semana" style="margin-bottom: 8px;">Controla tus insumos esenciales. Marca con un clic su estado para no olvidar reponerlos.</p>
+
+                        <div class="mini-form-inline" style="margin-bottom: 10px;">
+                            <select id="select-pasillo-stock" class="select-estetico" aria-label="Pasillo del insumo">
+                                <option value="🥬 Verdulería">🥬 Verdulería</option>
+                                <option value="🥫 Almacén">🥫 Almacén</option>
+                                <option value="🥛 Lácteos">🥛 Lácteos</option>
+                                <option value="🥩 Carnicería">🥩 Carnicería</option>
+                                <option value="🧼 Limpieza">🧼 Limpieza</option>
+                                <option value="💊 Farmacia">💊 Farmacia</option>
+                                <option value="🍞 Panadería">🍞 Panadería</option>
+                                <option value="🐾 Mascotas">🐾 Mascotas</option>
+                                <option value="❄️ Congelados">❄️ Congelados</option>
+                                <option value="📌 Varios">📌 Varios</option>
+                            </select>
+                            <input type="text" id="input-item-despensa" class="input-estetico" placeholder="Nuevo insumo de despensa (ej: Arroz, Café)...">
+                            <button type="button" id="btn-add-item-despensa" class="btn-estetico-principal">+ Guardar</button>
+                        </div>
+
+                        <div id="contenedor-stock-despensa" class="grid-stock-despensa"></div>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
+
+    <div id="toast-notificacion" class="toast-notificacion" role="status" aria-live="polite"></div>
 
     <!-- Modal Emergente del Día -->
     <div id="modal-dia" class="modal oculto">
@@ -647,16 +782,14 @@
             <h3>💾 Copia de Seguridad</h3>
             <p style="font-size: 12px; color: #64748b; margin: 6px 0 16px 0;">Sincroniza y respalda todos los datos de tu Agendarium entre tu celular y tu notebook.</p>
 
-            <!-- Sección Exportar -->
             <div class="caja-seccion-backup">
                 <h4>📥 Exportar Respaldo</h4>
-                <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Descarga una copia con todas tus tareas, hábitos, notas y fotos.</p>
+                <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Descarga una copia con todas tus tareas, hábitos, notas, gastos y fotos.</p>
                 <button type="button" id="btn-exportar-json" class="btn-estetico-principal" style="width: 100%;">⬇️ Descargar Copia (.json)</button>
             </div>
 
             <hr style="border: 0; border-top: 1px dashed var(--borde-suave); margin: 16px 0;">
 
-            <!-- Sección Importar -->
             <div class="caja-seccion-backup">
                 <h4>📤 Importar o Mezclar Respaldo</h4>
                 <p style="font-size: 11px; color: #777; margin-bottom: 8px;">Selecciona el archivo `.json` que descargaste en tu otro dispositivo.</p>
@@ -679,7 +812,7 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR OCULTO PARA RENDERIZAR EL SCRAPBOOK ANTES DE DESCARGAR -->
+    <!-- ZONA OCULTA PARA RENDERIZAR SCRAPBOOK -->
     <div id="zona-render-scrapbook" style="position: absolute; top: -9999px; left: -9999px; opacity: 0; pointer-events: none;">
         <div id="plantilla-scrapbook" class="scrapbook-canvas">
             <div class="scrapbook-header">
